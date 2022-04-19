@@ -131,7 +131,6 @@ const createExtensions = async ({ dao, factories, options }) => {
         `Missing extension configuration <generatesExtensionId> for in ${factoryConfigs.name} configs`
       );
 
-    let tx;
     if (
       factoryConfigs.deploymentArgs &&
       factoryConfigs.deploymentArgs.length > 0
@@ -143,23 +142,14 @@ const createExtensions = async ({ dao, factories, options }) => {
           `Missing deployment argument <${argName}> in ${factoryConfigs.name}.create`
         );
       });
-      tx = await factory.create(...args);
+      await waitTx(factory.create(...args));
     } else {
-      tx = await factory.create();
+      await waitTx(factory.create());
     }
-    /**
-     * The tx event is the safest way to read the new extension address.
-     * Event at index 0 indicates the extension was created
-     * Arg at index 1 represents the new extension address
-     */
-    let extensionAddress;
-    if (tx.wait) {
-      const res = await tx.wait();
-      extensionAddress = res.events[0].args[1];
-    } else {
-      const { logs } = tx;
-      extensionAddress = logs[0].args[1];
-    }
+
+    const extensionAddress = await factory.getExtensionAddress(
+      options.daoAddress
+    );
     const extensionInterface = options[extensionConfigs.name];
     if (!extensionInterface)
       throw new Error(
@@ -178,7 +168,11 @@ const createExtensions = async ({ dao, factories, options }) => {
       );
 
     await waitTx(
-      dao.addExtension(sha3(newExtension.configs.id), newExtension.address)
+      dao.addExtension(
+        sha3(newExtension.configs.id),
+        newExtension.address,
+        options.owner
+      )
     );
 
     info(`
@@ -431,7 +425,6 @@ const deployDao = async (options) => {
     dao,
     daoFactory,
     extensions,
-    adapters,
   });
 
   // If the offchain contract was created, set it to the adapters map using the alias
@@ -713,14 +706,12 @@ const configureOffchainVoting = async ({
   OffchainVotingHelperContract,
   deployFunction,
   extensions,
-  adapters,
 }) => {
   debug("configuring offchain voting...");
   const votingHelpers = {
     snapshotProposalContract: null,
     handleBadReporterAdapter: null,
     offchainVoting: null,
-    fallbackVoting: null,
   };
 
   // Offchain voting is disabled
@@ -787,7 +778,6 @@ const configureOffchainVoting = async ({
   votingHelpers.offchainVoting = offchainVotingContract;
   votingHelpers.handleBadReporterAdapter = handleBadReporterAdapter;
   votingHelpers.snapshotProposalContract = snapshotProposalContract;
-  votingHelpers.fallbackVoting = adapters.voting;
 
   return votingHelpers;
 };

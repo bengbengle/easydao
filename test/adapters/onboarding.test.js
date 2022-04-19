@@ -24,7 +24,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-const { expect } = require("chai");
 const {
   toBN,
   toWei,
@@ -43,13 +42,17 @@ const {
   revertChainSnapshot,
   proposalIdGenerator,
   advanceTime,
-  getAccounts,
+  accounts,
+  expectRevert,
+  expect,
   web3,
   getBalance,
   OLToken,
-} = require("../../utils/hardhat-test-util");
+} = require("../../utils/oz-util");
 
 const { checkBalance, isMember } = require("../../utils/test-util");
+
+const daoOwner = accounts[0];
 
 const proposalCounter = proposalIdGenerator().generator;
 
@@ -58,12 +61,7 @@ function getProposalCounter() {
 }
 
 describe("Adapter - Onboarding", () => {
-  let accounts, daoOwner;
-
   before("deploy dao", async () => {
-    accounts = await getAccounts();
-    daoOwner = accounts[0];
-
     const { dao, adapters, extensions } = await deployDefaultDao({
       owner: daoOwner,
       // creator: accounts[9]
@@ -127,7 +125,7 @@ describe("Adapter - Onboarding", () => {
     );
 
     const proposalId = getProposalCounter();
-    await expect(
+    await expectRevert(
       onboarding.submitProposal(
         dao.address,
         proposalId,
@@ -139,8 +137,9 @@ describe("Adapter - Onboarding", () => {
           from: applicant,
           gasPrice: toBN("0"),
         }
-      )
-    ).to.be.revertedWith("revert");
+      ),
+      "Returned error: VM Exception while processing transaction: revert"
+    );
 
     // In case of failures the funds must be in the applicant account
     applicantTokenBalance = await oltContract.balanceOf.call(applicant);
@@ -183,13 +182,14 @@ describe("Adapter - Onboarding", () => {
     });
 
     // should not be able to process before the voting period has ended
-    await expect(
+    await expectRevert(
       onboarding.processProposal(dao.address, proposalId, {
         from: daoOwner,
         value: ethAmount,
         gasPrice: toBN("0"),
-      })
-    ).to.be.revertedWith("proposal has not been voted on yet");
+      }),
+      "proposal has not been voted on yet"
+    );
 
     await advanceTime(10000);
     await onboarding.processProposal(dao.address, proposalId, {
@@ -249,9 +249,10 @@ describe("Adapter - Onboarding", () => {
     const voting = adapters.voting;
 
     // Transfer OLTs to myAccount
-    const initialTokenBalance = toBN("10000000000");
+    const initialTokenBalance = toBN(100);
+    await oltContract.transfer(daoOwner, initialTokenBalance);
     let myAccountTokenBalance = await oltContract.balanceOf.call(daoOwner);
-    expect(myAccountTokenBalance.toString()).to.be.equal(
+    expect(myAccountTokenBalance.toString()).equal(
       initialTokenBalance.toString()
     );
 
@@ -280,20 +281,22 @@ describe("Adapter - Onboarding", () => {
     });
 
     // should not be able to process before the voting period has ended
-    await expect(
+    await expectRevert(
       onboarding.processProposal(dao.address, proposalId, {
         from: daoOwner,
         gasPrice: toBN("0"),
-      })
-    ).to.be.revertedWith("proposal has not been voted on yet");
+      }),
+      "proposal has not been voted on yet"
+    );
 
     await advanceTime(10000);
-    await expect(
+    await expectRevert(
       onboarding.processProposal(dao.address, proposalId, {
         from: daoOwner,
         gasPrice: toBN("0"),
-      })
-    ).to.be.revertedWith("ERC20: transfer amount exceeds allowance");
+      }),
+      "RC20: transfer amount exceeds allowance."
+    );
 
     // Pre-approve spender (onboarding adapter) to transfer proposer tokens
     await oltContract.approve(onboarding.address, tokenAmount, {
@@ -335,7 +338,7 @@ describe("Adapter - Onboarding", () => {
     const dao = this.dao;
     const onboarding = this.adapters.onboarding;
 
-    await expect(
+    await expectRevert(
       onboarding.submitProposal(
         dao.address,
         "0x1",
@@ -347,8 +350,7 @@ describe("Adapter - Onboarding", () => {
           from: daoOwner,
           gasPrice: toBN("0"),
         }
-      )
-    ).to.be.revertedWith(
+      ),
       "total units for this member must be lower than the maximum"
     );
   });
@@ -400,12 +402,13 @@ describe("Adapter - Onboarding", () => {
     const dao = this.dao;
     const daoRegistryAdapter = this.adapters.daoRegistryAdapter;
 
-    await expect(
+    await expectRevert(
       daoRegistryAdapter.updateDelegateKey(dao.address, accounts[3], {
         from: delegate,
         gasPrice: toBN("0"),
-      })
-    ).to.be.revertedWith("only member");
+      }),
+      "only member"
+    );
   });
 
   it("should handle an onboarding proposal with a failed vote", async () => {
@@ -479,7 +482,7 @@ describe("Adapter - Onboarding", () => {
       from: daoOwner,
       gasPrice: toBN("0"),
     });
-    await expect(result).to.be.revertedWith("proposal does not exist");
+    await expectRevert(result, "proposal does not exist");
   });
 
   it("should be possible to update delegate key and the member continues as an active member", async () => {
@@ -521,12 +524,13 @@ describe("Adapter - Onboarding", () => {
     );
 
     // try to update the delegated key using the address of another member
-    await expect(
+    await expectRevert(
       daoRegistryAdapter.updateDelegateKey(dao.address, applicant, {
         from: daoOwner,
         gasPrice: toBN("0"),
-      })
-    ).to.be.revertedWith("cannot overwrite existing delegated keys");
+      }),
+      "cannot overwrite existing delegated keys"
+    );
   });
 
   it("should not be possible to update delegate key if the address is already taken as delegated key", async () => {
@@ -566,12 +570,13 @@ describe("Adapter - Onboarding", () => {
     });
 
     // try to update the delegated key using the same address as the member address
-    await expect(
+    await expectRevert(
       daoRegistryAdapter.updateDelegateKey(dao.address, applicant, {
         from: applicant,
         gasPrice: toBN("0"),
-      })
-    ).to.be.revertedWith("address already taken as delegated key");
+      }),
+      "address already taken as delegated key"
+    );
   });
 
   it("should not be possible to onboard a member with a zero address", async () => {
@@ -580,7 +585,7 @@ describe("Adapter - Onboarding", () => {
     const onboarding = this.adapters.onboarding;
 
     const proposalId = getProposalCounter();
-    await expect(
+    await expectRevert(
       onboarding.submitProposal(
         dao.address,
         proposalId,
@@ -592,8 +597,9 @@ describe("Adapter - Onboarding", () => {
           from: daoOwner,
           gasPrice: toBN("0"),
         }
-      )
-    ).to.be.revertedWith("invalid member address");
+      ),
+      "invalid member address."
+    );
 
     let isMember = await dao.isMember(applicant);
     expect(isMember).equal(false);
@@ -601,26 +607,28 @@ describe("Adapter - Onboarding", () => {
 
   it("should not be possible to send ETH to the adapter via receive function", async () => {
     const adapter = this.adapters.onboarding;
-    await expect(
+    await expectRevert(
       web3.eth.sendTransaction({
         to: adapter.address,
         from: daoOwner,
         gasPrice: toBN("0"),
         value: toWei("1"),
-      })
-    ).to.be.revertedWith("revert");
+      }),
+      "revert"
+    );
   });
 
   it("should not be possible to send ETH to the adapter via fallback function", async () => {
     const adapter = this.adapters.onboarding;
-    await expect(
+    await expectRevert(
       web3.eth.sendTransaction({
         to: adapter.address,
         from: daoOwner,
         gasPrice: toBN("0"),
         value: toWei("1"),
         data: fromAscii("should go to fallback func"),
-      })
-    ).to.be.revertedWith("revert");
+      }),
+      "revert"
+    );
   });
 });

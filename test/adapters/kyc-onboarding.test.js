@@ -24,7 +24,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-const { expect } = require("chai");
 const {
   toBN,
   toWei,
@@ -40,12 +39,15 @@ const {
   deployDefaultDao,
   takeChainSnapshot,
   revertChainSnapshot,
-  getAccounts,
+  accounts,
+  expectRevert,
+  expect,
   OLToken,
   getBalance,
-} = require("../../utils/hardhat-test-util.js");
+} = require("../../utils/oz-util.js");
 
 const { checkBalance, isMember } = require("../../utils/test-util.js");
+const daoOwner = accounts[0];
 
 const {
   SigUtilSigner,
@@ -53,23 +55,15 @@ const {
 } = require("../../utils/offchain-voting-util.js");
 
 const signer = {
-  address: "0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1",
-  privKey: "0x4f3edf983ac636a65a842ce7c78d9aa706d3b113bce9c46f30d7d21715b23b1d",
+  address: "0x7D8cad0bbD68deb352C33e80fccd4D8e88b4aBb8",
+  privKey: "c150429d49e8799f119434acd3f816f299a5c7e3891455ee12269cb47a5f987c",
 };
 
 describe("Adapter - KYC Onboarding", () => {
-  let accounts, daoOwner;
-  const chainId = 1337;
-
   before("deploy dao", async () => {
-    accounts = await getAccounts();
-    daoOwner = accounts[0];
-
     const { dao, adapters, extensions, wethContract } = await deployDefaultDao({
       owner: daoOwner,
-      kycSignerAddress: signer.address,
     });
-
     this.dao = dao;
     this.weth = wethContract;
     this.adapters = adapters;
@@ -102,12 +96,13 @@ describe("Adapter - KYC Onboarding", () => {
 
     const initialTokenBalance = await getBalance(applicant);
 
-    await expect(
+    await expectRevert(
       onboarding.onboardEth(dao.address, applicant, [], {
-        from: daoOwner,
+        from: applicant,
         gasPrice: toBN("0"),
-      })
-    ).to.be.revertedWith("revert");
+      }),
+      "Returned error: VM Exception while processing transaction: revert"
+    );
 
     // In case of failures the funds must be in the applicant account
     const applicantTokenBalance = await getBalance(applicant);
@@ -123,14 +118,17 @@ describe("Adapter - KYC Onboarding", () => {
     const tokenSupply = toBN("10000000000000000000000");
     const oltContract = await OLToken.new(tokenSupply);
 
-    const { dao, adapters, extensions } = await deployDefaultDao({
+    const { dao, adapters, extensions, wethContract } = await deployDefaultDao({
       owner: daoOwner,
       tokenAddr: oltContract.address,
-      kycSignerAddress: signer.address,
     });
 
     const bank = extensions.bankExt;
     const onboarding = adapters.kycOnboarding;
+
+    const myAccountInitialBalance = await getBalance(applicant);
+    // remaining amount to test sending back to proposer
+    const ethAmount = unitPrice.mul(toBN(3)).add(remaining);
 
     const signerUtil = SigUtilSigner(signer.privKey);
 
@@ -143,9 +141,8 @@ describe("Adapter - KYC Onboarding", () => {
       couponData,
       dao.address,
       onboarding.address,
-      chainId
+      1
     );
-
     let solHash = await onboarding.hashCouponMessage(dao.address, couponData);
     expect(jsHash).equal(solHash);
 
@@ -153,7 +150,7 @@ describe("Adapter - KYC Onboarding", () => {
       couponData,
       dao.address,
       onboarding.address,
-      chainId
+      1
     );
 
     await oltContract.transfer(applicant, toWei("1"));
@@ -177,7 +174,7 @@ describe("Adapter - KYC Onboarding", () => {
     // test return of remaining amount in excess of multiple of unitsPerChunk
     const myAccountBalance = await getBalance(applicant);
     // daoOwner did not receive remaining amount in excess of multiple of unitsPerChunk
-    expect(myAccountBalance).to.be.at.least(toBN("9999999500000000000000"));
+    expect(myAccountBalance.toString()).equal("1000000000000000000000000");
 
     const myAccountUnits = await bank.balanceOf(daoOwner, UNITS);
     const applicantUnits = await bank.balanceOf(applicant, UNITS);
@@ -225,7 +222,7 @@ describe("Adapter - KYC Onboarding", () => {
       couponData,
       dao.address,
       onboarding.address,
-      chainId
+      1
     );
     let solHash = await onboarding.hashCouponMessage(dao.address, couponData);
     expect(jsHash).equal(solHash);
@@ -234,7 +231,7 @@ describe("Adapter - KYC Onboarding", () => {
       couponData,
       dao.address,
       onboarding.address,
-      chainId
+      1
     );
 
     await onboarding.onboardEth(dao.address, applicant, signature, {
@@ -296,7 +293,7 @@ describe("Adapter - KYC Onboarding", () => {
       couponData,
       dao.address,
       onboarding.address,
-      chainId
+      1
     );
     let solHash = await onboarding.hashCouponMessage(dao.address, couponData);
     expect(jsHash).equal(solHash);
@@ -305,7 +302,7 @@ describe("Adapter - KYC Onboarding", () => {
       couponData,
       dao.address,
       onboarding.address,
-      chainId
+      1
     );
 
     await onboarding.onboardEth(dao.address, applicant, signature, {
@@ -326,13 +323,14 @@ describe("Adapter - KYC Onboarding", () => {
       gasPrice: toBN("0"),
     });
 
-    await expect(
+    await expectRevert(
       onboarding.onboardEth(dao.address, applicant, signature, {
         from: delegateKey,
         value: ethAmount,
         gasPrice: toBN("0"),
-      })
-    ).to.be.revertedWith("already member");
+      }),
+      "already member"
+    );
   });
 
   it("should not be possible to have more than the maximum number of units", async () => {
@@ -351,78 +349,16 @@ describe("Adapter - KYC Onboarding", () => {
       couponData,
       dao.address,
       onboarding.address,
-      chainId
+      1
     );
 
-    await expect(
+    await expectRevert(
       onboarding.onboardEth(dao.address, applicant, signature, {
         from: daoOwner,
         value: unitPrice.mul(toBN(100)).add(remaining),
         gasPrice: toBN("0"),
-      })
-    ).to.be.revertedWith("too much funds");
-  });
-
-  it("should not be possible to rejoin the DAO using a coupon that was already redeemed", async () => {
-    const applicant = accounts[2];
-
-    const dao = this.dao;
-    const bank = this.extensions.bankExt;
-    const onboarding = this.adapters.kycOnboarding;
-    const ragequit = this.adapters.ragequit;
-
-    // remaining amount to test sending back to proposer
-    const ethAmount = unitPrice.mul(toBN(3)).add(remaining);
-
-    const signerUtil = SigUtilSigner(signer.privKey);
-
-    const couponData = {
-      type: "coupon-kyc",
-      kycedMember: applicant,
-    };
-
-    let jsHash = getMessageERC712Hash(
-      couponData,
-      dao.address,
-      onboarding.address,
-      chainId
+      }),
+      "too much funds"
     );
-    let solHash = await onboarding.hashCouponMessage(dao.address, couponData);
-    expect(jsHash).equal(solHash);
-
-    const signature = signerUtil(
-      couponData,
-      dao.address,
-      onboarding.address,
-      chainId
-    );
-
-    await onboarding.onboardEth(dao.address, applicant, signature, {
-      from: applicant,
-      value: ethAmount,
-      gasPrice: toBN("0"),
-    });
-
-    // test active member status
-    expect(await isMember(bank, applicant)).equal(true);
-
-    // Ragequit - Burn all the member units and exit the DAO
-    const memberUnits = await bank.balanceOf(applicant, UNITS);
-    await ragequit.ragequit(dao.address, memberUnits, toBN(0), [ETH_TOKEN], {
-      from: applicant,
-      gasPrice: toBN("0"),
-    });
-
-    // test active member status
-    expect(await isMember(bank, applicant)).equal(false);
-
-    // Attempt to rejoin the DAO using the same KYC coupon
-    await expect(
-      onboarding.onboardEth(dao.address, applicant, signature, {
-        from: applicant,
-        value: ethAmount,
-        gasPrice: toBN("0"),
-      })
-    ).to.be.revertedWith("already redeemed");
   });
 });

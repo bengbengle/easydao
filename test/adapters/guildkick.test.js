@@ -27,8 +27,6 @@ SOFTWARE.
 
 // Whole-script strict mode syntax
 "use strict";
-const { expect } = require("chai");
-const { Contract } = require("ethers");
 
 const {
   toBN,
@@ -48,9 +46,11 @@ const {
   revertChainSnapshot,
   proposalIdGenerator,
   advanceTime,
-  getAccounts,
+  accounts,
+  expect,
+  expectRevert,
   web3,
-} = require("../../utils/hardhat-test-util");
+} = require("../../utils/oz-util");
 
 const {
   onboardingNewMember,
@@ -58,6 +58,7 @@ const {
   guildKickProposal,
 } = require("../../utils/test-util");
 
+const owner = accounts[1];
 const proposalCounter = proposalIdGenerator().generator;
 
 function getProposalCounter() {
@@ -65,12 +66,7 @@ function getProposalCounter() {
 }
 
 describe("Adapter - GuildKick", () => {
-  let accounts, owner;
-
   before("deploy dao", async () => {
-    accounts = await getAccounts();
-    owner = accounts[0];
-
     const { dao, adapters, extensions } = await deployDefaultDao({ owner });
     this.dao = dao;
     this.adapters = adapters;
@@ -162,15 +158,16 @@ describe("Adapter - GuildKick", () => {
 
     // Non member attemps to submit a guild kick proposal
     const newProposalId = getProposalCounter();
-    await expect(
+    await expectRevert(
       guildKickProposal(
         this.dao,
         this.adapters.guildkick,
         member,
         nonMember,
         newProposalId
-      )
-    ).to.be.revertedWith("onlyMember");
+      ),
+      "onlyMember"
+    );
   });
 
   it("should not be possible for a non-active member to submit a guild kick proposal", async () => {
@@ -217,15 +214,18 @@ describe("Adapter - GuildKick", () => {
     // The kicked member which is now inactive attemps to submit a kick proposal
     // to kick the member that started the previous guild kick
     const newProposalId = getProposalCounter();
-    await expect(
-      guildKickProposal(
+    try {
+      await guildKickProposal(
         this.dao,
         this.adapters.guildkick,
         owner,
         memberToKick,
         newProposalId
-      )
-    ).to.be.revertedWith("onlyMember");
+      );
+      throw Error("should not be possible to kick");
+    } catch (e) {
+      expect(e.reason).equal("onlyMember");
+    }
   });
 
   it("should be possible for a non-member to process a kick proposal", async () => {
@@ -316,12 +316,13 @@ describe("Adapter - GuildKick", () => {
     });
 
     // The member attempts to process the same proposal again
-    await expect(
+    await expectRevert(
       guildkickContract.processProposal(this.dao.address, kickProposalId, {
         from: member,
         gasPrice: toBN("0"),
-      })
-    ).to.be.revertedWith("flag already set");
+      }),
+      "flag already set"
+    );
   });
 
   it("should not be possible to process a kick proposal that does not exist", async () => {
@@ -363,7 +364,7 @@ describe("Adapter - GuildKick", () => {
 
     // The member attempts to process the same proposal again
     let invalidKickProposalId = getProposalCounter();
-    await expect(
+    await expectRevert(
       guildkickContract.processProposal(
         this.dao.address,
         invalidKickProposalId,
@@ -371,8 +372,9 @@ describe("Adapter - GuildKick", () => {
           from: member,
           gasPrice: toBN("0"),
         }
-      )
-    ).to.be.revertedWith("proposal does not exist for this dao");
+      ),
+      "proposal does not exist for this dao"
+    );
   });
 
   it("should not be possible to process a kick proposal if the voting did not pass", async () => {
@@ -446,15 +448,16 @@ describe("Adapter - GuildKick", () => {
 
     // The member attemps to process the kick proposal, but the Advisor does not have any UNITS, only LOOT
 
-    await expect(
+    await expectRevert(
       guildKickProposal(
         this.dao,
         guildkickContract,
         nonMember,
         newMember,
         getProposalCounter()
-      )
-    ).to.be.revertedWith("no units or loot");
+      ),
+      "no units or loot"
+    );
   });
 
   it("should not be possible for a kicked member to sponsor an onboarding proposal", async () => {
@@ -578,12 +581,13 @@ describe("Adapter - GuildKick", () => {
     );
 
     // kicked member attemps to vote
-    await expect(
+    await expectRevert(
       voting.submitVote(this.dao.address, onboardProposalId, 1, {
         from: kickedMember,
         gasPrice: toBN("0"),
-      })
-    ).to.be.revertedWith("onlyMember");
+      }),
+      "onlyMember"
+    );
   });
 
   it("should not be possible for a kicked member to sponsor a financing proposal", async () => {
@@ -635,7 +639,7 @@ describe("Adapter - GuildKick", () => {
     // Create Financing Request, the kicked member is the applicant and it is fine for now
     let requestedAmount = toBN(50000);
     let proposalId = getProposalCounter();
-    await expect(
+    await expectRevert(
       financing.submitProposal(
         this.dao.address,
         proposalId,
@@ -644,8 +648,9 @@ describe("Adapter - GuildKick", () => {
         requestedAmount,
         [],
         { from: kickedMember, gasPrice: toBN("0") }
-      )
-    ).to.be.revertedWith("onlyMember");
+      ),
+      "onlyMember"
+    );
   });
 
   it("should not be possible for a kicked member to sponsor a financing proposal", async () => {
@@ -699,7 +704,7 @@ describe("Adapter - GuildKick", () => {
     let newAdapterAddress = accounts[8];
 
     // kicked member attemps to submit a managing proposal
-    await expect(
+    await expectRevert(
       managing.submitProposal(
         this.dao.address,
         getProposalCounter(),
@@ -716,8 +721,9 @@ describe("Adapter - GuildKick", () => {
         [], //configs
         [], //data
         { from: kickedMember, gasPrice: toBN("0") }
-      )
-    ).to.be.revertedWith("onlyMember");
+      ),
+      "onlyMember"
+    );
   });
 
   it("should not be possible for a kicked member to sponsor a managing proposal", async () => {
@@ -770,7 +776,7 @@ describe("Adapter - GuildKick", () => {
     //Submit a new Bank adapter proposal
     let newadapterId = sha3("onboarding");
     let newadapterAddress = accounts[3]; //TODO deploy some Banking test contract
-    await expect(
+    await expectRevert(
       managing.submitProposal(
         this.dao.address,
         proposalId,
@@ -787,8 +793,9 @@ describe("Adapter - GuildKick", () => {
         [], //configs
         [], //data
         { from: kickedMember, gasPrice: toBN("0") }
-      )
-    ).to.be.revertedWith("onlyMember");
+      ),
+      "onlyMember"
+    );
   });
 
   it("should be possible to process a ragekick to return the funds to the kicked member", async () => {
@@ -896,55 +903,16 @@ describe("Adapter - GuildKick", () => {
 
     // Attempt to kick yourself
     let memberToKick = member;
-    await expect(
+    await expectRevert(
       guildKickProposal(
         this.dao,
         guildkickContract,
         memberToKick,
         member,
         getProposalCounter()
-      )
-    ).to.be.revertedWith("use ragequit");
-  });
-
-  it("should not be possible to submit a guild kick to kick yourself using a delegate", async () => {
-    const memberA = accounts[2];
-    const memberADelegate = accounts[3];
-
-    const guildkickContract = this.adapters.guildkick;
-    const daoRegistryAdapter = this.adapters.daoRegistryAdapter;
-    const onboarding = this.adapters.onboarding;
-    const voting = this.adapters.voting;
-
-    await onboardingNewMember(
-      getProposalCounter(),
-      this.dao,
-      onboarding,
-      voting,
-      memberA,
-      owner,
-      unitPrice,
-      UNITS
+      ),
+      "use ragequit"
     );
-
-    await daoRegistryAdapter.updateDelegateKey(
-      this.dao.address,
-      memberADelegate,
-      {
-        from: memberA,
-      }
-    );
-
-    // Attempt to kick yourself
-    await expect(
-      guildKickProposal(
-        this.dao,
-        guildkickContract,
-        memberA,
-        memberADelegate,
-        getProposalCounter()
-      )
-    ).to.be.revertedWith("use ragequit");
   });
 
   it("should not be possible to reuse the kick proposal id", async () => {
@@ -1000,100 +968,42 @@ describe("Adapter - GuildKick", () => {
     });
 
     // Submit the first guild kick with proposalId 0x1
-    await expect(
+    await expectRevert(
       guildKickProposal(
         this.dao,
         guildkickContract,
         memberC,
         memberA,
         kickProposalId
-      )
-    ).to.be.revertedWith("proposalId must be unique");
+      ),
+      "proposalId must be unique"
+    );
   });
 
   it("should not be possible to send ETH to the adapter via receive function", async () => {
     const adapter = this.adapters.guildkick;
-    await expect(
+    await expectRevert(
       web3.eth.sendTransaction({
         to: adapter.address,
         from: owner,
         gasPrice: toBN("0"),
         value: toWei("1"),
-      })
-    ).to.be.revertedWith("revert");
+      }),
+      "revert"
+    );
   });
 
   it("should not be possible to send ETH to the adapter via fallback function", async () => {
     const adapter = this.adapters.guildkick;
-    await expect(
+    await expectRevert(
       web3.eth.sendTransaction({
         to: adapter.address,
         from: owner,
         gasPrice: toBN("0"),
         value: toWei("1"),
         data: fromAscii("should go to fallback func"),
-      })
-    ).to.be.revertedWith("revert");
-  });
-
-  it("a guildick proposal should put the member in jail and therefore not let him move assets", async () => {
-    const member = owner;
-    const newMember = accounts[2];
-
-    const onboarding = this.adapters.onboarding;
-    const voting = this.adapters.voting;
-    const guildkickContract = this.adapters.guildkick;
-
-    await onboardingNewMember(
-      getProposalCounter(),
-      this.dao,
-      onboarding,
-      voting,
-      newMember,
-      member,
-      unitPrice,
-      UNITS
+      }),
+      "revert"
     );
-
-    // Start a new kick poposal
-    let memberToKick = newMember;
-    let kickProposalId = getProposalCounter();
-
-    const { erc20Ext } = this.extensions;
-
-    const erc20 = new Contract(
-      erc20Ext.address,
-      erc20Ext.abi,
-      await hre.ethers.getSigner(newMember)
-    );
-
-    await erc20.transfer(owner, 1, { from: memberToKick });
-
-    await guildKickProposal(
-      this.dao,
-      guildkickContract,
-      memberToKick,
-      member,
-      kickProposalId
-    );
-    await expect(
-      erc20.transfer(owner, 1, { from: memberToKick })
-    ).to.be.revertedWith("no transfer from jail");
-
-    //Vote YES on kick proposal
-    await voting.submitVote(this.dao.address, kickProposalId, 2, {
-      from: member,
-      gasPrice: toBN("0"),
-    });
-    await advanceTime(10000);
-
-    // The member gets kicked out of the DAO
-    await guildkickContract.processProposal(this.dao.address, kickProposalId, {
-      from: member,
-      gasPrice: toBN("0"),
-    });
-
-    // Transfer is possible again!
-    await erc20.transfer(owner, 1, { from: memberToKick });
   });
 });

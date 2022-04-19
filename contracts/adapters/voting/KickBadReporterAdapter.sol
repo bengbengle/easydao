@@ -77,7 +77,7 @@ contract KickBadReporterAdapter is MemberGuard {
                 dao,
                 proposalId
             );
-            dao.unjailMember(challengeAddress);
+            GuildKickHelper.unlockMemberTokens(dao, challengeAddress);
         } else {
             revert("vote not finished yet");
         }

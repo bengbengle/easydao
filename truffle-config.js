@@ -1,5 +1,6 @@
 require("dotenv").config();
 require("truffle-plugin-verify");
+require("solidity-coverage");
 require("ts-node").register({
   files: true,
 });
@@ -92,5 +93,9 @@ module.exports = {
   api_keys: {
     etherscan: process.env.ETHERSCAN_API_KEY, // Obtain one at https://etherscan.io/myapikey
   },
-  plugins: ["truffle-plugin-verify"],
+  plugins: [
+    "solidity-coverage",
+    "truffle-plugin-verify",
+    "truffle-contract-size",
+  ],
 };

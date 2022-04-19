@@ -677,7 +677,7 @@ export const contracts: Array<ContractConfig> = [
     version: "1.0.0",
     type: ContractType.Adapter,
     acls: {
-      dao: [daoAccessFlagsMap.SUBMIT_PROPOSAL, daoAccessFlagsMap.JAIL_MEMBER],
+      dao: [],
       extensions: {
         [extensionsIdsMap.BANK_EXT]: [
           bankExtensionAclFlagsMap.ADD_TO_BALANCE,
@@ -728,7 +728,7 @@ export const contracts: Array<ContractConfig> = [
     version: "1.0.0",
     type: ContractType.Adapter,
     acls: {
-      dao: [daoAccessFlagsMap.JAIL_MEMBER],
+      dao: [],
       extensions: {
         [extensionsIdsMap.BANK_EXT]: [
           bankExtensionAclFlagsMap.INTERNAL_TRANSFER,
@@ -747,7 +747,7 @@ export const contracts: Array<ContractConfig> = [
     version: "1.0.0",
     type: ContractType.Adapter,
     acls: {
-      dao: [daoAccessFlagsMap.SUBMIT_PROPOSAL, daoAccessFlagsMap.JAIL_MEMBER],
+      dao: [daoAccessFlagsMap.SUBMIT_PROPOSAL],
       extensions: {
         [extensionsIdsMap.BANK_EXT]: [
           bankExtensionAclFlagsMap.INTERNAL_TRANSFER,

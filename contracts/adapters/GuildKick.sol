@@ -73,10 +73,7 @@ contract GuildKickContract is IGuildKick, AdapterGuard, Reimbursable {
             msg.sender
         );
         // Checks if the sender address is not the same as the member to kick to prevent auto kick.
-        require(
-            dao.getAddressIfDelegated(submittedBy) != memberToKick,
-            "use ragequit"
-        );
+        require(submittedBy != memberToKick, "use ragequit");
 
         // Creates a guild kick proposal.
         dao.submitProposal(proposalId);
@@ -101,7 +98,10 @@ contract GuildKickContract is IGuildKick, AdapterGuard, Reimbursable {
         // Starts the voting process for the guild kick proposal.
         votingContract.startNewVotingForProposal(dao, proposalId, data);
 
-        dao.jailMember(kicks[address(dao)][proposalId].memberToKick);
+        GuildKickHelper.lockMemberTokens(
+            dao,
+            kicks[address(dao)][proposalId].memberToKick
+        );
 
         // Sponsors the guild kick proposal.
         dao.sponsorProposal(proposalId, submittedBy, address(votingContract));
@@ -136,7 +136,10 @@ contract GuildKickContract is IGuildKick, AdapterGuard, Reimbursable {
             votingState == IVoting.VotingState.NOT_PASS ||
             votingState == IVoting.VotingState.TIE
         ) {
-            dao.unjailMember(kicks[address(dao)][proposalId].memberToKick);
+            GuildKickHelper.unlockMemberTokens(
+                dao,
+                kicks[address(dao)][proposalId].memberToKick
+            );
         } else {
             revert("voting is still in progress");
         }

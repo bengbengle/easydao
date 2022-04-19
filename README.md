@@ -179,7 +179,7 @@ npm run compile
 
 ### Deploy contracts
 
-Deploy contracts to networks such as rinkeby, goerli, harmonytest, polygontest, ganache, mainnet, harmony, polygon or avalanche.
+Deploy contracts to networks such as rinkeby, goerli, harmonytest, polygontest, ganache, mainnet, harmony or polygon.
 
 ```sh
 npm run deploy rinkeby
@@ -206,12 +206,6 @@ npm run deploy polygontest
 OR
 
 ```sh
-npm run deploy avalanchetest
-```
-
-OR
-
-```sh
 npm run deploy mainnet
 ```
 
@@ -225,12 +219,6 @@ OR
 
 ```sh
 npm run deploy polygon
-```
-
-OR
-
-```sh
-npm run deploy avalanche
 ```
 
 For more information about the deployment, see the in logs [logs/contracts](logs/contracts)
@@ -303,7 +291,7 @@ npm run slither
 ### Tests
 
 ```sh
-npm run compile && npm test
+npm test
 ```
 
 ### Environment variables

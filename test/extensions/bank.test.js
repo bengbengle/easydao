@@ -24,41 +24,35 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-const { expect } = require("chai");
 const {
   ETH_TOKEN,
   toBN,
   sha3,
   toWei,
   fromAscii,
-  ZERO_ADDRESS,
 } = require("../../utils/contract-util");
 
 const {
   deployDefaultDao,
   takeChainSnapshot,
   revertChainSnapshot,
-  getAccounts,
+  accounts,
+  expectRevert,
+  expect,
   BankFactory,
-  BankExtension,
   web3,
-} = require("../../utils/hardhat-test-util");
+} = require("../../utils/oz-util");
 
 describe("Extension - Bank", () => {
-  let accounts, daoOwner, creator;
+  const daoOwner = accounts[0];
 
   before("deploy dao", async () => {
-    accounts = await getAccounts();
-    daoOwner = accounts[0];
-    creator = accounts[1];
-
-    const { dao, adapters, extensions, factories } = await deployDefaultDao({
+    const { dao, adapters, extensions } = await deployDefaultDao({
       owner: daoOwner,
     });
     this.dao = dao;
     this.adapters = adapters;
     this.extensions = extensions;
-    this.factories = factories;
   });
 
   beforeEach(async () => {
@@ -67,118 +61,6 @@ describe("Extension - Bank", () => {
 
   afterEach(async () => {
     await revertChainSnapshot(this.snapshotId);
-  });
-
-  describe("Factory", async () => {
-    it("should be possible to create an extension using the factory", async () => {
-      const { logs } = await this.factories.bankExtFactory.create(
-        this.dao.address,
-        10
-      );
-      const log = logs[0];
-      expect(log.event).to.be.equal("BankCreated");
-      expect(log.args[0]).to.be.equal(this.dao.address);
-      expect(log.args[1]).to.not.be.equal(ZERO_ADDRESS);
-    });
-
-    it("should be possible to get an extension address by dao", async () => {
-      await this.factories.bankExtFactory.create(this.dao.address, 10);
-      const extAddress =
-        await this.factories.bankExtFactory.getExtensionAddress(
-          this.dao.address
-        );
-      expect(extAddress).to.not.be.equal(ZERO_ADDRESS);
-    });
-
-    it("should return zero address if there is no extension address by dao", async () => {
-      const daoAddress = accounts[2];
-      const extAddress =
-        await this.factories.bankExtFactory.getExtensionAddress(daoAddress);
-      expect(extAddress).to.be.equal(ZERO_ADDRESS);
-    });
-
-    it("should not be possible to create an extension using a zero address dao", async () => {
-      await expect(this.factories.bankExtFactory.create(ZERO_ADDRESS, 10)).to.be
-        .reverted;
-    });
-  });
-
-  describe("Access Control", async () => {
-    it("should not be possible to call initialize more than once", async () => {
-      const extension = this.extensions.bankExt;
-      await expect(
-        extension.initialize(this.dao.address, daoOwner)
-      ).to.be.revertedWith("already initialized");
-    });
-
-    it("should not be possible to call initialize with a non member", async () => {
-      const extension = await BankExtension.new();
-      await expect(
-        extension.initialize(this.dao.address, creator)
-      ).to.be.revertedWith("not a member");
-    });
-
-    it("should not be possible to call withdraw without the WITHDRAW permission", async () => {
-      const extension = this.extensions.bankExt;
-      await expect(
-        extension.withdraw(this.dao.address, daoOwner, ETH_TOKEN, 1)
-      ).to.be.revertedWith("accessDenied");
-    });
-
-    it("should not be possible to call withdrawTo without the WITHDRAW permission", async () => {
-      const extension = this.extensions.bankExt;
-      await expect(
-        extension.withdrawTo(this.dao.address, daoOwner, creator, ETH_TOKEN, 1)
-      ).to.be.revertedWith("accessDenied");
-    });
-
-    it("should not be possible to call registerPotentialNewToken without the REGISTER_NEW_TOKEN permission", async () => {
-      const extension = this.extensions.bankExt;
-      await expect(
-        extension.registerPotentialNewToken(this.dao.address, ETH_TOKEN)
-      ).to.be.revertedWith("accessDenied");
-    });
-
-    it("should not be possible to call registerPotentialNewInternalToken without the REGISTER_NEW_INTERNAL_TOKEN permission", async () => {
-      const extension = this.extensions.bankExt;
-      await expect(
-        extension.registerPotentialNewInternalToken(this.dao.address, ETH_TOKEN)
-      ).to.be.revertedWith("accessDenied");
-    });
-
-    it("should not be possible to call updateToken without the UPDATE_TOKEN permission", async () => {
-      const extension = this.extensions.bankExt;
-      await expect(
-        extension.updateToken(this.dao.address, ETH_TOKEN)
-      ).to.be.revertedWith("accessDenied");
-    });
-
-    it("should not be possible to call addToBalance without the ADD_TO_BALANCE permission", async () => {
-      const extension = this.extensions.bankExt;
-      await expect(
-        extension.addToBalance(this.dao.address, daoOwner, ETH_TOKEN, 1)
-      ).to.be.revertedWith("accessDenied");
-    });
-
-    it("should not be possible to call subtractFromBalance without the SUB_FROM_BALANCE permission", async () => {
-      const extension = this.extensions.bankExt;
-      await expect(
-        extension.subtractFromBalance(this.dao.address, daoOwner, ETH_TOKEN, 1)
-      ).to.be.revertedWith("accessDenied");
-    });
-
-    it("should not be possible to call internalTransfer without the INTERNAL_TRANSFER permission", async () => {
-      const extension = this.extensions.bankExt;
-      await expect(
-        extension.internalTransfer(
-          this.dao.address,
-          daoOwner,
-          creator,
-          ETH_TOKEN,
-          1
-        )
-      ).to.be.revertedWith("accessDenied");
-    });
   });
 
   it("should be possible to create a dao with a bank extension pre-configured", async () => {
@@ -209,49 +91,54 @@ describe("Extension - Bank", () => {
     const maxExternalTokens = 201;
     const identityBank = this.extensions.bankExt;
     const bankFactory = await BankFactory.new(identityBank.address);
-    await expect(
-      bankFactory.create(this.dao.address, maxExternalTokens)
-    ).to.be.revertedWith("maxTokens should be (0,200]");
+    await expectRevert(
+      bankFactory.create(this.dao.address, maxExternalTokens),
+      "max number of external tokens should be (0,200)"
+    );
   });
 
   it("should not be possible to create a bank that supports 0 external tokens", async () => {
     const maxExternalTokens = 0;
     const identityBank = this.extensions.bankExt;
     const bankFactory = await BankFactory.new(identityBank.address);
-    await expect(
-      bankFactory.create(this.dao.address, maxExternalTokens)
-    ).to.be.revertedWith("maxTokens should be (0,200]");
+    await expectRevert(
+      bankFactory.create(this.dao.address, maxExternalTokens),
+      "max number of external tokens should be (0,200)"
+    );
   });
 
   it("should not be possible to set the max external tokens if bank is already initialized", async () => {
     const bank = this.extensions.bankExt;
-    await expect(bank.setMaxExternalTokens(10)).to.be.revertedWith(
-      "already initialized"
+    await expectRevert(
+      bank.setMaxExternalTokens(10),
+      "bank already initialized"
     );
   });
 
   it("should not be possible to send ETH to the adapter via receive function", async () => {
     const adapter = this.adapters.bankAdapter;
-    await expect(
+    await expectRevert(
       web3.eth.sendTransaction({
         to: adapter.address,
         from: daoOwner,
         gasPrice: toBN("0"),
         value: toWei("1"),
-      })
-    ).to.be.revertedWith("revert");
+      }),
+      "revert"
+    );
   });
 
   it("should not be possible to send ETH to the adapter via fallback function", async () => {
     const adapter = this.adapters.bankAdapter;
-    await expect(
+    await expectRevert(
       web3.eth.sendTransaction({
         to: adapter.address,
         from: daoOwner,
         gasPrice: toBN("0"),
         value: toWei("1"),
         data: fromAscii("should go to fallback func"),
-      })
-    ).to.be.revertedWith("revert");
+      }),
+      "revert"
+    );
   });
 });

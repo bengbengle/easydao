@@ -24,7 +24,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-const { expect } = require("chai");
 const {
   toBN,
   GUILD,
@@ -37,10 +36,13 @@ const {
   deployDefaultDao,
   proposalIdGenerator,
   advanceTime,
-  getAccounts,
+  accounts,
+  expect,
+  expectRevert,
   OLToken,
-} = require("../../utils/hardhat-test-util");
+} = require("../../utils/oz-util");
 
+const daoOwner = accounts[1];
 const proposalCounter = proposalIdGenerator().generator;
 
 function getProposalCounter() {
@@ -48,13 +50,6 @@ function getProposalCounter() {
 }
 
 describe("Adapter - Non Voting Onboarding", () => {
-  let accounts, daoOwner;
-
-  before("deploy dao", async () => {
-    accounts = await getAccounts();
-    daoOwner = accounts[0];
-  });
-
   it("should be possible to join a DAO as a member without any voting power by requesting Loot while staking raw ETH", async () => {
     const advisorAccount = accounts[2];
 
@@ -141,7 +136,7 @@ describe("Adapter - Non Voting Onboarding", () => {
     // Send a request to join the DAO as an Advisor (non-voting power),
     // the tx passes the OLT ERC20 token, the amount and the nonVotingOnboarding adapter that handles the proposal
     const proposalId = getProposalCounter();
-    await expect(
+    await expectRevert.unspecified(
       onboarding.submitProposal(
         dao.address,
         proposalId,
@@ -154,7 +149,7 @@ describe("Adapter - Non Voting Onboarding", () => {
           gasPrice: toBN("0"),
         }
       )
-    ).to.be.revertedWith("revert");
+    );
 
     // Pre-approve spender (onboarding adapter) to transfer proposer tokens
     await oltContract.approve(onboarding.address, tokenAmount, {

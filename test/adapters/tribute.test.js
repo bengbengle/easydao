@@ -24,7 +24,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-const { expect } = require("chai");
 const {
   toBN,
   fromAscii,
@@ -39,27 +38,25 @@ const {
   revertChainSnapshot,
   proposalIdGenerator,
   advanceTime,
-  getAccounts,
+  accounts,
+  expectRevert,
+  expect,
   OLToken,
   deployDefaultNFTDao,
   web3,
-} = require("../../utils/hardhat-test-util");
+} = require("../../utils/oz-util");
 
 const { checkBalance, isMember } = require("../../utils/test-util");
 
-const proposalCounter = proposalIdGenerator().generator;
-
-const getProposalCounter = () => {
-  return proposalCounter().next().value;
-};
-
 describe("Adapter - Tribute", () => {
-  let accounts, daoOwner;
+  const daoOwner = accounts[1];
+  const proposalCounter = proposalIdGenerator().generator;
+
+  const getProposalCounter = () => {
+    return proposalCounter().next().value;
+  };
 
   before("deploy dao", async () => {
-    accounts = await getAccounts();
-    daoOwner = accounts[0];
-
     const { dao, adapters, extensions } = await deployDefaultDao({
       owner: daoOwner,
     });
@@ -88,7 +85,8 @@ describe("Adapter - Tribute", () => {
     let oltContract = await OLToken.new(tokenSupply);
 
     // Transfer OLTs to daoOwner
-    const initialTokenBalance = toBN("1000000");
+    const initialTokenBalance = toBN("10000");
+    await oltContract.transfer(daoOwner, initialTokenBalance);
     let daoOwnerTokenBalance = await oltContract.balanceOf.call(daoOwner);
     expect(daoOwnerTokenBalance.toString()).equal(
       initialTokenBalance.toString()
@@ -121,12 +119,13 @@ describe("Adapter - Tribute", () => {
 
     await advanceTime(10000);
 
-    await expect(
+    await expectRevert(
       tribute.processProposal(dao.address, proposalId, {
         from: daoOwner,
         gasPrice: toBN("0"),
-      })
-    ).to.be.revertedWith("ERC20: transfer amount exceeds allowance");
+      }),
+      "ERC20: transfer amount exceeds allowance"
+    );
 
     // Pre-approve spender (tribute adapter) to transfer proposer tokens
     await oltContract.approve(tribute.address, tributeAmount, {
@@ -175,7 +174,8 @@ describe("Adapter - Tribute", () => {
     let oltContract = await OLToken.new(tokenSupply);
 
     // Transfer OLTs to daoOwner
-    const initialTokenBalance = toBN("1000000");
+    const initialTokenBalance = toBN("100");
+    await oltContract.transfer(daoOwner, initialTokenBalance);
     let daoOwnerTokenBalance = await oltContract.balanceOf.call(daoOwner);
     // "daoOwner must be initialized with 100 OLT Tokens"
     expect(daoOwnerTokenBalance.toString()).equal(
@@ -256,12 +256,13 @@ describe("Adapter - Tribute", () => {
     const dao = this.dao;
     const tribute = this.adapters.tribute;
 
-    await expect(
+    await expectRevert(
       tribute.processProposal(dao.address, "0x1", {
         from: daoOwner,
         gasPrice: toBN("0"),
-      })
-    ).to.be.revertedWith("proposal does not exist");
+      }),
+      "proposal does not exist"
+    );
   });
 
   it("should not be possible to join if the tribute amount exceeds the bank external token limit", async () => {
@@ -332,12 +333,11 @@ describe("Adapter - Tribute", () => {
 
     // Proposal is processed, but due to the overflow error the transaction is
     // reverted.
-    await expect(
+    await expectRevert(
       tribute.processProposal(dao.address, proposalId, {
         from: applicant,
         gasPrice: toBN("0"),
-      })
-    ).to.be.revertedWith(
+      }),
       "token amount exceeds the maximum limit for external tokens"
     );
   });
@@ -354,7 +354,8 @@ describe("Adapter - Tribute", () => {
     let oltContract = await OLToken.new(tokenSupply);
 
     // Transfer OLTs to daoOwner
-    const initialTokenBalance = toBN("1000000");
+    const initialTokenBalance = toBN("10000");
+    await oltContract.transfer(daoOwner, initialTokenBalance);
     let daoOwnerTokenBalance = await oltContract.balanceOf.call(daoOwner);
     expect(daoOwnerTokenBalance.toString()).equal(
       initialTokenBalance.toString()
@@ -397,38 +398,39 @@ describe("Adapter - Tribute", () => {
 
     // Proposal is processed, but due to the overflow error the transaction is
     // reverted.
-    await expect(
+    await expectRevert(
       tribute.processProposal(dao.address, proposalId, {
         from: daoOwner,
         gasPrice: toBN("0"),
-      })
-    ).to.be.revertedWith(
+      }),
       "token amount exceeds the maximum limit for internal tokens"
     );
   });
 
   it("should not be possible to send ETH to the adapter via receive function", async () => {
     const adapter = this.adapters.tribute;
-    await expect(
+    await expectRevert(
       web3.eth.sendTransaction({
         to: adapter.address,
         from: daoOwner,
         gasPrice: toBN("0"),
         value: toWei("1"),
-      })
-    ).to.be.revertedWith("revert");
+      }),
+      "revert"
+    );
   });
 
   it("should not be possible to send ETH to the adapter via fallback function", async () => {
     const adapter = this.adapters.tribute;
-    await expect(
+    await expectRevert(
       web3.eth.sendTransaction({
         to: adapter.address,
         from: daoOwner,
         gasPrice: toBN("0"),
         value: toWei("1"),
         data: fromAscii("should go to fallback func"),
-      })
-    ).to.be.revertedWith("revert");
+      }),
+      "revert"
+    );
   });
 });

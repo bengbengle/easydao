@@ -25,7 +25,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 const { MerkleTree } = require("./merkle-tree-util");
-const { sha3, toBNWeb3 } = require("./contract-util");
+const { toBNWeb3, sha3 } = require("./contract-util");
 const sigUtil = require("eth-sig-util");
 
 const BadNodeError = {
@@ -413,9 +413,9 @@ function toStepNode(step, verifyingContract, actionId, chainId, merkleTree) {
   };
 }
 
-async function createVote(proposalId, weight, choice) {
+async function createVote(proposalId, weight, voteYes) {
   const payload = {
-    choice,
+    choice: voteYes ? 1 : 2,
     proposalId,
     weight: toBNWeb3(weight),
   };
@@ -454,22 +454,17 @@ function buildVoteLeafHashForMerkleTree(
 
 async function prepareVoteResult(votes, dao, actionId, chainId) {
   votes.forEach((vote, idx) => {
-    const stepIndex = idx + 1;
     vote.choice = vote.choice || vote.payload.choice;
-    vote.nbYes = vote.choice === 1 ? vote.payload.weight.toString() : "0";
-    vote.nbNo = vote.choice !== 1 ? vote.payload.weight.toString() : "0";
+    vote.nbYes = vote.choice === 1 ? vote.payload.weight : toBNWeb3(0);
+    vote.nbNo = vote.choice !== 1 ? vote.payload.weight : toBNWeb3(0);
     vote.proposalId = vote.payload.proposalId;
-    if (stepIndex > 1) {
-      const previousVote = votes[stepIndex - 1];
-      vote.nbYes = toBNWeb3(vote.nbYes)
-        .add(toBNWeb3(previousVote.nbYes))
-        .toString();
-      vote.nbNo = toBNWeb3(vote.nbNo)
-        .add(toBNWeb3(previousVote.nbNo))
-        .toString();
+    if (idx > 0) {
+      const previousVote = votes[idx - 1];
+      vote.nbYes = vote.nbYes.add(toBNWeb3(previousVote.nbYes)).toString();
+      vote.nbNo = vote.nbNo.add(toBNWeb3(previousVote.nbNo)).toString();
     }
 
-    vote.index = stepIndex;
+    vote.index = idx;
   });
 
   const tree = new MerkleTree(

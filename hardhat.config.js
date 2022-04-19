@@ -5,12 +5,8 @@ require("ts-node").register({
 require("solidity-coverage");
 require("@nomiclabs/hardhat-waffle");
 require("@nomiclabs/hardhat-ethers");
-require("@nomiclabs/hardhat-truffle5");
-require("@nomiclabs/hardhat-web3");
 require("hardhat-contract-sizer");
-if (!process.env.TEST === "true") {
-  require("hardhat-gas-reporter");
-}
+require("hardhat-gas-reporter");
 require("./tasks/deploy");
 require("./signers");
 
@@ -22,23 +18,23 @@ module.exports = {
       network_id: 1337,
       chainId: 1337,
       accounts: {
-        mnemonic:
-          "myth like bonus scare over problem client lizard pioneer submit female collect",
+        mnemonic: process.env.WALLET_MNEMONIC,
+        count: 10,
       },
       throwOnTransactionFailures: true,
-      throwOnCallFailures: true,
-      loggingEnabled: false,
+      throwOnCallFailures: false,
+      loggingEnabled: true,
       allowUnlimitedContractSize: false,
+      gas: 0xfffffffffff,
+      gasPrice: 10000000000,
       initialBaseFeePerGas: 0,
     },
     ganache: {
       url: "http://127.0.0.1:7545",
       chainId: 1337,
       accounts: {
+        mnemonic: process.env.WALLET_MNEMONIC || "",
         count: 10,
-        mnemonic:
-          process.env.WALLET_MNEMONIC ||
-          "myth like bonus scare over problem client lizard pioneer submit female collect",
       },
     },
     goerli: {
@@ -113,19 +109,6 @@ module.exports = {
       gasPrice: 10000000000,
       initialBaseFeePerGas: 0,
     },
-    avalanchetest: {
-      url: process.env.ETH_NODE_URL,
-      network_id: 43113,
-      chainId: 43113,
-      skipDryRun: true,
-      gas: 2100000,
-      gasPrice: 25000000000,
-      accounts: {
-        mnemonic: process.env.WALLET_MNEMONIC || "",
-        count: 10,
-      },
-      signerId: process.env.SIGNER || undefined,
-    },
 
     // Main Networks
     mainnet: {
@@ -154,17 +137,6 @@ module.exports = {
       url: process.env.ETH_NODE_URL,
       network_id: 137,
       chainId: 137,
-      skipDryRun: true,
-      accounts: {
-        mnemonic: process.env.WALLET_MNEMONIC || "",
-        count: 10,
-      },
-      signerId: process.env.SIGNER || undefined,
-    },
-    avalanche: {
-      url: process.env.ETH_NODE_URL,
-      network_id: 43114,
-      chainId: 43114,
       skipDryRun: true,
       accounts: {
         mnemonic: process.env.WALLET_MNEMONIC || "",

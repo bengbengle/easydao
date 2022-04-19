@@ -24,6 +24,14 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
+
+const {
+  web3,
+  contract,
+  accounts,
+  provider,
+} = require("@openzeppelin/test-environment");
+
 const {
   unitPrice,
   numberOfUnits,
@@ -34,32 +42,17 @@ const {
   UNITS,
   toBN,
 } = require("./contract-util.js");
+
 const chai = require("chai");
-const { expect } = require("chai");
 const { solidity } = require("ethereum-waffle");
 chai.use(solidity);
-
+const { expect } = require("chai");
+const { expectRevert } = require("@openzeppelin/test-helpers");
 const { deployDao } = require("./deployment-util.js");
 const {
   contracts: allContractConfigs,
 } = require("../configs/networks/test.config");
 const { ContractType } = require("../configs/contracts.config");
-import hre from "hardhat";
-
-const expectEvent = async (txPromise, event, ...args) => {
-  const { logs } = await txPromise;
-  const log = logs[0];
-  expect(log.event).to.be.equal(event);
-  args.forEach((arg, i) => expect(log.args[i].toString()).to.be.equal(arg));
-};
-
-const txSigner = (signer, contract) => {
-  return new hre.ethers.Contract(contract.address, contract.abi, signer);
-};
-
-const getCurrentBlockNumber = async () => {
-  return await hre.ethers.provider.getBlockNumber();
-};
 
 const getBalance = async (account) => {
   const balance = await web3.eth.getBalance(account);
@@ -67,29 +60,7 @@ const getBalance = async (account) => {
 };
 
 const attach = async (contractInterface, address) => {
-  const factory = await hre.ethers.getContractFactory(
-    contractInterface.contractName
-  );
-  const truffleContract = factory.attach(address);
-  // Add the `connect` function to be able to switch the tx signer
-  return { ...truffleContract, abi: contractInterface.abi };
-};
-
-const getSigners = async () => {
-  return await hre.ethers.getSigners();
-};
-
-const getAccounts = async () => {
-  const accounts = await getSigners();
-  return accounts.map((s) => s.address);
-};
-
-export const getContractByName = (c) => {
-  return hre.artifacts.require(c);
-};
-
-const getContract = (name) => {
-  return hre.artifacts.require(name);
+  return await contractInterface.at(address);
 };
 
 const deployFunction = async (contractInterface, args, from) => {
@@ -99,13 +70,11 @@ const deployFunction = async (contractInterface, args, from) => {
     (c) => c.name === contractInterface.contractName
   );
 
-  const accounts = await getAccounts();
   const f = from ? from : accounts[0];
-
   let instance;
   if (contractConfig.type === ContractType.Factory && args) {
     const identityInterface = args[0];
-    const identityInstance = await identityInterface.new({ from: f });
+    const identityInstance = await identityInterface.new();
     const constructorArgs = [identityInstance.address].concat(args.slice(1));
     instance = await contractInterface.new(...constructorArgs, { from: f });
   } else {
@@ -115,15 +84,18 @@ const deployFunction = async (contractInterface, args, from) => {
       instance = await contractInterface.new({ from: f });
     }
   }
-
   return { ...instance, configs: contractConfig };
 };
 
-const getHardhatContracts = (contracts) => {
+const getContractFromOpenZeppelin = (c) => {
+  return contract.fromArtifact(c.substring(c.lastIndexOf("/") + 1));
+};
+
+const getOpenZeppelinContracts = (contracts) => {
   return contracts
     .filter((c) => c.enabled)
     .reduce((previousValue, contract) => {
-      previousValue[contract.name] = getContract(contract.name);
+      previousValue[contract.name] = getContractFromOpenZeppelin(contract.path);
       previousValue[contract.name].contractName = contract.name;
       return previousValue;
     }, {});
@@ -134,16 +106,16 @@ const getDefaultOptions = (options) => {
     unitPrice: unitPrice,
     nbUnits: numberOfUnits,
     votingPeriod: 10,
-    gracePeriod: 10,
+    gracePeriod: 1,
     tokenAddr: ETH_TOKEN,
     maxChunks: maximumChunks,
     maxAmount,
     maxUnits,
     chainId: 1,
     maxExternalTokens: 100,
-    couponCreatorAddress: "0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1",
+    couponCreatorAddress: "0x7D8cad0bbD68deb352C33e80fccd4D8e88b4aBb8",
     kycMaxMembers: 1000,
-    kycSignerAddress: "0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1",
+    kycSignerAddress: "0x7D8cad0bbD68deb352C33e80fccd4D8e88b4aBb8",
     kycFundTargetAddress: "0x823A19521A76f80EC49670BE32950900E8Cd0ED3",
     deployTestTokens: true,
     erc20TokenName: "Test Token",
@@ -157,19 +129,19 @@ const getDefaultOptions = (options) => {
     erc1155TestTokenUri: "1155 test token",
     maintainerTokenAddress: UNITS,
     finalize: options.finalize === undefined || !!options.finalize,
+    ...options, // to make sure the options from the tests override the default ones
     gasPriceLimit: "2000000000000",
     spendLimitPeriod: "259200",
     spendLimitEth: "2000000000000000000000",
     feePercent: "110",
     gasFixed: "50000",
     gelato: "0x1000000000000000000000000000000000000000",
-    ...options, // to make sure the options from the tests override the default ones
   };
 };
 
 const advanceTime = async (time) => {
   await new Promise((resolve, reject) => {
-    hre.network.provider.sendAsync(
+    web3.currentProvider.send(
       {
         jsonrpc: "2.0",
         method: "evm_increaseTime",
@@ -186,11 +158,10 @@ const advanceTime = async (time) => {
   });
 
   await new Promise((resolve, reject) => {
-    hre.network.provider.sendAsync(
+    web3.currentProvider.send(
       {
         jsonrpc: "2.0",
         method: "evm_mine",
-        params: [],
         id: new Date().getTime(),
       },
       (err, result) => {
@@ -207,11 +178,10 @@ const advanceTime = async (time) => {
 
 const takeChainSnapshot = async () => {
   return await new Promise((resolve, reject) =>
-    hre.network.provider.sendAsync(
+    provider.send(
       {
         jsonrpc: "2.0",
         method: "evm_snapshot",
-        params: [],
         id: new Date().getTime(),
       },
       (err, result) => {
@@ -227,7 +197,7 @@ const takeChainSnapshot = async () => {
 
 const revertChainSnapshot = async (snapshotId) => {
   return await new Promise((resolve, reject) =>
-    hre.network.provider.sendAsync(
+    provider.send(
       {
         jsonrpc: "2.0",
         method: "evm_revert",
@@ -257,15 +227,16 @@ const proposalIdGenerator = () => {
 };
 
 module.exports = (() => {
-  const hardhatContracts = getHardhatContracts(allContractConfigs);
+  const ozContracts = getOpenZeppelinContracts(allContractConfigs);
+
   const deployDefaultDao = async (options) => {
-    const { WETH } = hardhatContracts;
+    const { WETH } = ozContracts;
     const weth = await WETH.new();
     const finalize = options.finalize === undefined ? true : options.finalize;
 
     const result = await deployDao({
       ...getDefaultOptions(options),
-      ...hardhatContracts,
+      ...ozContracts,
       deployFunction,
       attachFunction: attach,
       contractConfigs: allContractConfigs,
@@ -279,26 +250,20 @@ module.exports = (() => {
   };
 
   const deployDefaultNFTDao = async ({ owner }) => {
-    const { WETH } = hardhatContracts;
+    const { WETH } = ozContracts;
     const weth = await WETH.new();
 
-    const {
-      dao,
-      adapters,
-      extensions,
-      factories,
-      testContracts,
-      utilContracts,
-    } = await deployDao({
-      ...getDefaultOptions({ owner }),
-      ...hardhatContracts,
-      deployFunction,
-      attachFunction: attach,
-      finalize: false,
-      contractConfigs: allContractConfigs,
-      weth: weth.address,
-      wethContract: weth,
-    });
+    const { dao, adapters, extensions, testContracts, utilContracts } =
+      await deployDao({
+        ...getDefaultOptions({ owner }),
+        ...ozContracts,
+        deployFunction,
+        attachFunction: attach,
+        finalize: false,
+        contractConfigs: allContractConfigs,
+        weth: weth.address,
+        wethContract: weth,
+      });
 
     await dao.finalizeDao({ from: owner });
 
@@ -306,7 +271,6 @@ module.exports = (() => {
       dao: dao,
       adapters: adapters,
       extensions: extensions,
-      factories: factories,
       testContracts: testContracts,
       utilContracts: utilContracts,
       wethContract: weth,
@@ -317,12 +281,12 @@ module.exports = (() => {
     const owner = options.owner;
     const newMember = options.newMember;
 
-    const { WETH } = hardhatContracts;
+    const { WETH } = ozContracts;
     const weth = await WETH.new();
     const { dao, adapters, extensions, testContracts, votingHelpers } =
       await deployDao({
         ...getDefaultOptions(options),
-        ...hardhatContracts,
+        ...ozContracts,
         deployFunction,
         attachFunction: attach,
         finalize: false,
@@ -357,14 +321,14 @@ module.exports = (() => {
   const generateMembers = (amount) => {
     let newAccounts = [];
     for (let i = 0; i < amount; i++) {
-      const account = hre.web3.eth.accounts.create();
+      const account = web3.eth.accounts.create();
       newAccounts.push(account);
     }
     return newAccounts;
   };
 
   const encodeProposalData = (dao, proposalId) =>
-    hre.web3.eth.abi.encodeParameter(
+    web3.eth.abi.encodeParameter(
       {
         ProcessProposal: {
           dao: "address",
@@ -378,14 +342,11 @@ module.exports = (() => {
     );
 
   return {
-    web3: hre.web3,
-    provider: hre.network.provider,
+    web3,
+    provider,
+    accounts,
     expect,
-    txSigner,
-    expectEvent,
-    getAccounts,
-    getSigners,
-    getCurrentBlockNumber,
+    expectRevert,
     getBalance,
     generateMembers,
     deployDefaultDao,
@@ -398,8 +359,7 @@ module.exports = (() => {
     advanceTime,
     deployFunction,
     attachFunction: attach,
-    getContractFromOpenZeppelin: getContract,
-    etContractFromOpenZeppelinByName: getContractByName,
-    ...hardhatContracts,
+    getContractFromOpenZeppelin,
+    ...ozContracts,
   };
 })();

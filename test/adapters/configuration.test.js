@@ -24,7 +24,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-const { expect } = require("chai");
 const {
   sha3,
   toBN,
@@ -41,10 +40,13 @@ const {
   revertChainSnapshot,
   proposalIdGenerator,
   advanceTime,
+  accounts,
+  expectRevert,
+  expect,
   web3,
-  getAccounts,
-} = require("../../utils/hardhat-test-util");
+} = require("../../utils/oz-util");
 
+const owner = accounts[1];
 const proposalCounter = proposalIdGenerator().generator;
 
 function getProposalCounter() {
@@ -52,11 +54,7 @@ function getProposalCounter() {
 }
 
 describe("Adapter - Configuration", () => {
-  let accounts, owner;
-
   before("deploy dao", async () => {
-    accounts = await getAccounts();
-    owner = accounts[0];
     const { dao, adapters, extensions } = await deployDefaultDao({ owner });
     this.dao = dao;
     this.adapters = adapters;
@@ -265,12 +263,13 @@ describe("Adapter - Configuration", () => {
     const dao = this.dao;
     const configuration = this.adapters.configuration;
 
-    await expect(
+    await expectRevert(
       configuration.submitProposal(dao.address, "0x1", [], [], {
         from: owner,
         gasPrice: toBN("0"),
-      })
-    ).to.be.revertedWith("missing configs");
+      }),
+      "missing configs"
+    );
   });
 
   it("should be possible to configure numeric and address configs in the same proposal", async () => {
@@ -472,39 +471,42 @@ describe("Adapter - Configuration", () => {
 
   it("should not be possible to send ETH to the adapter via receive function", async () => {
     const adapter = this.adapters.configuration;
-    await expect(
+    await expectRevert(
       web3.eth.sendTransaction({
         to: adapter.address,
         from: owner,
         gasPrice: toBN("0"),
         value: toWei("1"),
-      })
-    ).to.be.revertedWith("revert");
+      }),
+      "revert"
+    );
   });
 
   it("should not be possible to send ETH to the adapter via fallback function", async () => {
     const adapter = this.adapters.configuration;
-    await expect(
+    await expectRevert(
       web3.eth.sendTransaction({
         to: adapter.address,
         from: owner,
         gasPrice: toBN("0"),
         value: toWei("1"),
         data: fromAscii("should go to fallback func"),
-      })
-    ).to.be.revertedWith("revert");
+      }),
+      "revert"
+    );
   });
 
   it("should not be possible to vote on a configuration proposal if you are not an admin", async () => {
     const adapter = this.adapters.configuration;
-    await expect(
+    await expectRevert(
       web3.eth.sendTransaction({
         to: adapter.address,
         from: owner,
         gasPrice: toBN("0"),
         value: toWei("1"),
         data: fromAscii("should go to fallback func"),
-      })
-    ).to.be.revertedWith("revert");
+      }),
+      "revert"
+    );
   });
 });

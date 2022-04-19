@@ -63,7 +63,6 @@ contract LendNFTContract is
         uint256 tributeAmount;
         // The amount requested of DAO internal tokens (UNITS).
         uint88 requestAmount;
-        // The lending period in milliseconds.
         uint64 lendingPeriod;
         bool sentBack;
         uint64 lendingStart;
@@ -227,7 +226,7 @@ contract LendNFTContract is
         ) {
             return (proposal, voteResult);
         } else {
-            revert("proposal has no votes");
+            revert("proposal has not been voted on yet");
         }
     }
 
@@ -263,14 +262,16 @@ contract LendNFTContract is
                 proposal.lendingStart + proposal.lendingPeriod,
                 proposal.requestAmount
             );
+            BankExtension bank = BankExtension(
+                dao.getExtensionAddress(DaoHelper.BANK)
+            );
 
-            BankExtension(dao.getExtensionAddress(DaoHelper.BANK))
-                .subtractFromBalance(
-                    dao,
-                    proposal.applicant,
-                    DaoHelper.UNITS,
-                    blockedAmount
-                );
+            bank.subtractFromBalance(
+                dao,
+                proposal.applicant,
+                DaoHelper.UNITS,
+                blockedAmount
+            );
             vesting.removeVesting(
                 dao,
                 proposal.applicant,
@@ -281,23 +282,28 @@ contract LendNFTContract is
 
         // Only ERC-721 tokens will contain tributeAmount == 0
         if (proposal.tributeAmount == 0) {
-            NFTExtension(dao.getExtensionAddress(DaoHelper.NFT)).withdrawNFT(
+            NFTExtension nftExt = NFTExtension(
+                dao.getExtensionAddress(DaoHelper.NFT)
+            );
+
+            nftExt.withdrawNFT(
                 dao,
                 proposal.previousOwner,
                 proposal.nftAddr,
                 proposal.nftTokenId
             );
         } else {
-            ERC1155TokenExtension(
+            ERC1155TokenExtension tokenExt = ERC1155TokenExtension(
                 dao.getExtensionAddress(DaoHelper.ERC1155_EXT)
-            ).withdrawNFT(
-                    dao,
-                    DaoHelper.GUILD,
-                    proposal.previousOwner,
-                    proposal.nftAddr,
-                    proposal.nftTokenId,
-                    proposal.tributeAmount
-                );
+            );
+            tokenExt.withdrawNFT(
+                dao,
+                DaoHelper.GUILD,
+                proposal.previousOwner,
+                proposal.nftAddr,
+                proposal.nftTokenId,
+                proposal.tributeAmount
+            );
         }
     }
 
@@ -321,9 +327,7 @@ contract LendNFTContract is
         address from,
         uint256 id,
         uint256 value
-    ) internal returns (bytes4) {
-        ReimbursementData memory rData = ReimbursableLib.beforeExecution(dao);
-
+    ) internal reimbursable(dao) returns (bytes4) {
         (
             ProposalDetails storage proposal,
             IVoting.VotingState voteResult
@@ -341,7 +345,8 @@ contract LendNFTContract is
                 DaoHelper.ERC1155_EXT
             );
 
-            IERC1155(msg.sender).safeTransferFrom(
+            IERC1155 erc1155 = IERC1155(msg.sender);
+            erc1155.safeTransferFrom(
                 address(this),
                 erc1155ExtAddr,
                 id,
@@ -349,17 +354,9 @@ contract LendNFTContract is
                 ""
             );
         } else {
-            IERC1155(msg.sender).safeTransferFrom(
-                address(this),
-                from,
-                id,
-                value,
-                ""
-            );
+            IERC1155 erc1155 = IERC1155(msg.sender);
+            erc1155.safeTransferFrom(address(this), from, id, value, "");
         }
-
-        ReimbursableLib.afterExecution2(dao, rData, payable(from));
-
         return this.onERC1155Received.selector;
     }
 
@@ -391,14 +388,11 @@ contract LendNFTContract is
         bytes32 proposalId,
         address from,
         uint256 tokenId
-    ) internal returns (bytes4) {
-        ReimbursementData memory rData = ReimbursableLib.beforeExecution(dao);
-
+    ) internal reimbursable(dao) returns (bytes4) {
         (
             ProposalDetails storage proposal,
             IVoting.VotingState voteResult
         ) = _processProposal(dao, proposalId);
-
         require(proposal.nftTokenId == tokenId, "wrong NFT");
         require(proposal.nftAddr == msg.sender, "wrong NFT addr");
         proposal.tributeAmount = 0;
@@ -416,7 +410,7 @@ contract LendNFTContract is
         } else {
             erc721.safeTransferFrom(address(this), from, tokenId);
         }
-        ReimbursableLib.afterExecution2(dao, rData, payable(from));
+
         return this.onERC721Received.selector;
     }
 

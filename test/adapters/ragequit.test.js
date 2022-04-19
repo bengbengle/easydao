@@ -24,10 +24,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-const { expect } = require("chai");
-
-const { Contract } = require("ethers");
-
 const {
   toBN,
   toWei,
@@ -46,29 +42,24 @@ const {
   revertChainSnapshot,
   proposalIdGenerator,
   advanceTime,
-  getAccounts,
+  accounts,
+  expectRevert,
+  expect,
   OLToken,
   web3,
-} = require("../../utils/hardhat-test-util");
+} = require("../../utils/oz-util");
 
-const {
-  onboardingNewMember,
-  guildKickProposal,
-} = require("../../utils/test-util");
+const { onboardingNewMember } = require("../../utils/test-util");
 
 const proposalCounter = proposalIdGenerator().generator;
+const owner = accounts[1];
 
 function getProposalCounter() {
   return proposalCounter().next().value;
 }
 
 describe("Adapter - Ragequit", () => {
-  let accounts, owner;
-
   before("deploy dao", async () => {
-    accounts = await getAccounts();
-    owner = accounts[0];
-
     const { dao, adapters, extensions } = await deployDefaultDao({ owner });
     this.dao = dao;
     this.adapters = adapters;
@@ -109,7 +100,7 @@ describe("Adapter - Ragequit", () => {
 
     //Ragequit
     const nonMember = accounts[4];
-    await expect(
+    await expectRevert(
       this.adapters.ragequit.ragequit(
         this.dao.address,
         units,
@@ -119,8 +110,9 @@ describe("Adapter - Ragequit", () => {
           from: nonMember,
           gasPrice: toBN("0"),
         }
-      )
-    ).to.be.revertedWith("insufficient units");
+      ),
+      "insufficient units"
+    );
   });
 
   it("should not be possible for a member to ragequit when the member does not have enough units", async () => {
@@ -150,7 +142,7 @@ describe("Adapter - Ragequit", () => {
     expect(units.toString()).equal("10000000000000000");
 
     //Ragequit
-    await expect(
+    await expectRevert(
       this.adapters.ragequit.ragequit(
         this.dao.address,
         toBN("100000000000000001"),
@@ -160,8 +152,9 @@ describe("Adapter - Ragequit", () => {
           from: newMember,
           gasPrice: toBN("0"),
         }
-      )
-    ).to.be.revertedWith("insufficient units");
+      ),
+      "insufficient units"
+    );
   });
 
   it("should be possible for a member to ragequit when the member has not voted on any proposals yet", async () => {
@@ -338,6 +331,7 @@ describe("Adapter - Ragequit", () => {
   });
 
   it("should be possible for an Advisor to ragequit", async () => {
+    const owner = accounts[1];
     const advisorAccount = accounts[2];
     const lootUnitPrice = 10;
     const chunkSize = 5;
@@ -472,7 +466,7 @@ describe("Adapter - Ragequit", () => {
 
     //Member attempts to sponsor a proposal after the ragequit
     proposalId = getProposalCounter();
-    await expect(
+    await expectRevert(
       onboardingNewMember(
         proposalId,
         this.dao,
@@ -482,15 +476,17 @@ describe("Adapter - Ragequit", () => {
         memberAddr,
         unitPrice,
         UNITS
-      )
-    ).to.be.revertedWith("onlyMember");
+      ),
+      "onlyMember"
+    );
 
-    await expect(
+    await expectRevert(
       voting.submitVote(this.dao.address, proposalId, 1, {
         from: memberAddr,
         gasPrice: toBN("0"),
-      })
-    ).to.be.revertedWith("onlyMember");
+      }),
+      "onlyMember"
+    );
   });
 
   it("should not be possible to ragequit if the member have provided an invalid token", async () => {
@@ -502,7 +498,7 @@ describe("Adapter - Ragequit", () => {
 
     //Ragequit - Attempts to ragequit using an invalid token to receive funds
     let invalidToken = accounts[7];
-    await expect(
+    await expectRevert(
       this.adapters.ragequit.ragequit(
         this.dao.address,
         memberUnits,
@@ -512,8 +508,9 @@ describe("Adapter - Ragequit", () => {
           from: owner,
           gasPrice: toBN("0"),
         }
-      )
-    ).to.be.revertedWith("token not allowed");
+      ),
+      "token not allowed"
+    );
   });
 
   it("should not be possible to ragequit if there are no tokens to receive the funds", async () => {
@@ -542,7 +539,7 @@ describe("Adapter - Ragequit", () => {
     const memberUnits = await bank.balanceOf(newMember, UNITS);
     expect(memberUnits.toString()).equal("10000000000000000");
 
-    await expect(
+    await expectRevert(
       this.adapters.ragequit.ragequit(
         this.dao.address,
         memberUnits,
@@ -552,11 +549,12 @@ describe("Adapter - Ragequit", () => {
           from: newMember,
           gasPrice: toBN("0"),
         }
-      )
-    ).to.be.revertedWith("duplicate token");
+      ),
+      "duplicate token"
+    );
   });
 
-  it("should be possible to ragequit if there is a no token in the list", async () => {
+  it("should not be possible to ragequit if there is a duplicate token", async () => {
     const memberA = accounts[2];
     const bank = this.extensions.bankExt;
     const onboarding = this.adapters.onboarding;
@@ -577,208 +575,45 @@ describe("Adapter - Ragequit", () => {
     const memberAUnits = await bank.balanceOf(memberA, UNITS);
     expect(memberAUnits.toString()).equal("10000000000000000");
 
-    await this.adapters.ragequit.ragequit(
-      this.dao.address,
-      memberAUnits,
-      toBN(0),
-      [], //empty token array
-      {
-        from: memberA,
-        gasPrice: toBN("0"),
-      }
+    await expectRevert(
+      this.adapters.ragequit.ragequit(
+        this.dao.address,
+        memberAUnits,
+        toBN(0),
+        [], //empty token array
+        {
+          from: memberA,
+          gasPrice: toBN("0"),
+        }
+      ),
+      "missing tokens"
     );
-
-    expect((await bank.balanceOf(memberA, UNITS)).toString()).equal("0");
   });
 
   it("should not be possible to send ETH to the adapter via receive function", async () => {
     const adapter = this.adapters.ragequit;
-    await expect(
+    await expectRevert(
       web3.eth.sendTransaction({
         to: adapter.address,
         from: owner,
         gasPrice: toBN("0"),
         value: toWei("1"),
-      })
-    ).to.be.revertedWith("revert");
+      }),
+      "revert"
+    );
   });
 
   it("should not be possible to send ETH to the adapter via fallback function", async () => {
     const adapter = this.adapters.ragequit;
-    await expect(
+    await expectRevert(
       web3.eth.sendTransaction({
         to: adapter.address,
         from: owner,
         gasPrice: toBN("0"),
         value: toWei("1"),
         data: fromAscii("should go to fallback func"),
-      })
-    ).to.be.revertedWith("revert");
-  });
-
-  it("should be possible to ragequit even if a guild kick is in progress", async () => {
-    const member = owner;
-    const newMember = accounts[2];
-
-    const bank = this.extensions.bankExt;
-    const onboarding = this.adapters.onboarding;
-    const voting = this.adapters.voting;
-    const guildkickContract = this.adapters.guildkick;
-
-    await onboardingNewMember(
-      getProposalCounter(),
-      this.dao,
-      onboarding,
-      voting,
-      newMember,
-      member,
-      unitPrice,
-      UNITS
+      }),
+      "revert"
     );
-
-    const memberUnits = await bank.balanceOf(newMember, UNITS);
-    expect(memberUnits.toString()).equal("10000000000000000");
-
-    // Start a new kick proposal
-    let memberToKick = newMember;
-    let kickProposalId = getProposalCounter();
-
-    await guildKickProposal(
-      this.dao,
-      guildkickContract,
-      memberToKick,
-      member,
-      kickProposalId
-    );
-
-    await this.adapters.ragequit.ragequit(
-      this.dao.address,
-      memberUnits,
-      toBN(0),
-      [], //empty token array
-      {
-        from: memberToKick,
-        gasPrice: toBN("0"),
-      }
-    );
-
-    expect((await bank.balanceOf(memberToKick, UNITS)).toString()).equal("0");
-  });
-
-  it("should be possible to partially ragequit even if a guild kick is in progress", async () => {
-    const member = owner;
-    const newMember = accounts[2];
-
-    const bank = this.extensions.bankExt;
-    const onboarding = this.adapters.onboarding;
-    const voting = this.adapters.voting;
-    const guildkickContract = this.adapters.guildkick;
-
-    await onboardingNewMember(
-      getProposalCounter(),
-      this.dao,
-      onboarding,
-      voting,
-      newMember,
-      member,
-      unitPrice,
-      UNITS
-    );
-
-    const memberUnits = await bank.balanceOf(newMember, UNITS);
-    expect(memberUnits.toString()).equal("10000000000000000");
-
-    // Start a new kick proposal
-    let memberToKick = newMember;
-    let kickProposalId = getProposalCounter();
-
-    await guildKickProposal(
-      this.dao,
-      guildkickContract,
-      memberToKick,
-      member,
-      kickProposalId
-    );
-
-    const burnUnits = toBN(50000);
-    await this.adapters.ragequit.ragequit(
-      this.dao.address,
-      burnUnits,
-      toBN(0),
-      [], //empty token array
-      {
-        from: memberToKick,
-        gasPrice: toBN("0"),
-      }
-    );
-
-    expect(await bank.balanceOf(memberToKick, UNITS)).to.be.equal(
-      memberUnits.sub(burnUnits)
-    );
-  });
-
-  it("should not be possible to transfer the remaining units after a partial ragequit if the member was in jail", async () => {
-    const member = owner;
-    const newMember = accounts[2];
-
-    const bank = this.extensions.bankExt;
-    const onboarding = this.adapters.onboarding;
-    const voting = this.adapters.voting;
-    const guildkickContract = this.adapters.guildkick;
-
-    await onboardingNewMember(
-      getProposalCounter(),
-      this.dao,
-      onboarding,
-      voting,
-      newMember,
-      member,
-      unitPrice,
-      UNITS
-    );
-
-    const memberUnits = await bank.balanceOf(newMember, UNITS);
-    expect(memberUnits.toString()).equal("10000000000000000");
-
-    // Start a new kick proposal
-    let memberToKick = newMember;
-    let kickProposalId = getProposalCounter();
-
-    await guildKickProposal(
-      this.dao,
-      guildkickContract,
-      memberToKick,
-      member,
-      kickProposalId
-    );
-
-    const burnUnits = toBN(50000);
-    await this.adapters.ragequit.ragequit(
-      this.dao.address,
-      burnUnits,
-      toBN(0),
-      [], //empty token array
-      {
-        from: memberToKick,
-        gasPrice: toBN("0"),
-      }
-    );
-
-    expect(await bank.balanceOf(memberToKick, UNITS)).to.be.equal(
-      memberUnits.sub(burnUnits)
-    );
-
-    const { erc20Ext } = this.extensions;
-    const erc20 = new Contract(
-      erc20Ext.address,
-      erc20Ext.abi,
-      await hre.ethers.getSigner(newMember)
-    );
-
-    // After the partial ragequit the member must be in jail
-    // so moving the funds are not allowed
-    await expect(
-      erc20.transfer(owner, 1, { from: memberToKick })
-    ).to.be.revertedWith("no transfer from jail");
   });
 });

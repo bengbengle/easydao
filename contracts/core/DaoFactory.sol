@@ -128,12 +128,6 @@ contract DaoFactory is CloneFactory {
      * @param dao DaoRegistry for which the extension is being configured.
      * @param extension The address of the extension to be configured.
      * @param adapters Adapter structs for which the ACL is being set for the extension.
-     * @notice 配置扩展为需要访问扩展的每个适配器设置 ACL。 
-     * @dev 消息发送者必须是 DAO 的活跃成员。 
-     * @dev DAO 必须处于 `CREATION` 状态。 
-     * @param dao DaoRegistry 正在为其配置扩展。 
-     * @param extension 要配置的扩展地址。 
-     * @param adapters 为扩展设置 ACL 的适配器结构。
      */
     function configureExtension(
         DaoRegistry dao,

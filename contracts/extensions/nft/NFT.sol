@@ -69,7 +69,6 @@ contract NFTExtension is IExtension, IERC721Receiver {
         require(
             dao == _dao &&
                 (DaoHelper.isInCreationModeAndHasAccess(dao) ||
-                    !initialized ||
                     dao.hasAdapterAccessToExtension(
                         msg.sender,
                         address(this),
@@ -86,9 +85,12 @@ contract NFTExtension is IExtension, IERC721Receiver {
     /**
      * @notice Initializes the extension with the DAO address that it belongs to.
      * @param _dao The address of the DAO that owns the extension.
+     * @param creator The owner of the DAO and Extension that is also a member of the DAO.
      */
-    function initialize(DaoRegistry _dao, address) external override {
-        require(!initialized, "already initialized");
+    function initialize(DaoRegistry _dao, address creator) external override {
+        require(!initialized, "erc721::already initialized");
+        require(_dao.isMember(creator), "erc721::not a member");
+
         initialized = true;
         dao = _dao;
     }
@@ -107,6 +109,7 @@ contract NFTExtension is IExtension, IERC721Receiver {
         uint256 nftTokenId
     ) external hasExtensionAccess(_dao, AclFlag.COLLECT_NFT) {
         IERC721 erc721 = IERC721(nftAddr);
+        // Move the NFT to the contract address
         address currentOwner = erc721.ownerOf(nftTokenId);
         //If the NFT is already in the NFTExtension, update the ownership if not set already
         if (currentOwner == address(this)) {
@@ -115,8 +118,8 @@ contract NFTExtension is IExtension, IERC721Receiver {
                 // slither-disable-next-line reentrancy-events
                 emit CollectedNFT(nftAddr, nftTokenId);
             }
-        } else {
             //If the NFT is not in the NFTExtension, we try to transfer from the current owner of the NFT to the extension
+        } else {
             _saveNft(nftAddr, nftTokenId, DaoHelper.GUILD);
             erc721.safeTransferFrom(currentOwner, address(this), nftTokenId);
             // slither-disable-next-line reentrancy-events
@@ -146,7 +149,8 @@ contract NFTExtension is IExtension, IERC721Receiver {
             _nfts[nftAddr].remove(nftTokenId),
             "erc721::can not remove token id"
         );
-        IERC721(nftAddr).safeTransferFrom(address(this), newOwner, nftTokenId);
+        IERC721 erc721 = IERC721(nftAddr);
+        erc721.safeTransferFrom(address(this), newOwner, nftTokenId);
         // Remove the asset from the extension
         delete _ownership[getNFTId(nftAddr, nftTokenId)];
 
@@ -177,7 +181,6 @@ contract NFTExtension is IExtension, IERC721Receiver {
     ) external hasExtensionAccess(_dao, AclFlag.INTERNAL_TRANSFER) {
         require(newOwner != address(0x0), "erc721::new owner is 0");
         address currentOwner = _ownership[getNFTId(nftAddr, nftTokenId)];
-        require(_dao.notJailed(currentOwner), "member is jailed");
         require(currentOwner != address(0x0), "erc721::nft not found");
 
         _ownership[getNFTId(nftAddr, nftTokenId)] = newOwner;
@@ -261,21 +264,6 @@ contract NFTExtension is IExtension, IERC721Receiver {
     }
 
     /**
-     * @notice Must be manually called if the NFT was received via transferFrom function.
-     * @notice If this function is not called, the NFT metadata won't be stored in the extension,
-     * because the transferFrom call does not trigger the onERC721Received callback.
-     * @notice If the NFT is not owner by the Extension, the update call is not allowed, this is done to
-     * ensure that the NFT was actually sent to the Extension address.
-     */
-    function updateCollection(address token, uint256 tokenId) external {
-        require(
-            IERC721(token).ownerOf(tokenId) == address(this),
-            "update not allowed"
-        );
-        _saveNft(token, tokenId, DaoHelper.GUILD);
-    }
-
-    /**
      * @notice Helper function to update the extension states for an NFT collected by the extension.
      * @param nftAddr The NFT address.
      * @param nftTokenId The token id.
@@ -292,10 +280,7 @@ contract NFTExtension is IExtension, IERC721Receiver {
             // set ownership to the GUILD.
             _ownership[getNFTId(nftAddr, nftTokenId)] = owner;
             // Keep track of the collected assets.
-            if (!_nftAddresses.contains(nftAddr)) {
-                //slither-disable-next-line unused-return
-                _nftAddresses.add(nftAddr);
-            }
+            require(_nftAddresses.add(nftAddr), "erc721::can not add nft");
         }
     }
 }

@@ -25,7 +25,6 @@ export const daoAccessFlagsMap: Record<string, string> = {
   ADD_EXTENSION: "ADD_EXTENSION",
   REMOVE_EXTENSION: "REMOVE_EXTENSION",
   NEW_MEMBER: "NEW_MEMBER",
-  JAIL_MEMBER: "JAIL_MEMBER"
 };
 
 export const daoAccessFlags: Array<string> = Object.values(daoAccessFlagsMap);

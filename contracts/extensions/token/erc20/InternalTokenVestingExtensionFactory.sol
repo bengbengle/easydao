@@ -52,34 +52,21 @@ contract InternalTokenVestingExtensionFactory is
     }
 
     /**
-     * @notice Creates a new extension using clone factory.
-     * @notice It can set additional arguments to the extension.
-     * @notice It initializes the extension and sets the DAO owner as the extension creator.
-     * @notice The safest way to read the new extension address is to read it from the event.
-     * @param dao The dao address that will be associated with the new extension.
+     * @notice Creates a clone of the ERC20 Token Extension.
      */
-    function create(DaoRegistry dao) external nonReentrant {
-        address daoAddress = address(dao);
-        require(daoAddress != address(0x0), "invalid dao addr");
+    function create(address dao) external nonReentrant {
+        require(dao != address(0x0), "invalid dao addr");
         address payable extensionAddr = _createClone(identityAddress);
-        _extensions[daoAddress] = extensionAddr;
+        _extensions[dao] = extensionAddr;
 
-        InternalTokenVestingExtension extension = InternalTokenVestingExtension(
+        InternalTokenVestingExtension ext = InternalTokenVestingExtension(
             extensionAddr
         );
-        extension.initialize(dao, address(0));
-        // slither-disable-next-line reentrancy-events
-        emit InternalTokenVestingExtensionCreated(
-            daoAddress,
-            address(extension)
-        );
+        emit InternalTokenVestingExtensionCreated(dao, address(ext));
     }
 
     /**
      * @notice Returns the extension address created for that DAO, or 0x0... if it does not exist.
-     * @notice Do not rely on the result returned by this right after the new extension is cloned,
-     * because it is prone to front-running attacks. During the extension creation it is safer to
-     * read the new extension address from the event generated in the create call transaction.
      */
     function getExtensionAddress(address dao)
         external

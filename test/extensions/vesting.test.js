@@ -24,9 +24,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-const { expect } = require("chai");
 
-const { UNITS, toBN, ZERO_ADDRESS } = require("../../utils/contract-util");
+const { UNITS, toBN } = require("../../utils/contract-util");
 
 const { toNumber } = require("web3-utils");
 
@@ -35,30 +34,22 @@ const {
   revertChainSnapshot,
   deployDefaultDao,
   advanceTime,
-  getAccounts,
-  InternalTokenVestingExtension,
-} = require("../../utils/hardhat-test-util");
+  accounts,
+  expect,
+  expectRevert,
+} = require("../../utils/oz-util");
 
 describe("Extension - Vesting", () => {
-  let accounts, daoOwner, creator;
+  const daoOwner = accounts[0];
 
   before("deploy dao", async () => {
-    accounts = await getAccounts();
-    daoOwner = accounts[0];
-    creator = accounts[1];
-
-    const { dao, adapters, extensions, factories, testContracts } =
-      await deployDefaultDao({
-        owner: daoOwner,
-        finalize: false,
-      });
-
+    const { dao, adapters, extensions, testContracts } = await deployDefaultDao(
+      { owner: daoOwner, finalize: false }
+    );
     this.dao = dao;
     this.adapters = adapters;
     this.extensions = extensions;
     this.testContracts = testContracts;
-    this.factories = factories;
-
     this.snapshotId = await takeChainSnapshot();
   });
 
@@ -68,79 +59,6 @@ describe("Extension - Vesting", () => {
 
   afterEach(async () => {
     await revertChainSnapshot(this.snapshotId);
-  });
-
-  describe("Factory", async () => {
-    it("should be possible to create an extension using the factory", async () => {
-      const { logs } = await this.factories.vestingExtFactory.create(
-        this.dao.address
-      );
-      const log = logs[0];
-      expect(log.event).to.be.equal("InternalTokenVestingExtensionCreated");
-      expect(log.args[0]).to.be.equal(this.dao.address);
-      expect(log.args[1]).to.not.be.equal(ZERO_ADDRESS);
-    });
-
-    it("should be possible to get an extension address by dao", async () => {
-      await this.factories.vestingExtFactory.create(this.dao.address);
-      const extAddress =
-        await this.factories.vestingExtFactory.getExtensionAddress(
-          this.dao.address
-        );
-      expect(extAddress).to.not.be.equal(ZERO_ADDRESS);
-    });
-
-    it("should return zero address if there is no extension address by dao", async () => {
-      const daoAddress = accounts[2];
-      const extAddress =
-        await this.factories.vestingExtFactory.getExtensionAddress(daoAddress);
-      expect(extAddress).to.be.equal(ZERO_ADDRESS);
-    });
-
-    it("should not be possible to create an extension using a zero address dao", async () => {
-      await expect(this.factories.vestingExtFactory.create(ZERO_ADDRESS)).to.be
-        .reverted;
-    });
-  });
-
-  describe("Access Control", async () => {
-    it("should not be possible to call initialize more than once", async () => {
-      const extension = this.extensions.vestingExt;
-      await expect(
-        extension.initialize(this.dao.address, daoOwner)
-      ).to.be.revertedWith("already initialized");
-    });
-
-    it("should be possible to call initialize with a non member", async () => {
-      const extension = await InternalTokenVestingExtension.new();
-      await extension.initialize(this.dao.address, creator);
-      expect(await extension.initialized()).to.be.true;
-    });
-
-    it("should not be possible to call createNewVesting without the NEW_VESTING permission", async () => {
-      // Finalize the DAO to be able to check the extension permissions
-      await this.dao.finalizeDao({ from: daoOwner });
-      const vesting = this.extensions.vestingExt;
-      const now = new Date();
-      await expect(
-        vesting.createNewVesting(
-          this.dao.address,
-          daoOwner,
-          UNITS,
-          100,
-          Math.floor(now.getTime() / 1000)
-        )
-      ).to.be.revertedWith("vestingExt::accessDenied");
-    });
-
-    it("should not be possible to call removeVesting without the REMOVE_VESTING permission", async () => {
-      // Finalize the DAO to be able to check the extension permissions
-      await this.dao.finalizeDao({ from: daoOwner });
-      const vesting = this.extensions.vestingExt;
-      await expect(
-        vesting.removeVesting(this.dao.address, daoOwner, UNITS, 100)
-      ).to.be.revertedWith("vestingExt::accessDenied");
-    });
   });
 
   it("should be able to create vesting and the blocked amount should change with time", async () => {
@@ -296,5 +214,35 @@ describe("Extension - Vesting", () => {
 
     minBalance = await vesting.getMinimumBalance(daoOwner, UNITS);
     expect(toNumber(minBalance.toString())).to.be.closeTo(25, 1);
+  });
+
+  it("should not be possible to create a new vesting without the ACL permission", async () => {
+    // Finalize the DAO to be able to check the extension permissions
+    await this.dao.finalizeDao({ from: daoOwner });
+    const vesting = this.extensions.vestingExt;
+    const now = new Date();
+    await expectRevert(
+      vesting.createNewVesting(
+        this.dao.address,
+        daoOwner,
+        UNITS,
+        100,
+        Math.floor(now.getTime() / 1000),
+        { from: daoOwner }
+      ),
+      "vestingExt::accessDenied"
+    );
+  });
+
+  it("should not be possible to removeVesting a vesting schedule the without ACL permission", async () => {
+    // Finalize the DAO to be able to check the extension permissions
+    await this.dao.finalizeDao({ from: daoOwner });
+    const vesting = this.extensions.vestingExt;
+    await expectRevert(
+      vesting.removeVesting(this.dao.address, daoOwner, UNITS, 100, {
+        from: daoOwner,
+      }),
+      "vestingExt::accessDenied"
+    );
   });
 });

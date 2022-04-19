@@ -27,7 +27,7 @@ SOFTWARE.
 
 // Whole-script strict mode syntax
 "use strict";
-const { expect } = require("chai");
+
 const {
   toBN,
   toWei,
@@ -47,11 +47,15 @@ const {
   revertChainSnapshot,
   proposalIdGenerator,
   advanceTime,
-  getAccounts,
+  accounts,
+  expectRevert,
+  expect,
   web3,
-} = require("../../utils/hardhat-test-util");
+} = require("../../utils/oz-util");
 
 const { onboardingNewMember } = require("../../utils/test-util");
+
+const daoOwner = accounts[2];
 
 const proposalCounter = proposalIdGenerator().generator;
 
@@ -60,16 +64,11 @@ function getProposalCounter() {
 }
 
 describe("Adapter - Distribute", () => {
-  let accounts, daoOwner;
-
   before("deploy dao", async () => {
-    accounts = await getAccounts();
-    daoOwner = accounts[0];
-
     const { dao, adapters, extensions, factories } = await deployDefaultDao({
       owner: daoOwner,
+      // creator: accounts[5]
     });
-
     this.dao = dao;
     this.adapters = adapters;
     this.extensions = extensions;
@@ -254,14 +253,14 @@ describe("Adapter - Distribute", () => {
     expect(memberBBalance.toString()).equal("0");
 
     let numberOfMembers = await dao.getNbMembers();
-    // It is expected to get 4 members:
+    // It is expected to get 5 members:
     // 1 - dao owner
-    // 2 - dao factory
-    // 3 - dao payer (who paid to create the dao)
-    // 4 - dao member
+    // 1 - dao factory
+    // 1 - dao payer (who paid to create the dao)
+    // 2 - dao members
     // But the dao owner and the factory addresses are not active members
     // so they will not receive funds.
-    expect(numberOfMembers.toString()).equal("4");
+    expect(numberOfMembers.toString()).equal("5");
 
     // Distribute the funds to the DAO member
     // toIndex = number of members to process and distribute the funds to all members
@@ -289,7 +288,7 @@ describe("Adapter - Distribute", () => {
 
     // Submit distribute proposal with invalid amount
     const amountToDistribute = 0;
-    await expect(
+    await expectRevert(
       distributeContract.submitProposal(
         dao.address,
         getProposalCounter(),
@@ -301,8 +300,9 @@ describe("Adapter - Distribute", () => {
           from: daoOwner,
           gasPrice: toBN("0"),
         }
-      )
-    ).to.be.revertedWith("invalid amount");
+      ),
+      "invalid amount"
+    );
   });
 
   it("should not be possible to create a proposal with an invalid token", async () => {
@@ -311,7 +311,7 @@ describe("Adapter - Distribute", () => {
 
     // Submit distribute proposal with invalid token
     const invalidToken = "0x0000000000000000000000000000000000000123";
-    await expect(
+    await expectRevert(
       distributeContract.submitProposal(
         dao.address,
         getProposalCounter(),
@@ -323,8 +323,9 @@ describe("Adapter - Distribute", () => {
           from: daoOwner,
           gasPrice: toBN("0"),
         }
-      )
-    ).to.be.revertedWith("token not allowed");
+      ),
+      "token not allowed"
+    );
   });
 
   it("should not be possible to create a proposal if the sender is not a member", async () => {
@@ -332,7 +333,7 @@ describe("Adapter - Distribute", () => {
     const dao = this.dao;
     const distributeContract = this.adapters.distribute;
 
-    await expect(
+    await expectRevert(
       distributeContract.submitProposal(
         dao.address,
         getProposalCounter(),
@@ -344,8 +345,9 @@ describe("Adapter - Distribute", () => {
           from: nonMember, // The sender is not a member
           gasPrice: toBN("0"),
         }
-      )
-    ).to.be.revertedWith("onlyMember");
+      ),
+      "onlyMember"
+    );
   });
 
   it("should not be possible to create a proposal if the target member does not have units (advisor)", async () => {
@@ -368,7 +370,7 @@ describe("Adapter - Distribute", () => {
     );
 
     // Submit distribute proposal with a non active member
-    await expect(
+    await expectRevert(
       distributeContract.submitProposal(
         dao.address,
         getProposalCounter(),
@@ -380,8 +382,9 @@ describe("Adapter - Distribute", () => {
           from: daoOwner,
           gasPrice: toBN("0"),
         }
-      )
-    ).to.be.revertedWith("not enough units");
+      ),
+      "not enough units"
+    );
   });
 
   it("should not be possible to create a proposal if the a non member is indicated to receive the funds", async () => {
@@ -390,7 +393,7 @@ describe("Adapter - Distribute", () => {
     const distributeContract = this.adapters.distribute;
 
     // Submit distribute proposal with a non member
-    await expect(
+    await expectRevert(
       distributeContract.submitProposal(
         dao.address,
         getProposalCounter(),
@@ -402,8 +405,9 @@ describe("Adapter - Distribute", () => {
           from: daoOwner,
           gasPrice: toBN("0"),
         }
-      )
-    ).to.be.revertedWith("not enough units");
+      ),
+      "not enough units"
+    );
   });
 
   it("should not be possible to create more than one proposal using the same proposal id", async () => {
@@ -435,7 +439,7 @@ describe("Adapter - Distribute", () => {
     );
 
     // Submit distribute proposal using the same id
-    await expect(
+    await expectRevert(
       distributeContract.submitProposal(
         dao.address,
         proposalId,
@@ -447,8 +451,9 @@ describe("Adapter - Distribute", () => {
           from: daoOwner,
           gasPrice: toBN("0"),
         }
-      )
-    ).to.be.revertedWith("proposalId must be unique");
+      ),
+      "proposalId must be unique"
+    );
   });
 
   it("should not be possible to process a proposal that was not voted on", async () => {
@@ -480,12 +485,13 @@ describe("Adapter - Distribute", () => {
     );
 
     // Starts to process the proposal
-    await expect(
+    await expectRevert(
       distributeContract.processProposal(dao.address, proposalId, {
         from: daoOwner,
         gasPrice: toBN("0"),
-      })
-    ).to.be.revertedWith("proposal has not been voted on");
+      }),
+      "proposal has not been voted on"
+    );
   });
 
   it("should not be possible to distribute if proposal vote result is TIE", async () => {
@@ -536,12 +542,13 @@ describe("Adapter - Distribute", () => {
     });
 
     // Try to distribute funds when the proposal is not in progress
-    await expect(
+    await expectRevert(
       distributeContract.distribute(dao.address, 0, {
         from: daoOwner,
         gasPrice: toBN("0"),
-      })
-    ).to.be.revertedWith("distrib completed or not exist");
+      }),
+      "distrib completed or not exist"
+    );
   });
 
   it("should not be possible to distribute if proposal vote result is NOT_PASS", async () => {
@@ -593,12 +600,13 @@ describe("Adapter - Distribute", () => {
     });
 
     // Try to distribute funds when the proposal is not in progress
-    await expect(
+    await expectRevert(
       distributeContract.distribute(dao.address, 0, {
         from: daoOwner,
         gasPrice: toBN("0"),
-      })
-    ).to.be.revertedWith("distrib completed or not exist");
+      }),
+      "distrib completed or not exist"
+    );
   });
 
   it("should not be possible to process a proposal that was already processed", async () => {
@@ -643,12 +651,13 @@ describe("Adapter - Distribute", () => {
     });
 
     // Attempt to process the same proposal that is already in progress
-    await expect(
+    await expectRevert(
       distributeContract.processProposal(dao.address, proposalId, {
         from: daoOwner,
         gasPrice: toBN("0"),
-      })
-    ).to.be.revertedWith("flag already set");
+      }),
+      "flag already set"
+    );
   });
 
   it("should not be possible to process a new proposal if there is another in progress", async () => {
@@ -710,12 +719,13 @@ describe("Adapter - Distribute", () => {
     await advanceTime(10000);
 
     // Attempt to process the new proposal but there is one in progress already
-    await expect(
+    await expectRevert(
       distributeContract.processProposal(dao.address, result.proposalId, {
         from: daoOwner,
         gasPrice: toBN("0"),
-      })
-    ).to.be.revertedWith("another proposal already in progress");
+      }),
+      "another proposal already in progress"
+    );
   });
 
   it("should not be possible to distribute the funds if the proposal is not in progress", async () => {
@@ -747,36 +757,39 @@ describe("Adapter - Distribute", () => {
     );
 
     // Try to distribute funds when the proposal is not in progress
-    await expect(
+    await expectRevert(
       distributeContract.distribute(dao.address, 1, {
         from: daoOwner,
         gasPrice: toBN("0"),
-      })
-    ).to.be.revertedWith("distrib completed or not exist");
+      }),
+      "distrib completed or not exist"
+    );
   });
 
   it("should not be possible to send ETH to the adapter via receive function", async () => {
     const adapter = this.adapters.distribute;
-    await expect(
+    await expectRevert(
       web3.eth.sendTransaction({
         to: adapter.address,
         from: daoOwner,
         gasPrice: toBN("0"),
         value: toWei("1"),
-      })
-    ).to.be.revertedWith("revert");
+      }),
+      "revert"
+    );
   });
 
   it("should not be possible to send ETH to the adapter via fallback function", async () => {
     const adapter = this.adapters.distribute;
-    await expect(
+    await expectRevert(
       web3.eth.sendTransaction({
         to: adapter.address,
         from: daoOwner,
         gasPrice: toBN("0"),
         value: toWei("1"),
         data: fromAscii("should go to fallback func"),
-      })
-    ).to.be.revertedWith("revert");
+      }),
+      "revert"
+    );
   });
 });

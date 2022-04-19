@@ -84,7 +84,6 @@ contract ERC1155TokenExtension is IExtension, IERC1155Receiver {
         require(
             _dao == dao &&
                 (DaoHelper.isInCreationModeAndHasAccess(dao) ||
-                    !initialized ||
                     dao.hasAdapterAccessToExtension(
                         msg.sender,
                         address(this),
@@ -101,9 +100,12 @@ contract ERC1155TokenExtension is IExtension, IERC1155Receiver {
     /**
      * @notice Initializes the extension with the DAO address that it belongs to.
      * @param _dao The address of the DAO that owns the extension.
+     * @param creator The owner of the DAO and Extension that is also a member of the DAO.
      */
-    function initialize(DaoRegistry _dao, address) external override {
-        require(!initialized, "already initialized");
+    function initialize(DaoRegistry _dao, address creator) external override {
+        require(!initialized, "erc1155Ext::already initialized");
+        require(_dao.isMember(creator), "erc1155Ext::not a member");
+
         initialized = true;
         dao = _dao;
     }
@@ -149,9 +151,9 @@ contract ERC1155TokenExtension is IExtension, IERC1155Receiver {
         // Updates the mappings if the amount of tokenId in the Extension is 0
         // It means the GUILD/Extension does not hold that token id anymore.
         if (ownerTokenIdBalance == 0) {
-            delete _nftTracker[from][nftAddr][nftTokenId];
+            delete _nftTracker[newOwner][nftAddr][nftTokenId];
             //slither-disable-next-line unused-return
-            _ownership[getNFTId(nftAddr, nftTokenId)].remove(from);
+            _ownership[getNFTId(nftAddr, nftTokenId)].remove(newOwner);
             //slither-disable-next-line unused-return
             _nfts[nftAddr].remove(nftTokenId);
             // If there are 0 tokenIds for the NFT address, remove the NFT from the collection
@@ -192,7 +194,6 @@ contract ERC1155TokenExtension is IExtension, IERC1155Receiver {
         uint256 nftTokenId,
         uint256 amount
     ) external hasExtensionAccess(_dao, AclFlag.INTERNAL_TRANSFER) {
-        require(_dao.notJailed(fromOwner), "member is jailed!");
         // Checks if there token amount is valid and has enough funds
         uint256 tokenAmount = _getTokenAmount(fromOwner, nftAddr, nftTokenId);
         require(
@@ -377,7 +378,7 @@ contract ERC1155TokenExtension is IExtension, IERC1155Receiver {
             _saveNft(msg.sender, ids[i], DaoHelper.GUILD, values[i]);
         }
 
-        return this.onERC1155BatchReceived.selector;
+        return this.onERC1155Received.selector;
     }
 
     /**
