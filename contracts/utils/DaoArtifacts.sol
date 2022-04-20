@@ -30,6 +30,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract DaoArtifacts is Ownable {
     // Types of artifacts that can be stored in this contract
+    // 可以存储在此合约中的工件类型
     enum ArtifactType {
         CORE,
         FACTORY,
@@ -64,6 +65,11 @@ contract DaoArtifacts is Ownable {
      * @param _version The version of the adapter.
      * @param _address The address of the adapter to be stored.
      * @param _type The artifact type: 0 = Core, 1 = Factory, 2 = Extension, 3 = Adapter, 4 = Util.
+     * @notice 将适配器地址添加到存储中 
+     * @param _id 适配器的 id (sha3)。 
+     * @param _version 适配器的版本。 
+     * @param _address 要存储的适配器的地址。 
+     * @param _type 工件类型：0 = Core，1 = Factory，2 = Extension，3 = Adapter，4 = Util
      */
     function addArtifact(
         bytes32 _id,
@@ -83,6 +89,12 @@ contract DaoArtifacts is Ownable {
      * @param _version The version of the adapter/extension factory.
      * @param _type The type of the artifact: 0 = Core, 1 = Factory, 2 = Extension, 3 = Adapter, 4 = Util.
      * @return The address of the adapter/extension factory if any.
+     * @notice 从存储中检索适配器/扩展工厂地址。 
+     * @param _id 适配器/扩展工厂 (sha3) 的 id。 
+     * @param _owner 适配器/扩展工厂所有者的地址。 
+     * @param _version 适配器/扩展工厂的版本。 
+     * @param _type 工件的类型：0 = 核心，1 = 工厂，2 = 扩展，3 = 适配器，4 = 实用程序。 
+     * @return 适配器/扩展工厂的地址（如果有）。
      */
     function getArtifactAddress(
         bytes32 _id,

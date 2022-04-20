@@ -31,6 +31,7 @@ SOFTWARE.
 abstract contract AdapterGuard {
     /**
      * @dev Only registered adapters are allowed to execute the function call.
+     * @dev 只允许注册的适配器执行函数调用
      */
     modifier onlyAdapter(DaoRegistry dao) {
         require(
@@ -55,7 +56,7 @@ abstract contract AdapterGuard {
         require(address(this) == executorAddr, "only callable by the executor");
         _;
     }
-
+    
     modifier hasAccess(DaoRegistry dao, DaoRegistry.AclFlag flag) {
         require(
             DaoHelper.isInCreationModeAndHasAccess(dao) ||

@@ -676,6 +676,8 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     /**
      * @param checkAddr The address to check for a delegate
      * @return the delegated address or the checked address if it is not a delegate
+     * @param checkAddr 检查委托的地址 
+     * @return 委托的地址，如果不是委托，则返回检查的地址
      */
     function getAddressIfDelegated(address checkAddr)
         external

@@ -57,12 +57,14 @@ contract NFTExtension is IExtension, IERC721Receiver {
     event WithdrawnNFT(address nftAddr, uint256 nftTokenId, address toAddress);
 
     // All the Token IDs that belong to an NFT address stored in the GUILD collection
+    // GUILD 集合中存储的属于某个 NFT 地址的所有 Token ID
     mapping(address => EnumerableSet.UintSet) private _nfts;
 
     // The internal owner of record of an NFT that has been transferred to the extension
     mapping(bytes32 => address) private _ownership;
 
     // All the NFTs addresses collected and stored in the GUILD collection
+    // 收集并存储在 GUILD 集合中的所有 NFT 地址
     EnumerableSet.AddressSet private _nftAddresses;
 
     modifier hasExtensionAccess(DaoRegistry _dao, AclFlag flag) {
@@ -145,6 +147,7 @@ contract NFTExtension is IExtension, IERC721Receiver {
         uint256 nftTokenId
     ) external hasExtensionAccess(_dao, AclFlag.WITHDRAW_NFT) {
         // Remove the NFT from the contract address to the actual owner
+        // 将 NFT 从合约地址中取出给实际拥有者
         require(
             _nfts[nftAddr].remove(nftTokenId),
             "erc721::can not remove token id"
@@ -152,9 +155,11 @@ contract NFTExtension is IExtension, IERC721Receiver {
         IERC721 erc721 = IERC721(nftAddr);
         erc721.safeTransferFrom(address(this), newOwner, nftTokenId);
         // Remove the asset from the extension
+        // 从扩展中删除资产
         delete _ownership[getNFTId(nftAddr, nftTokenId)];
 
         // If we dont hold asset from this address anymore, we can remove it
+        // 如果我们不再持有该地址的资产，我们可以将其移除
         if (_nfts[nftAddr].length() == 0) {
             require(
                 _nftAddresses.remove(nftAddr),
