@@ -145,6 +145,7 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     /// @notice The map that keeps track of all adapters registered in the DAO
     mapping(bytes32 => address) public adapters;
     /// @notice The inverse map to get the adapter id based on its address
+    /// @notice 根据地址获取适配器 id 的逆映射
     mapping(address => AdapterEntry) public inverseAdapters;
     /// @notice The map that keeps track of all extensions registered in the DAO
     mapping(bytes32 => address) public extensions;
@@ -421,6 +422,10 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
      * @return Whether or not the given adapter has the given flag set
      * @param adapterAddress The address to look up
      * @param flag The ACL flag to check against the given address
+     * @notice 检查适配器是否具有给定的 ACL 标志 
+     * @return 给定的适配器是否设置了给定的标志 
+     * @param adapterAddress 要查找的地址 
+     * @param flag 用于检查给定地址的 ACL 标志
      */
     function hasAdapterAccess(address adapterAddress, AclFlag flag)
         external

@@ -9,7 +9,7 @@ services:
     environment:
       ENV: "local"
       PORT: 8080
-      RELAYER_PK: "0xb80a5165a59af8ce566266fcd0e919e13ed4ecbd57ae952e73ae2cddc08b84c6"
+      RELAYER_PK: "d89be7dccd2768b7295eadf44bdeacb4fc67f236fc970aad037ea2d7b90f8587"
       ALCHEMY_API_URL: "http://rinkeby.openlaw.io:8545"
       JAWSDB_URL: "postgres://snap:pwd123@trib-snapshot-db:5432/snapshot-db"
       IGNORE_VOTE_END_CONSTRAINT: "true"
@@ -87,29 +87,29 @@ services:
   #     POSTGRES_DB: graph-db
 
   # The Tribute UI React App
-  trib-ui:
-    # tribute-ui@v2.1.0 integrated with v2.3.5
-    image: openlaw/tribute-ui:main-6272c48a
-    container_name: trib-ui
-    ports:
-      - "3000:3000"
-    command: ["npm", "start"]
-    depends_on:
-      - trib-snapshot-hub
-    env_file:
-      - ../.env
-    environment:
-      # Do not change it.
-      # The url of the subgraph running locally in a container.
-      REACT_APP_GRAPH_API_URL: "http://localhost:8000/subgraphs/name/openlawteam/tribute"
+  # trib-ui:
+  #   # tribute-ui@v2.1.0 integrated with v2.3.5
+  #   image: openlaw/tribute-ui:main-6272c48a
+  #   container_name: trib-ui
+  #   ports:
+  #     - "3000:3000"
+  #   command: ["npm", "start"]
+  #   depends_on:
+  #     - trib-snapshot-hub
+  #   env_file:
+  #     - ../.env
+  #   environment:
+  #     # Do not change it.
+  #     # The url of the subgraph running locally in a container.
+  #     REACT_APP_GRAPH_API_URL: "http://localhost:8000/subgraphs/name/openlawteam/tribute"
 
-      # Do not change it.
-      # The url of snaphot-hub running locally in a container.
-      REACT_APP_SNAPSHOT_HUB_API_URL: "http://localhost:9090"
+  #     # Do not change it.
+  #     # The url of snaphot-hub running locally in a container.
+  #     REACT_APP_SNAPSHOT_HUB_API_URL: "http://localhost:9090"
 
-      # Do not change it.
-      # The unique name registered in Snapshot Hub under which proposals, votes, etc. will be stored.
-      REACT_APP_SNAPSHOT_SPACE: "tribute"
+  #     # Do not change it.
+  #     # The unique name registered in Snapshot Hub under which proposals, votes, etc. will be stored.
+  #     REACT_APP_SNAPSHOT_SPACE: "tribute"
 
 networks:
   default:
