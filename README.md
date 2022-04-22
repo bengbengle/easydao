@@ -94,6 +94,11 @@ There are three core contracts as part of the Tribute DAO framework, including a
 
 Once a DAO is created using the above core contracts, they can be extended and modified with adapters and extensions. Adapters and extensions make it easy to assemble a DAO like lego blocks, by adding to a DAO narrowly-defined, tested, and extensible smart contracts created for specific purposes. Adapters and extensions make DAOs more modular, upgradeable, and also enable us to work together to build robust DAO tooling. They can be added to a TributeDAO via a DAO vote.
 
+一旦使用上述核心合约创建了 DAO，就可以使用适配器和扩展对其进行扩展和修改。
+适配器和扩展通过向 DAO 添加为特定目的而创建的经过严格定义、测试和可扩展的智能合约，可以轻松组装像乐高积木一样的 DAO。
+适配器和扩展使 DAO 更加模块化、可升级，并使我们能够共同构建强大的 DAO 工具。
+它们可以通过 DAO 投票添加到 TributeDAO。
+
 #### Adapters
 
 There are currently 12 adapters implemented in the Tribute DAO framework and these adapters make the Tribute DAO framework feature compatible with Moloch v2:
@@ -112,6 +117,7 @@ There are currently 12 adapters implemented in the Tribute DAO framework and the
 - [Withdraw](https://tributedao.com/docs/contracts/adapters/utils/bank-adapter#withdraw): allows the members to withdraw their funds from the DAO bank.
 
 The range of potential adapters will expand over time and likely will include:
+潜在适配器的范围将随着时间的推移而扩大，可能包括：
 
 - "Streams" to manage a DAO's treasury in a more agile way
 - Alternative voting structures to layer to improve DAO governance, including quadratic voting, one-member-one-vote voting
@@ -122,8 +128,18 @@ The range of potential adapters will expand over time and likely will include:
 - Creating a liquidity pool for a DAO's native asset
 - Staking or depositing assets into existing DeFi projects (like Aave, Compound, or Lido)
 
+- "流" 以更敏捷的方式管理 DAO 的金库 
+- 分层的替代投票结构 用于改善 DAO 治理，包括二次投票、一人一票 投票 
+- 将一个令牌换成另一个 
+- 流式支付 
+- 基于 NFT 的入职 
+- DAO 到 DAO 投票 
+- 为 DAO 的原生资产创建流动资金池 
+- 将资产质押或存入现有 DeFi 项目（如 Aave、Compound 或 Lido）
+
 Creating an adapter is straight forward and should save developers engineering time. Each adapter needs to be configured with the [Access Flags](#access-control-layer) in order to access the [Core Contracts](#core-contracts), and/or [Extensions](#extensions). Otherwise the Adapter will not able to pull/push information to/from the DAO.
 
+创建适配器很简单，应该可以节省开发人员的工程时间。每个适配器都需要配置 [Access Flags] 以访问 [Core Contracts] 和 [Extensions]。否则，适配器将无法从 DAO 获取/推送信息。
 Please note:
 
 - Adapters do not keep track of the state of the DAO. An adapter might use storage to control its own state, but ideally any DAO state change must be propagated to the DAORegistry Core Contract.
@@ -131,6 +147,9 @@ Please note:
 - The adapter must follow the rules defined by the [Template Adapter](https://tributedao.com/docs/tutorial/adapters/adapter-template).
 - If you want to contribute and create an Adapter, please checkout this: [How to create an Adapter](https://tributedao.com/docs/tutorial/adapters/creating-an-adapter).
 
+- 适配器不跟踪 DAO 的状态。适配器可能使用存储来控制自己的状态，但理想情况下，任何 DAO 状态更改都必须传播到 DAORegistry 核心合约， 最好是无状态的。 
+- 适配器只是执行智能合约逻辑，通过调用 DAORegistry 来改变 DAO 的状态。他们还可以编写与外部世界、其他适配器甚至扩展交互的复杂调用，以提取/推送附加信息。 
+- 适配器必须遵循 [模板适配器](https://tributedao.com/docs/tutorial/adapter/adapter-template) 定义的规则。 - 如果您想贡献并创建适配器，请查看：[如何创建适配器](https://tributedao.com/docs/tutorial/adapters/creating-an-adapter)。
 ### Extensions
 
 Extensions are conceived to isolate the complexity of state changes from the DAORegistry contract, and to simplify the core logic. Essentially an Extension is similar to an Adapter, but the main difference is that it is used by several adapters and by the DAORegistry - which end up enhancing the DAO capabilities and the state management without cluttering the DAO core contract.

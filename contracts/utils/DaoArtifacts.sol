@@ -60,11 +60,6 @@ contract DaoArtifacts is Ownable {
     );
 
     /**
-     * @notice Adds the adapter address to the storage
-     * @param _id The id of the adapter (sha3).
-     * @param _version The version of the adapter.
-     * @param _address The address of the adapter to be stored.
-     * @param _type The artifact type: 0 = Core, 1 = Factory, 2 = Extension, 3 = Adapter, 4 = Util.
      * @notice 将适配器地址添加到存储中 
      * @param _id 适配器的 id (sha3)。 
      * @param _version 适配器的版本。 
@@ -83,12 +78,6 @@ contract DaoArtifacts is Ownable {
     }
 
     /**
-     * @notice Retrieves the adapter/extension factory addresses from the storage.
-     * @param _id The id of the adapter/extension factory (sha3).
-     * @param _owner The address of the owner of the adapter/extension factory.
-     * @param _version The version of the adapter/extension factory.
-     * @param _type The type of the artifact: 0 = Core, 1 = Factory, 2 = Extension, 3 = Adapter, 4 = Util.
-     * @return The address of the adapter/extension factory if any.
      * @notice 从存储中检索适配器/扩展工厂地址。 
      * @param _id 适配器/扩展工厂 (sha3) 的 id。 
      * @param _owner 适配器/扩展工厂所有者的地址。 
@@ -106,10 +95,9 @@ contract DaoArtifacts is Ownable {
     }
 
     /**
-     * @notice Updates the adapter/extension factory addresses in the storage.
-     * @notice Updates up to 20 artifacts per transaction.
-     * @notice Only the owner of the contract is allowed to execute batch updates.
-     * @param _artifacts The array of artifacts to be updated.
+     * @notice 更新存储中的适配器/扩展工厂地址。 
+     * @notice 每个事务最多更新 20 个工件， 只允许合约的所有者执行批量更新。 
+     * @param _artifacts 要更新的工件数组。
      */
     function updateArtifacts(Artifact[] memory _artifacts) external onlyOwner {
         require(_artifacts.length <= 20, "Maximum artifacts limit exceeded");

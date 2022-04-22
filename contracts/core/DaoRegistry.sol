@@ -76,13 +76,13 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     enum AclFlag {
-        REPLACE_ADAPTER,
-        SUBMIT_PROPOSAL,
-        UPDATE_DELEGATE_KEY,
-        SET_CONFIGURATION,
-        ADD_EXTENSION,
-        REMOVE_EXTENSION,
-        NEW_MEMBER
+        REPLACE_ADAPTER, // 替换适配器
+        SUBMIT_PROPOSAL, // 提交提案 
+        UPDATE_DELEGATE_KEY, // 更新委托密钥 
+        SET_CONFIGURATION, // 设置配置
+        ADD_EXTENSION,  // 添加 EXTENSION 
+        REMOVE_EXTENSION, // 移除 EXTENSION
+        NEW_MEMBER // 添加 Dao 成员
     }
 
     /*
@@ -152,13 +152,13 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     /// @notice The map that keeps track of all adapters registered in the DAO, dao --> adapters
     mapping(bytes32 => address) public adapters;
     /// @notice The inverse map to get the adapter id based on its address, adapter address --> adapter id
-    /// @notice 根据地址获取适配器 id 的逆映射
+    /// @notice 根据地址获取适配器 id 的逆映射 adapter_address --> [] {adapter_id, acl }
     mapping(address => AdapterEntry) public inverseAdapters;
     /// @notice The map that keeps track of all extensions registered in the DAO, dao --> ext
     /// @notice 跟踪在 DAO 中注册的所有扩展的映射
     mapping(bytes32 => address) public extensions;
     /// @notice The inverse map to get the extension id based on its address, addr --> ext
-    /// @notice 根据地址获取扩展ID的逆映射
+    /// @notice 根据地址获取扩展ID的逆映射 ext_address --> []{ext_id, is_del, [acl]
     mapping(address => ExtensionEntry) public inverseExtensions;
     /// @notice The map that keeps track of configuration parameters for the DAO and adapters
     /// @notice 跟踪 DAO 和适配器的配置参数的映射
@@ -307,6 +307,7 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
 
     /**
      * @notice It sets the ACL flags to an Adapter to make it possible to access specific functions of an Extension.
+     * @notice 为适配器添加 ACL 标志，以使可以访问扩展的功能
      */
     function setAclToExtensionForAdapter(
         address extensionAddress,
@@ -328,6 +329,9 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
      * @param acl The flags indicating the access control layer or permissions of the new adapter
      * @param keys The keys indicating the adapter configuration names.
      * @param values The values indicating the adapter configuration values.
+     * @notice 一步替换注册表中的适配器, 它处理适配器的添加和删除作为特殊情况。
+     * @notice 如果 adapterId 映射到现有适配器地址，则删除当前适配器。 * @dev 如果adapterAddress 参数不为零，它会添加一个适配器。 * @param adapterId 适配器的唯一标识符 * @param adapterAddress 新适配器的地址，如果是删除操作，则为零 * @param acl 表示新适配器的访问控制层或权限的标志 * @param keys 表示适配器配置名称的键。 
+     * @param values 表示适配器配置值的值。
      */
     function replaceAdapter(
         bytes32 adapterId,
@@ -369,6 +373,10 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
      * @param extensionId The unique identifier of the new extension
      * @param extension The address of the extension
      * @param creator The DAO's creator, who will be an initial member
+     * @notice 向注册表添加新扩展 
+     * @param extensionId 新扩展的唯一标识符 
+     * @param extension 扩展的地址 
+     * @param creator DAO 的创建者，他将成为初始成员
      */
     // slither-disable-next-line reentrancy-events
     function addExtension(
@@ -394,6 +402,8 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     /**
      * @notice Removes an adapter from the registry
      * @param extensionId The unique identifier of the extension
+     * @notice 从注册表中移除一个适配器 
+     * @param extensionId 扩展的唯一标识符
      */
     function removeExtension(bytes32 extensionId)
         external
@@ -411,28 +421,24 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-     * @notice Looks up if there is an extension of a given address
-     * @return Whether or not the address is an extension
-     * @param extensionAddr The address to look up
+     * @notice 查找给定地址是否有扩展名 
+     * @return 地址是否为分机 
+     * @param extensionAddr 要查找的地址
      */
     function isExtension(address extensionAddr) public view returns (bool) {
         return inverseExtensions[extensionAddr].id != bytes32(0);
     }
 
     /**
-     * @notice Looks up if there is an adapter of a given address
-     * @return Whether or not the address is an adapter
-     * @param adapterAddress The address to look up
+     * @notice 查找是否存在给定地址的适配器 
+     * @return 地址是否为适配器 
+     * @param adapterAddress 要查找的地址
      */
     function isAdapter(address adapterAddress) public view returns (bool) {
         return inverseAdapters[adapterAddress].id != bytes32(0);
     }
 
     /**
-     * @notice Checks if an adapter has a given ACL flag
-     * @return Whether or not the given adapter has the given flag set
-     * @param adapterAddress The address to look up
-     * @param flag The ACL flag to check against the given address
      * @notice 检查适配器是否具有给定的 ACL 标志 
      * @return 给定的适配器是否设置了给定的标志 
      * @param adapterAddress 要查找的地址 
@@ -448,10 +454,10 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-     * @notice Checks if an adapter has a given ACL flag
-     * @return Whether or not the given adapter has the given flag set
-     * @param adapterAddress The address to look up
-     * @param flag The ACL flag to check against the given address
+     * @notice 检查适配器是否具有给定的 ACL 标志 
+     * @return 给定的适配器是否设置了给定的标志 
+     * @param adapterAddress 要查找的地址 
+     * @param flag 用于检查给定地址的 ACL 标志
      */
     function hasAdapterAccessToExtension(
         address adapterAddress,
@@ -467,8 +473,8 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-     * @return The address of a given adapter ID
-     * @param adapterId The ID to look up
+     * @return 给定适配器 ID 的地址 
+     * @param adapterId 要查找的 ID
      */
     function getAdapterAddress(bytes32 adapterId)
         external
@@ -480,8 +486,8 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-     * @return The address of a given extension Id
-     * @param extensionId The ID to look up
+     * @return 给定扩展 ID 的地址 
+     * @param extensionId 要查找的 ID
      */
     function getExtensionAddress(bytes32 extensionId)
         external
@@ -496,7 +502,7 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
      * PROPOSALS
      */
     /**
-     * @notice Submit proposals to the DAO registry
+     * @notice 向 DAO 注册表提交提案
      */
     function submitProposal(bytes32 proposalId)
         external
@@ -512,10 +518,6 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-     * @notice Sponsor proposals that were submitted to the DAO registry
-     * @dev adds SPONSORED to the proposal flag
-     * @param proposalId The ID of the proposal to sponsor
-     * @param sponsoringMember The member who is sponsoring the proposal
      * @notice 提交给 DAO 注册中心的提案 
      * @dev 将 SPONSORED 添加到提案标志 
      * @param proposalId 提案的 ID 
@@ -526,7 +528,7 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
         address sponsoringMember,
         address votingAdapterAddr
     ) external onlyMember2(this, sponsoringMember) {
-        // also checks if the flag was already set
+        // 检查标志是否已经设置 also checks if the flag was already set
         Proposal storage proposal = _setProposalFlag(
             proposalId,
             ProposalFlag.SPONSORED
@@ -567,6 +569,10 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
      * @dev Reverts if the proposal is already processed
      * @param proposalId The ID of the proposal to be changed
      * @param flag The flag that will be set on the proposal
+     * @notice 设置提案的标志 
+     * @dev 如果提案已经处理，则恢复 
+     * @param proposalId 要更改的提案ID 
+     * @param flag 将在提案上设置的标志
      */
     function _setProposalFlag(bytes32 proposalId, ProposalFlag flag)
         internal
@@ -673,6 +679,7 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
         );
 
         // Reset the delegation of the previous delegate
+        // 重置前一个委托
         memberAddressesByDelegatedKey[
             getCurrentDelegateKey(memberAddr)
         ] = address(0x0);
@@ -688,8 +695,6 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
      */
 
     /**
-     * @param checkAddr The address to check for a delegate
-     * @return the delegated address or the checked address if it is not a delegate
      * @param checkAddr 检查委托的地址 
      * @return 委托的地址，如果不是委托，则返回检查的地址
      */
@@ -703,8 +708,8 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-     * @param memberAddr The member whose delegate will be returned
-     * @return the delegate key at the current time for a member
+     * @param 将返回其委托的成员 
+     * @return 成员当前时间的委托密钥
      */
     function getCurrentDelegateKey(address memberAddr)
         public
@@ -719,8 +724,8 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-     * @param memberAddr The member address to look up
-     * @return The delegate key address for memberAddr at the second last checkpoint number
+     * @param memberAddr 要查找的成员地址
+     * @return 倒数第二个 检查点 的 memberAddr 的委托密钥地址
      */
     function getPreviousDelegateKey(address memberAddr)
         external

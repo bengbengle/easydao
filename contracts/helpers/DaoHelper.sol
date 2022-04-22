@@ -138,7 +138,7 @@ library DaoHelper {
             bank.getPriorAmount(member, LOCKED_LOOT, at);
     }
 
-    //helper
+    //helper 16,8,4,2,1 --> 4,3,2,1,0 --> 16 / 2 ** 4 --> 16 / 2 ** 4  -> 7 , 15 
     function getFlag(uint256 flags, uint256 flag) internal pure returns (bool) {
         return (flags >> uint8(flag)) % 2 == 1;
     }

@@ -38,6 +38,8 @@ SOFTWARE.
 contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
     // Event to indicate the distribution process has been completed
     // if the unitHolder address is 0x0, then the amount were distributed to all members of the DAO.
+    // 表示分发过程已经完成的事件 
+    // 如果 unitHolder 地址为 0x0，则金额分配给 DAO 的所有成员。
     event Distributed(
         address daoAddress,
         address token,
@@ -46,6 +48,7 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
     );
 
     // The distribution status
+    // 分发 状态
     enum DistributionStatus {
         NOT_STARTED,
         IN_PROGRESS,
@@ -54,25 +57,33 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
     }
 
     // State of the distribution proposal
+    // 分配提案的状态
     struct Distribution {
         // The distribution token in which the members should receive the funds. Must be supported by the DAO.
+        // 代币地址，成员应收到资金的分配代币。必须得到 DAO 的支持。
         address token;
         // The amount to distribute.
+        // 金额
         uint256 amount;
         // The unit holder address that will receive the funds. If 0x0, the funds will be distributed to all members of the DAO.
+        // 将接收资金的单位持有人地址。如果为 0x0，资金将分配给 DAO 的所有成员
         address unitHolderAddr;
         // The distribution status.
         DistributionStatus status;
         // Current iteration index to control the cached for-loop.
+        // 当前迭代索引来控制缓存的for循环
         uint256 currentIndex;
         // The block number in which the proposal has been created.
+        // 创建提案的区块号
         uint256 blockNumber;
     }
 
     // Keeps track of all the distributions executed per DAO.
+    // 跟踪每个 DAO 执行的所有分发
     mapping(address => mapping(bytes32 => Distribution)) public distributions;
 
     // Keeps track of the latest ongoing distribution proposal per DAO to ensure only 1 proposal can be processed at a time.
+    // 跟踪每个 DAO 的最新正在进行的分发提案，以确保一次只能处理 1 个提案。
     mapping(address => bytes32) public ongoingDistributions;
 
     /**
@@ -152,9 +163,17 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
      * @dev Only proposals that passed the voting can be set to In Progress status.
      * @param dao The dao address.
      * @param proposalId The distribution proposal id.
+     * @notice 处理分配方案，根据单位持有量计算分配给会员的公平金额。 
+     * @dev 分发提案提案必须正在进行中。 
+     * @dev 每个 DAO 一次只能执行一个提案。 
+     * @dev 只有活跃会员才能收到资金。 
+     * @dev 只有通过投票的提案才能设置为进行中状态。 
+     * @param dao dao 地址。 
+     * @param proposalId 分发提案 ID。
      */
     // The function is protected against reentrancy with the reentrancyGuard
     // Which prevents concurrent modifications in the DAO registry.
+    // 使用 reentrancyGuard 防止函数重入，这可以防止 DAO 注册表中的并发修改。
     //slither-disable-next-line reentrancy-no-eth
     function processProposal(DaoRegistry dao, bytes32 proposalId)
         external
@@ -164,6 +183,7 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
         dao.processProposal(proposalId);
 
         // Checks if the proposal exists or is not in progress yet.
+        // 检查提案是否存在或尚未进行中
         Distribution storage distribution = distributions[address(dao)][
             proposalId
         ];
@@ -324,6 +344,8 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
     /**
      * @notice Updates all the holder accounts with the amount based on the token parameter.
      * @notice It is an internal transfer only that happens in the Bank extension.
+     * @notice 使用基于 token 参数的金额更新所有持有人账户。 
+     * @notice 这是仅在银行分机中发生的内部转账。
      */
     function _distributeAll(
         DaoRegistry dao,
@@ -336,6 +358,7 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
     ) internal {
         uint256 totalTokens = DaoHelper.priorTotalTokens(bank, blockNumber);
         // Distributes the funds to all unit holders of the DAO and ignores non-active members.
+        // 将资金分配给 DAO 的所有单位持有人并忽略非活跃成员
         for (uint256 i = currentIndex; i < maxIndex; i++) {
             //slither-disable-next-line calls-loop
             address memberAddr = dao.getMemberAddress(i);

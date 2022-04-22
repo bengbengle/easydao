@@ -31,10 +31,14 @@ SOFTWARE.
  */
 abstract contract Reimbursable {
     struct ReimbursementData {
-        uint256 gasStart; // how much gas is left before executing anything, 在执行任何操作之前还剩下多少气体
-        bool shouldReimburse; // should the transaction be reimbursed or not ?, 交易是否应报销
-        uint256 spendLimitPeriod; // how long (in seconds) is the spend limit period, 花费限制期有多长（以秒为单位）
-        IReimbursement reimbursement; // which adapter address is used for reimbursement, 报销使用哪个适配器地址
+        // 在执行操作之前有多少气体
+        uint256 gasStart; 
+        // 交易是否应报销
+        bool shouldReimburse; 
+        // 花费限制期（以秒为单位）
+        uint256 spendLimitPeriod; 
+        // 用于报销的适配器地址
+        IReimbursement reimbursement; 
     }
 
     /**
