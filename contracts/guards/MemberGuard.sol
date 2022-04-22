@@ -32,6 +32,7 @@ SOFTWARE.
 abstract contract MemberGuard {
     /**
      * @dev Only members of the DAO are allowed to execute the function call.
+     * @dev 只允许 DAO 的成员执行函数调用
      */
     modifier onlyMember(DaoRegistry dao) {
         _onlyMember(dao, msg.sender);

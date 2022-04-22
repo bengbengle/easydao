@@ -31,14 +31,15 @@ SOFTWARE.
  */
 abstract contract Reimbursable {
     struct ReimbursementData {
-        uint256 gasStart; // how much gas is left before executing anything
-        bool shouldReimburse; // should the transaction be reimbursed or not ?
-        uint256 spendLimitPeriod; // how long (in seconds) is the spend limit period
-        IReimbursement reimbursement; // which adapter address is used for reimbursement
+        uint256 gasStart; // how much gas is left before executing anything, 在执行任何操作之前还剩下多少气体
+        bool shouldReimburse; // should the transaction be reimbursed or not ?, 交易是否应报销
+        uint256 spendLimitPeriod; // how long (in seconds) is the spend limit period, 花费限制期有多长（以秒为单位）
+        IReimbursement reimbursement; // which adapter address is used for reimbursement, 报销使用哪个适配器地址
     }
 
     /**
      * @dev Only registered adapters are allowed to execute the function call.
+     * @dev 只允许注册的适配器执行函数调用
      */
     modifier reimbursable(DaoRegistry dao) {
         ReimbursementData memory data = ReimbursableLib.beforeExecution(dao);

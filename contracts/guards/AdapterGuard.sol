@@ -50,9 +50,8 @@ abstract contract AdapterGuard {
     }
 
     modifier executorFunc(DaoRegistry dao) {
-        address executorAddr = dao.getExtensionAddress(
-            keccak256("executor-ext")
-        );
+        address executorAddr = dao.getExtensionAddress(keccak256("executor-ext"));
+        
         require(address(this) == executorAddr, "only callable by the executor");
         _;
     }

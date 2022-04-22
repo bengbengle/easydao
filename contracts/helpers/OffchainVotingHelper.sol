@@ -43,12 +43,9 @@ SOFTWARE.
  */
 contract OffchainVotingHelperContract {
     uint256 private constant NB_CHOICES = 2;
-    bytes32 public constant VotingPeriod =
-        keccak256("offchainvoting.votingPeriod");
-    bytes32 public constant GracePeriod =
-        keccak256("offchainvoting.gracePeriod");
-    bytes32 public constant FallbackThreshold =
-        keccak256("offchainvoting.fallbackThreshold");
+    bytes32 public constant VotingPeriod = keccak256("offchainvoting.votingPeriod");
+    bytes32 public constant GracePeriod = keccak256("offchainvoting.gracePeriod");
+    bytes32 public constant FallbackThreshold = keccak256("offchainvoting.fallbackThreshold");
 
     enum BadNodeError {
         OK,

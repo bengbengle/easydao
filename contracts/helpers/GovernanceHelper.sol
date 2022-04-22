@@ -33,8 +33,8 @@ SOFTWARE.
  */
 library GovernanceHelper {
     string public constant ROLE_PREFIX = "governance.role.";
-    bytes32 public constant DEFAULT_GOV_TOKEN_CFG =
-        keccak256(abi.encodePacked(ROLE_PREFIX, "default"));
+    // 默认治理代币
+    bytes32 public constant DEFAULT_GOV_TOKEN_CFG = keccak256(abi.encodePacked(ROLE_PREFIX, "default"));
 
     /*
      * @dev Checks if the member address holds enough funds to be considered a governor.
@@ -42,6 +42,11 @@ library GovernanceHelper {
      * @param memberAddr The message sender to be verified as governor.
      * @param proposalId The proposal id to retrieve the governance token address if configured.
      * @param snapshot The snapshot id to check the balance of the governance token for that member configured.
+     * @dev 检查成员地址是否拥有足够的资金被视为州长。 
+     * @param dao DAO 地址。 
+     * @param memberAddr 要验证为州长的消息发送者。 
+     * @param proposalId 用于检索治理令牌地址的提案 ID（如果已配置）。 
+     * @param snapshot 用于检查已配置成员的治理令牌余额的快照 ID。
      */
     function getVotingWeight(
         DaoRegistry dao,
@@ -53,9 +58,10 @@ library GovernanceHelper {
 
         // 1st - if there is any governance token configuration
         // for the adapter address, then read the voting weight based on that token.
-        address governanceToken = dao.getAddressConfiguration(
-            keccak256(abi.encodePacked(ROLE_PREFIX, adapterAddress))
-        );
+        // 1st - 如果适配器地址有任何治理令牌配置, 读取基于该令牌的投票权重。
+        bytes32 adapterAddressToken = keccak256(abi.encodePacked(ROLE_PREFIX, adapterAddress));
+        address governanceToken = dao.getAddressConfiguration(adapterAddressToken);
+
         if (DaoHelper.isNotZeroAddress(governanceToken)) {
             return getVotingWeight(dao, governanceToken, voterAddr, snapshot);
         }
@@ -63,6 +69,7 @@ library GovernanceHelper {
         // 2nd - if there is no governance token configured for the adapter,
         // then check if exists a default governance token.
         // If so, then read the voting weight based on that token.
+        // 2nd - 如果没有为适配器配置治理令牌， 检查是否存在默认治理令牌。 // 如果是，则根据该令牌读取投票权重。
         governanceToken = dao.getAddressConfiguration(DEFAULT_GOV_TOKEN_CFG);
         if (DaoHelper.isNotZeroAddress(governanceToken)) {
             return getVotingWeight(dao, governanceToken, voterAddr, snapshot);
@@ -70,6 +77,7 @@ library GovernanceHelper {
 
         // 3rd - if none of the previous options are available, assume the
         // governance token is UNITS, then read the voting weight based on that token.
+        // 如果前面的选项都不可用，则假设治理代币是 UNITS，然后读取基于该代币的投票权重。
         return
             BankExtension(dao.getExtensionAddress(DaoHelper.BANK))
                 .getPriorAmount(voterAddr, DaoHelper.UNITS, snapshot);

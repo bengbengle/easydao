@@ -87,6 +87,8 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
      * @param token The distribution token in which the members should receive the funds. Must be supported by the DAO.
      * @param amount The amount to distribute.
      * @param data Additional information related to the distribution proposal.
+     * @param token 成员应收到资金的分配代币。必须得到 DAO 的支持
+     *
      */
     // slither-disable-next-line reentrancy-benign
     function submitProposal(

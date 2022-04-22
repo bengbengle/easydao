@@ -31,8 +31,7 @@ library DaoHelper {
     // Adapters
     bytes32 internal constant VOTING = keccak256("voting");
     bytes32 internal constant ONBOARDING = keccak256("onboarding");
-    bytes32 internal constant NONVOTING_ONBOARDING =
-        keccak256("nonvoting-onboarding");
+    bytes32 internal constant NONVOTING_ONBOARDING = keccak256("nonvoting-onboarding");
     bytes32 internal constant TRIBUTE = keccak256("tribute");
     bytes32 internal constant FINANCING = keccak256("financing");
     bytes32 internal constant MANAGING = keccak256("managing");
@@ -42,31 +41,25 @@ library DaoHelper {
     bytes32 internal constant DISTRIBUTE = keccak256("distribute");
     bytes32 internal constant TRIBUTE_NFT = keccak256("tribute-nft");
     bytes32 internal constant REIMBURSEMENT = keccak256("reimbursement");
-    bytes32 internal constant TRANSFER_STRATEGY =
-        keccak256("erc20-transfer-strategy");
+    bytes32 internal constant TRANSFER_STRATEGY = keccak256("erc20-transfer-strategy");
     bytes32 internal constant DAO_REGISTRY_ADAPT = keccak256("daoRegistry");
     bytes32 internal constant BANK_ADAPT = keccak256("bank");
     bytes32 internal constant ERC721_ADAPT = keccak256("nft");
     bytes32 internal constant ERC1155_ADAPT = keccak256("erc1155-adpt");
     bytes32 internal constant ERC1271_ADAPT = keccak256("signatures");
-    bytes32 internal constant SNAPSHOT_PROPOSAL_ADPT =
-        keccak256("snapshot-proposal-adpt");
+    bytes32 internal constant SNAPSHOT_PROPOSAL_ADPT = keccak256("snapshot-proposal-adpt");
     bytes32 internal constant VOTING_HASH_ADPT = keccak256("voting-hash-adpt");
-    bytes32 internal constant KICK_BAD_REPORTER_ADPT =
-        keccak256("kick-bad-reporter-adpt");
-    bytes32 internal constant COUPON_ONBOARDING_ADPT =
-        keccak256("coupon-onboarding");
+    bytes32 internal constant KICK_BAD_REPORTER_ADPT = keccak256("kick-bad-reporter-adpt");
+    bytes32 internal constant COUPON_ONBOARDING_ADPT = keccak256("coupon-onboarding");
     bytes32 internal constant LEND_NFT_ADPT = keccak256("lend-nft");
-    bytes32 internal constant ERC20_TRANSFER_STRATEGY_ADPT =
-        keccak256("erc20-transfer-strategy");
+    bytes32 internal constant ERC20_TRANSFER_STRATEGY_ADPT = keccak256("erc20-transfer-strategy");
 
     // Extensions
     bytes32 internal constant BANK = keccak256("bank");
     bytes32 internal constant ERC1271 = keccak256("erc1271");
     bytes32 internal constant NFT = keccak256("nft");
     bytes32 internal constant EXECUTOR_EXT = keccak256("executor-ext");
-    bytes32 internal constant INTERNAL_TOKEN_VESTING_EXT =
-        keccak256("internal-token-vesting-ext");
+    bytes32 internal constant INTERNAL_TOKEN_VESTING_EXT = keccak256("internal-token-vesting-ext");
     bytes32 internal constant ERC1155_EXT = keccak256("erc1155-ext");
     bytes32 internal constant ERC20_EXT = keccak256("erc20-ext");
 
@@ -89,6 +82,7 @@ library DaoHelper {
 
     /**
      * @notice calculates the total number of units.
+     * @notice 计算总单位数
      */
     function priorTotalTokens(BankExtension bank, uint256 at)
         internal
@@ -130,6 +124,7 @@ library DaoHelper {
 
     /**
      * @notice calculates the total number of units.
+     * @notice 计算单位总数
      */
     function priorMemberTokens(
         BankExtension bank,
@@ -166,6 +161,7 @@ library DaoHelper {
 
     /**
      * @notice Checks if a given address is reserved.
+     * @notice 检查给定地址是否被保留
      */
     function isNotReservedAddress(address addr) internal pure returns (bool) {
         return addr != GUILD && addr != TOTAL && addr != ESCROW;
@@ -173,6 +169,7 @@ library DaoHelper {
 
     /**
      * @notice Checks if a given address is zeroed.
+     * @notice 检查给定地址是否归零
      */
     function isNotZeroAddress(address addr) internal pure returns (bool) {
         return addr != address(0x0);

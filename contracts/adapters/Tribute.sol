@@ -45,8 +45,10 @@ contract TributeContract is Reimbursable, AdapterGuard {
         // The applicant address (who will receive the DAO internal tokens and
         // become a member; this address may be different than the actual owner
         // of the ERC-20 tokens being provided as tribute).
+        // 申请者地址（将收到 DAO 内部代币并成为成员；此地址可能与作为贡品的 ERC-20 代币的实际所有者不同
         address applicant;
         // The address of the DAO internal token to be minted to the applicant.
+        // 要铸造给申请人的 DAO 内部代币的地址。
         address tokenToMint;
         // The amount requested of DAO internal tokens.
         uint256 requestAmount;
@@ -60,6 +62,7 @@ contract TributeContract is Reimbursable, AdapterGuard {
     }
 
     // Keeps track of all tribute proposals handled by each DAO.
+    // 跟踪每个 DAO 处理的所有致敬提案
     mapping(address => mapping(bytes32 => ProposalDetails)) public proposals;
 
     /**
@@ -69,14 +72,13 @@ contract TributeContract is Reimbursable, AdapterGuard {
      * @dev A DAO Bank extension must exist and be configured with proper access for this adapter.
      * @param dao The DAO address.
      * @param tokenAddrToMint The internal token address to be registered with the DAO Bank.
+     * @param tokenAddrToMint 要在 DAO 银行注册的内部代币地址。
      */
     function configureDao(DaoRegistry dao, address tokenAddrToMint)
         external
         onlyAdapter(dao)
     {
-        BankExtension bank = BankExtension(
-            dao.getExtensionAddress(DaoHelper.BANK)
-        );
+        BankExtension bank = BankExtension(dao.getExtensionAddress(DaoHelper.BANK));
         bank.registerPotentialNewInternalToken(dao, tokenAddrToMint);
     }
 
@@ -112,9 +114,9 @@ contract TributeContract is Reimbursable, AdapterGuard {
         );
 
         dao.submitProposal(proposalId);
-        IVoting votingContract = IVoting(
-            dao.getAdapterAddress(DaoHelper.VOTING)
-        );
+        
+        IVoting votingContract = IVoting(dao.getAdapterAddress(DaoHelper.VOTING));
+
         address sponsoredBy = votingContract.getSenderAddress(
             dao,
             address(this),

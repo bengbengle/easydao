@@ -35,6 +35,7 @@ SOFTWARE.
 contract DaoRegistryAdapterContract is MemberGuard, AdapterGuard {
     /**
      * @notice Allows the member/advisor to update their delegate key
+     * @notice 允许成员/顾问更新他们的委托密钥
      * @param dao The DAO address.
      * @param delegateKey the new delegate key.
      */

@@ -89,24 +89,31 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
      * STRUCTURES
      */
     struct Proposal {
-        // the structure to track all the proposals in the DAO
-        address adapterAddress; // the adapter address that called the functions to change the DAO state
-        uint256 flags; // flags to track the state of the proposal: exist, sponsored, processed, canceled, etc.
+        // the structure to track all the proposals in the DAO，the adapter address that called the functions to change the DAO state
+        // 跟踪 DAO 中所有提案的结构，调用函数以更改 DAO 状态的适配器地址 
+        address adapterAddress; 
+        
+        // flags to track the state of the proposal: exist, sponsored, processed, canceled, etc.
+        // 跟踪提案状态的标志：存在、赞助、处理、取消等
+        uint256 flags;
     }
 
     struct Member {
-        // the structure to track all the members in the DAO
-        uint256 flags; // flags to track the state of the member: exists, etc
+        // the structure to track all the members in the DAO flags to track the state of the member: exists, etc
+        // 跟踪 DAO 中所有成员的结构， 用于跟踪成员状态的标志：存在等
+        uint256 flags; 
     }
 
     struct Checkpoint {
         // A checkpoint for marking number of votes from a given block
+        // 用于标记给定区块的投票数的检查点
         uint96 fromBlock;
         uint160 amount;
     }
 
     struct DelegateCheckpoint {
         // A checkpoint for marking the delegate key for a member from a given block
+        // 用于标记给定块中成员的委托密钥的检查点
         uint96 fromBlock;
         address delegateKey;
     }
@@ -138,20 +145,23 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
 
     DaoState public state;
 
-    /// @notice The map that keeps track of all proposasls submitted to the DAO
+    /// @notice The map that keeps track of all proposasls submitted to the DAO, dao --> proposals
     mapping(bytes32 => Proposal) public proposals;
-    /// @notice The map that tracks the voting adapter address per proposalId
+    /// @notice The map that tracks the voting adapter address per proposalId, proposalId --> VotingAdapter 
     mapping(bytes32 => address) public votingAdapter;
-    /// @notice The map that keeps track of all adapters registered in the DAO
+    /// @notice The map that keeps track of all adapters registered in the DAO, dao --> adapters
     mapping(bytes32 => address) public adapters;
-    /// @notice The inverse map to get the adapter id based on its address
+    /// @notice The inverse map to get the adapter id based on its address, adapter address --> adapter id
     /// @notice 根据地址获取适配器 id 的逆映射
     mapping(address => AdapterEntry) public inverseAdapters;
-    /// @notice The map that keeps track of all extensions registered in the DAO
+    /// @notice The map that keeps track of all extensions registered in the DAO, dao --> ext
+    /// @notice 跟踪在 DAO 中注册的所有扩展的映射
     mapping(bytes32 => address) public extensions;
-    /// @notice The inverse map to get the extension id based on its address
+    /// @notice The inverse map to get the extension id based on its address, addr --> ext
+    /// @notice 根据地址获取扩展ID的逆映射
     mapping(address => ExtensionEntry) public inverseExtensions;
     /// @notice The map that keeps track of configuration parameters for the DAO and adapters
+    /// @notice 跟踪 DAO 和适配器的配置参数的映射
     mapping(bytes32 => uint256) public mainConfiguration;
     mapping(bytes32 => address) public addressConfiguration;
 
@@ -189,6 +199,7 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
 
     /**
      * @notice Contract lock strategy to lock only the caller is an adapter or extension.
+     * @notice 合约锁定策略只锁定调用者是适配器或扩展
      */
     function lockSession() external {
         if (isAdapter(msg.sender) || isExtension(msg.sender)) {
@@ -505,6 +516,10 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
      * @dev adds SPONSORED to the proposal flag
      * @param proposalId The ID of the proposal to sponsor
      * @param sponsoringMember The member who is sponsoring the proposal
+     * @notice 提交给 DAO 注册中心的提案 
+     * @dev 将 SPONSORED 添加到提案标志 
+     * @param proposalId 提案的 ID 
+     * @param sponsoringMember 提案的成员
      */
     function sponsorProposal(
         bytes32 proposalId,
@@ -535,12 +550,11 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     /**
      * @notice Mark a proposal as processed in the DAO registry
      * @param proposalId The ID of the proposal that is being processed
+     * @notice 在 DAO 注册表中将提案标记为已处理 
+     * @param proposalId 正在处理的提案的 ID
      */
     function processProposal(bytes32 proposalId) external {
-        Proposal storage proposal = _setProposalFlag(
-            proposalId,
-            ProposalFlag.PROCESSED
-        );
+        Proposal storage proposal = _setProposalFlag(proposalId, ProposalFlag.PROCESSED);
 
         require(proposal.adapterAddress == msg.sender, "err::adapter mismatch");
         uint256 flags = proposal.flags;

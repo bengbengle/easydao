@@ -41,18 +41,14 @@ SOFTWARE.
  */
 
 contract OffchainVotingHashContract {
-    string public constant VOTE_RESULT_NODE_TYPE =
-        "Message(uint64 timestamp,uint88 nbYes,uint88 nbNo,uint32 index,uint32 choice,bytes32 proposalId)";
+    string public constant VOTE_RESULT_NODE_TYPE = "Message(uint64 timestamp,uint88 nbYes,uint88 nbNo,uint32 index,uint32 choice,bytes32 proposalId)";
     string public constant VOTE_RESULT_ROOT_TYPE = "Message(bytes32 root)";
-    bytes32 public constant VOTE_RESULT_NODE_TYPEHASH =
-        keccak256(abi.encodePacked(VOTE_RESULT_NODE_TYPE));
-    bytes32 public constant VOTE_RESULT_ROOT_TYPEHASH =
-        keccak256(abi.encodePacked(VOTE_RESULT_ROOT_TYPE));
+    bytes32 public constant VOTE_RESULT_NODE_TYPEHASH = keccak256(abi.encodePacked(VOTE_RESULT_NODE_TYPE));
+    bytes32 public constant VOTE_RESULT_ROOT_TYPEHASH = keccak256(abi.encodePacked(VOTE_RESULT_ROOT_TYPE));
 
     bytes32 constant VotingPeriod = keccak256("offchainvoting.votingPeriod");
     bytes32 constant GracePeriod = keccak256("offchainvoting.gracePeriod");
-    bytes32 constant FallbackThreshold =
-        keccak256("offchainvoting.fallbackThreshold");
+    bytes32 constant FallbackThreshold = keccak256("offchainvoting.fallbackThreshold");
 
     mapping(address => mapping(bytes32 => mapping(uint256 => uint256))) flags;
 
