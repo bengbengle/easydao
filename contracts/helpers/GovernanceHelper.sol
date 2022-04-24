@@ -58,7 +58,7 @@ library GovernanceHelper {
 
         // 1st - if there is any governance token configuration
         // for the adapter address, then read the voting weight based on that token.
-        // 1st - 如果适配器地址有任何治理令牌配置, 读取基于该令牌的投票权重。
+        // 1st - 适配器 如果有任何治理令牌配置, 读取基于该令牌的投票权重。
         bytes32 adapterAddressToken = keccak256(abi.encodePacked(ROLE_PREFIX, adapterAddress));
         address governanceToken = dao.getAddressConfiguration(adapterAddressToken);
 
@@ -69,7 +69,8 @@ library GovernanceHelper {
         // 2nd - if there is no governance token configured for the adapter,
         // then check if exists a default governance token.
         // If so, then read the voting weight based on that token.
-        // 2nd - 如果没有为适配器配置治理令牌， 检查是否存在默认治理令牌。 // 如果是，则根据该令牌读取投票权重。
+        // 2nd - 如果没有为适配器配置治理令牌， 检查是否存在默认治理令牌。 
+        // 如果是，则根据该令牌读取投票权重。
         governanceToken = dao.getAddressConfiguration(DEFAULT_GOV_TOKEN_CFG);
         if (DaoHelper.isNotZeroAddress(governanceToken)) {
             return getVotingWeight(dao, governanceToken, voterAddr, snapshot);
@@ -78,9 +79,16 @@ library GovernanceHelper {
         // 3rd - if none of the previous options are available, assume the
         // governance token is UNITS, then read the voting weight based on that token.
         // 如果前面的选项都不可用，则假设治理代币是 UNITS，然后读取基于该代币的投票权重。
-        return
-            BankExtension(dao.getExtensionAddress(DaoHelper.BANK))
-                .getPriorAmount(voterAddr, DaoHelper.UNITS, snapshot);
+
+        BankExtension bank = BankExtension(
+            dao.getExtensionAddress(DaoHelper.BANK)
+        );
+
+        return bank.getPriorAmount(voterAddr, DaoHelper.UNITS, snapshot);
+
+        // return
+        //     BankExtension(dao.getExtensionAddress(DaoHelper.BANK))
+        //         .getPriorAmount(voterAddr, DaoHelper.UNITS, snapshot);
     }
 
     function getVotingWeight(
@@ -96,10 +104,8 @@ library GovernanceHelper {
             return bank.getPriorAmount(voterAddr, governanceToken, snapshot);
         }
 
-        // The external token must implement the getPriorAmount function,
-        // otherwise this call will fail and revert the voting process.
-        // The actual revert does not show a clear reason, so we catch the error
-        // and revert with a better error message.
+        // 外部令牌必须实现 getPriorAmount 函数， 否则此调用将失败并恢复投票过程。 
+        // 实际的revert没有显示清楚的原因， 所以我们捕获了错误，并返回一个更好的错误消息。 
         // slither-disable-next-line unused-return
         try
             ERC20Extension(governanceToken).getPriorAmount(voterAddr, snapshot)

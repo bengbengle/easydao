@@ -85,9 +85,8 @@ contract ConfigurationContract is IConfiguration, AdapterGuard, Reimbursable {
     }
 
     /**
-     * @notice Processing a configuration proposal to update the DAO state.
      * @notice 处理配置提案以更新 DAO 状态
-     * @param dao The DAO Address.
+     * @param dao DAO 地址
      * @param proposalId The proposal id.
      */
     // slither-disable-next-line reentrancy-benign

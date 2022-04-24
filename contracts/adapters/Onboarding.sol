@@ -71,13 +71,13 @@ contract OnboardingContract is IOnboarding, AdapterGuard, Reimbursable {
     mapping(DaoRegistry => mapping(address => mapping(address => uint88))) public units;
 
     /**
-     * @notice Updates the DAO registry with the new configurations if valid.
-     * @notice Updated the Bank extension with the new potential tokens if valid.
-     * @param unitsToMint Which token needs to be minted if the proposal passes.
-     * @param chunkSize How many tokens need to be minted per chunk bought.
-     * @param unitsPerChunk How many units (tokens from tokenAddr) are being minted per chunk.
-     * @param maximumChunks How many chunks can someone buy max. This helps force decentralization of token holders.
-     * @param tokenAddr In which currency (tokenAddr) should the onboarding take place.
+     * @notice 使用新配置更新 DAO 注册表。 
+     * @notice 使用新的潜在令牌更新银行扩展。 
+     * @param unitsToMint 如果提案通过，则需要铸造哪个代币。 
+     * @param chunkSize 每个购买的块需要铸造多少代币。 
+     * @param unitsPerChunk 每个块正在铸造多少个单位（来自 tokenAddr 的令牌）。 
+     * @param maximumChunks 最多可以购买多少块。这有助于强制代币持有者去中心化。 
+     * @param tokenAddr 应以哪种货币 (tokenAddr) 进行入职。
      */
     function configureDao(
         DaoRegistry dao,
@@ -128,7 +128,7 @@ contract OnboardingContract is IOnboarding, AdapterGuard, Reimbursable {
     /**
      * @notice 提交并赞助提案。只有成员才能调用此函数。 
      * @param proposalId 提交给 DAO Registry 的提案 ID。 
-     * @param 申请人申请人地址。 
+     * @param applicant 申请人地址。 
      * @param tokenToMint 提案通过时要铸造的代币。 
      * @param tokenAmount 要铸造的代币数量。 
      * @param data 附加提案信息。
@@ -215,8 +215,7 @@ contract OnboardingContract is IOnboarding, AdapterGuard, Reimbursable {
             bank.addToBalance(dao, applicant, unitsToMint, unitsRequested);
 
             if (proposal.token == DaoHelper.ETH_TOKEN) {
-                // This call sends ETH directly to the GUILD bank, and the address can't be changed since
-                // it is defined in the DaoHelper as a constant.
+                // 此调用将 ETH 直接发送到 GUILD 银行，并且地址无法更改，因为它在 DaoHelper 中定义为常量。
                 //slither-disable-next-line arbitrary-send
                 bank.addToBalance{value: proposal.amount}(
                     dao,
@@ -275,7 +274,11 @@ contract OnboardingContract is IOnboarding, AdapterGuard, Reimbursable {
             data,
             msg.sender
         );
+        
+        // 赞助，
         dao.sponsorProposal(proposalId, sponsoredBy, address(votingContract));
+        
+        // 开始投票了
         votingContract.startNewVotingForProposal(dao, proposalId, data);
     }
 

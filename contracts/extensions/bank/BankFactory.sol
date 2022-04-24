@@ -45,8 +45,8 @@ contract BankFactory is IFactory, CloneFactory, ReentrancyGuard {
     }
 
     /**
-     * @notice Create and initialize a new BankExtension
-     * @param maxExternalTokens The maximum number of external tokens stored in the Bank
+     * @notice 创建并初始化一个新的 BankExtension
+     * @param maxExternalTokens 银行中存储的 Extension 代币的最大数量
      */
     // slither-disable-next-line reentrancy-events
     function create(address dao, uint8 maxExternalTokens)

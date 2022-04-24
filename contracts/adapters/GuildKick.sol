@@ -36,13 +36,13 @@ SOFTWARE.
  */
 
 contract GuildKickContract is IGuildKick, AdapterGuard, Reimbursable {
-    // State of the guild kick proposal
+    // / 公会踢提案的状态 State of the guild kick proposal
     struct GuildKick {
-        // The address of the member to kick out of the DAO.
+        // 退出DAO的成员地址
         address memberToKick;
     }
 
-    // Keeps track of all the kicks executed per DAO.
+    // 跟踪每个 DAO 执行过的 kick， dao -> proposalId -> kick
     mapping(address => mapping(bytes32 => GuildKick)) public kicks;
 
     /**
@@ -73,9 +73,10 @@ contract GuildKickContract is IGuildKick, AdapterGuard, Reimbursable {
             msg.sender
         );
         // Checks if the sender address is not the same as the member to kick to prevent auto kick.
+        // 检查 sender address 是否与要被踢的成员不同 以防止 自动踢
         require(submittedBy != memberToKick, "use ragequit");
 
-        // Creates a guild kick proposal.
+        // 创建 guild kick 提案
         dao.submitProposal(proposalId);
 
         BankExtension bank = BankExtension(
@@ -87,15 +88,14 @@ contract GuildKickContract is IGuildKick, AdapterGuard, Reimbursable {
         // Gets the number of loot of the member
         uint256 lootToBurn = bank.balanceOf(memberToKick, DaoHelper.LOOT);
 
-        // Checks if the member has enough units to be converted to loot.
-        // Overflow is not possible because max value for each var is 2^64
-        // See bank._createNewAmountCheckpoint function
+        // 检查成员是否有足够的单位转换为战利品， 不可能溢出，因为每个 var 的最大值是 2^64 
+        // 参见 bank._createNewAmountCheckpoint 函数
         require(unitsToBurn + lootToBurn > 0, "no units or loot");
 
-        // Saves the state of the guild kick proposal.
+        // 保存公会 kick 提案的状态
         kicks[address(dao)][proposalId] = GuildKick(memberToKick);
 
-        // Starts the voting process for the guild kick proposal.
+        // 开始 guild kick 提案的投票过程
         votingContract.startNewVotingForProposal(dao, proposalId, data);
 
         GuildKickHelper.lockMemberTokens(

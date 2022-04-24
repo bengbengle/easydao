@@ -45,7 +45,7 @@ contract ERC1271ExtensionFactory is IFactory, CloneFactory, ReentrancyGuard {
     }
 
     /**
-     * @notice Create and initialize a new Executor Extension
+     * @notice 创建并初始化一个新的 Executor Extension
      */
     function create(address dao) external nonReentrant {
         require(dao != address(0x0), "invalid dao addr");
@@ -57,6 +57,7 @@ contract ERC1271ExtensionFactory is IFactory, CloneFactory, ReentrancyGuard {
 
     /**
      * @notice Returns the extension address created for that DAO, or 0x0... if it does not exist.
+     * @notice 回为该 DAO 创建的扩展地址
      */
     function getExtensionAddress(address dao)
         external

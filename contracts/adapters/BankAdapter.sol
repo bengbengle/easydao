@@ -35,12 +35,12 @@ SOFTWARE.
 
 contract BankAdapterContract is AdapterGuard, Reimbursable {
     /**
-     * @notice Allows the member/advisor of the DAO to withdraw the funds from their internal bank account.
-     * @notice Only accounts that are not reserved can withdraw the funds.
-     * @notice If theres is no available balance in the user's account, the transaction is reverted.
-     * @param dao The DAO address.
-     * @param account The account to receive the funds.
-     * @param token The token address to receive the funds.
+     * @notice 允许 DAO 的成员/顾问从其内部银行账户中提取资金。 
+     * @notice 只有未预留的账户才能提取资金。 
+     * @notice 如果用户账户中没有可用余额，则交易被撤销。 
+     * @param dao DAO 地址。 
+     * @param account 接收资金的账户。 
+     * @param token 接收资金的代币地址。
      */
     function withdraw(
         DaoRegistry dao,
@@ -52,8 +52,7 @@ contract BankAdapterContract is AdapterGuard, Reimbursable {
             "withdraw::reserved address"
         );
 
-        // We do not need to check if the token is supported by the bank,
-        // because if it is not, the balance will always be zero.
+        // 我们不需要检查token是否被银行支持， 因为如果不是，余额将永远为零。
         BankExtension bank = BankExtension(
             dao.getExtensionAddress(DaoHelper.BANK)
         );
@@ -64,31 +63,39 @@ contract BankAdapterContract is AdapterGuard, Reimbursable {
     }
 
     /**
-     * @notice Allows anyone to update the token balance in the bank extension
-     * @notice If theres is no available balance in the user's account, the transaction is reverted.
-     * @param dao The DAO address.
-     * @param token The token address to update.
+     * @notice 允许任何人更新银行扩展中的代币余额 
+     * @notice 如果用户账户中没有可用余额，则交易被撤销。 
+     * @param dao DAO 地址。 
+     * @param token 要更新的令牌地址。
      */
     function updateToken(DaoRegistry dao, address token)
         external
         reentrancyGuard(dao)
     {
-        // We do not need to check if the token is supported by the bank,
-        // because if it is not, the balance will always be zero.
-        BankExtension(dao.getExtensionAddress(DaoHelper.BANK)).updateToken(
+        // 我们不需要检查 token 是否被银行支持， 因为如果不是，余额将永远为零。
+        BankExtension bank = BankExtension(
+            dao.getExtensionAddress(DaoHelper.BANK)
+        );
+        bank.updateToken(
             dao,
             token
         );
     }
 
     /*
-     * @notice Allows anyone to send eth to the bank extension
-     * @param dao The DAO address.
+     * @notice 允许任何人将 eth 发送到银行分机 
+     * @param dao DAO 地址
      */
     function sendEth(DaoRegistry dao) external payable reimbursable(dao) {
         require(msg.value > 0, "no eth sent!");
-        BankExtension(dao.getExtensionAddress(DaoHelper.BANK)).addToBalance{
+
+        BankExtension bank = BankExtension(
+            dao.getExtensionAddress(DaoHelper.BANK)
+        );
+        
+        bank.addToBalance{
             value: msg.value
         }(dao, DaoHelper.GUILD, DaoHelper.ETH_TOKEN, msg.value);
+        
     }
 }

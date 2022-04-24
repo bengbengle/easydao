@@ -194,7 +194,7 @@ describe("Adapter - Bank", () => {
   it("should possible to send eth to the dao bank", async () => {
     const bank = this.extensions.bankExt;
     const bankAdapter = this.adapters.bankAdapter;
-
+    
     await checkBalance(bank, GUILD, ETH_TOKEN, "0");
 
     await bankAdapter.sendEth(this.dao.address, { value: toWei("5") });
@@ -203,10 +203,10 @@ describe("Adapter - Bank", () => {
   });
 
   it("should not be possible to send ETH to the adapter via receive function", async () => {
-    const adapter = this.adapters.bankAdapter;
+    const bankAdapter = this.adapters.bankAdapter;
     await expectRevert(
       web3.eth.sendTransaction({
-        to: adapter.address,
+        to: bankAdapter.address,
         from: daoOwner,
         gasPrice: toBN("0"),
         value: toWei("1"),
@@ -216,10 +216,10 @@ describe("Adapter - Bank", () => {
   });
 
   it("should not be possible to send ETH to the adapter via fallback function", async () => {
-    const adapter = this.adapters.bankAdapter;
+    const bankAdapter = this.adapters.bankAdapter;
     await expectRevert(
       web3.eth.sendTransaction({
-        to: adapter.address,
+        to: bankAdapter.address,
         from: daoOwner,
         gasPrice: toBN("0"),
         value: toWei("1"),

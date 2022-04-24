@@ -188,7 +188,7 @@ contract BankExtension is IExtension, ERC165 {
     }
 
     /**
-     * @return 给定的令牌是否是银行中可用的内部令牌 
+     * @return 给定的令牌是否是有效的 内部令牌 
      * @param token 要查找的令牌地址
      */
     function isInternalToken(address token) external view returns (bool) {
@@ -196,7 +196,7 @@ contract BankExtension is IExtension, ERC165 {
     }
 
     /**
-     * @return 给定的代币是否是银行中可用的代币 
+     * @return 给定的令牌 是否是有效的 令牌 
      * @param token 要查找的令牌地址
      */
     function isTokenAllowed(address token) public view returns (bool) {
@@ -396,10 +396,10 @@ contract BankExtension is IExtension, ERC165 {
     }
 
     /**
-     * @notice Make an internal token transfer
-     * @param from The member who is sending tokens
-     * @param to The member who is receiving tokens
-     * @param amount The new amount to transfer
+     * @notice 进行内部代币转移 
+     * @param from 发送代币的成员 
+     * @param to 接收代币的成员 
+     * @param amount 新的转账金额
      */
     function internalTransfer(
         DaoRegistry _dao,
@@ -434,11 +434,10 @@ contract BankExtension is IExtension, ERC165 {
     }
 
     /**
-     * @notice Determine the prior number of votes for an account as of a block number
-     * @dev Block number must be a finalized block or else this function will revert to prevent misinformation.
-     * @param account The address of the account to check
-     * @param blockNumber The block number to get the vote balance at
-     * @return The number of votes the account had as of the given block
+     * @notice 确定一个账户在某区块号之前的投票数， 区块编号必须是最终区块，否则此功能将恢复以防止错误信息。 
+     * @param account 要检查的账户地址 
+     * @param blockNumber 获得投票余额的区块号 
+     * @return 账户在给定区块中的投票数
      */
     function getPriorAmount(
         address account,
@@ -455,7 +454,7 @@ contract BankExtension is IExtension, ERC165 {
             return 0;
         }
 
-        // First check most recent balance
+        // 首先检查最近的余额
         if (
             checkpoints[tokenAddr][account][nCheckpoints - 1].fromBlock <=
             blockNumber
@@ -463,7 +462,7 @@ contract BankExtension is IExtension, ERC165 {
             return checkpoints[tokenAddr][account][nCheckpoints - 1].amount;
         }
 
-        // Next check implicit zero balance
+        // 接下来检查隐式零余额
         if (checkpoints[tokenAddr][account][0].fromBlock > blockNumber) {
             return 0;
         }
@@ -544,9 +543,8 @@ contract BankExtension is IExtension, ERC165 {
         require(isValidToken, "token not registered");
 
         uint32 nCheckpoints = numCheckpoints[token][member];
-        // 我们应该允许数量更新的唯一条件:  
-        // 当 block.number 与 fromBlock 值完全匹配时。 
-        // 任何与此不同的东西都应该生成一个新的检查点。
+
+        // 当 block.number 与 fromBlock 值完全匹配时，允许数量更新， 否则 应该生成一个新的检查点
         if (
             //slither-disable-next-line incorrect-equality
             nCheckpoints > 0 && checkpoints[token][member][nCheckpoints - 1].fromBlock == block.number

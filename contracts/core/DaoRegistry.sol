@@ -454,7 +454,7 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-     * @notice 检查适配器是否具有给定的 ACL 标志 
+     * @notice 检查 适配器 是否具有给定的 ACL 标志 
      * @return 给定的适配器是否设置了给定的标志 
      * @param adapterAddress 要查找的地址 
      * @param flag 用于检查给定地址的 ACL 标志
@@ -518,8 +518,7 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-     * @notice 提交给 DAO 注册中心的提案 
-     * @dev 将 SPONSORED 添加到提案标志 
+     * @notice 提交给 DAO 注册中心的提案， 将 SPONSORED 添加到提案标志 
      * @param proposalId 提案的 ID 
      * @param sponsoringMember 提案的成员
      */

@@ -88,9 +88,8 @@ contract VotingContract is IVoting, MemberGuard, AdapterGuard, Reimbursable {
     }
 
     /**
-     * @notice Returns the sender address.
-     * @notice This funcion is required by the IVoting, usually offchain voting have different rules to identify the sender, but it is not the case here, so we just return the fallback argument: sender.
-     * @param sender The fallback sender address that should be return in case no other is found.
+     * @notice 返回发件人地址， 这个函数是 IVoting 需要的，通常链下投票有不同的规则来识别发送者，但这里不是这样，所以我们只返回 fallback 参数：发送者。 
+     * @param sender 在没有找到其他人的情况下应该返回的后备发件人地址。
      */
     function getSenderAddress(
         DaoRegistry,
@@ -102,17 +101,8 @@ contract VotingContract is IVoting, MemberGuard, AdapterGuard, Reimbursable {
     }
 
     /**
-     * @notice Submits a vote to the DAO Registry.
-     * @notice Vote has to be submitted after the starting time defined in startNewVotingForProposal.
-     * @notice The vote needs to be submitted within the voting period.
-     * @notice A member can not vote twice or more.
-     * @param dao The DAO address.
-     * @param proposalId The proposal needs to be sponsored, and not processed.
-     * @param voteValue Only Yes (1) and No (2) votes are allowed.
-     * @notice 向 DAO Registry 提交投票。 
-     * @notice 投票必须在 startNewVotingForProposal 中定义的开始时间之后提交。 
-     * @notice 投票需要在投票期内提交。 
-     * @notice 会员不能投票两次或多次。 
+     * @notice 向 DAO Registry 提交投票， 投票必须在 startNewVotingForProposal 中定义的开始时间之后提交。 
+     * @notice 投票需要在投票期内提交， 会员不能投票两次或多次。 
      * @param dao DAO 地址。 
      * @param proposalId 该提案需要被赞助，而不是被处理。 
      * @param voteValue 只允许是 (1) 和否 (2) 投票。
@@ -131,10 +121,7 @@ contract VotingContract is IVoting, MemberGuard, AdapterGuard, Reimbursable {
         );
 
         require(
-            !dao.getProposalFlag(
-                proposalId,
-                DaoRegistry.ProposalFlag.PROCESSED
-            ),
+            !dao.getProposalFlag(proposalId, DaoRegistry.ProposalFlag.PROCESSED),
             "the proposal has already been processed"
         );
 
@@ -151,20 +138,21 @@ contract VotingContract is IVoting, MemberGuard, AdapterGuard, Reimbursable {
         );
         // slither-disable-next-line timestamp
         require(
-            block.timestamp <
-                vote.startingTime + dao.getConfiguration(VotingPeriod),
+            block.timestamp < vote.startingTime + dao.getConfiguration(VotingPeriod),
             "vote has already ended"
         );
 
         address memberAddr = DaoHelper.msgSender(dao, msg.sender);
 
         require(vote.votes[memberAddr] == 0, "member has already voted");
+
         uint256 votingWeight = GovernanceHelper.getVotingWeight(
             dao,
             memberAddr,
             proposalId,
             vote.blockNumber
         );
+        
         if (votingWeight == 0) revert("vote not allowed");
 
         vote.votes[memberAddr] = voteValue;
@@ -177,14 +165,11 @@ contract VotingContract is IVoting, MemberGuard, AdapterGuard, Reimbursable {
     }
 
     /**
-     * @notice Computes the voting result based on a proposal.
-     * @param dao The DAO address.
-     * @param proposalId The proposal that needs to have the votes computed.
-     * @return state
      * @notice 根据提案计算投票结果。 
      * @param dao DAO 地址。 
      * @param proposalId 需要计算投票的提案。 
-     * @return 状态
+     * @return state 状态
+     
      * The possible results are:
      * 0: has not started
      * 1: tie
@@ -205,18 +190,14 @@ contract VotingContract is IVoting, MemberGuard, AdapterGuard, Reimbursable {
 
         if (
             // slither-disable-next-line timestamp
-            block.timestamp <
-            vote.startingTime + dao.getConfiguration(VotingPeriod)
+            block.timestamp < vote.startingTime + dao.getConfiguration(VotingPeriod)
         ) {
             return VotingState.IN_PROGRESS;
         }
 
         if (
             // slither-disable-next-line timestamp
-            block.timestamp <
-            vote.startingTime +
-                dao.getConfiguration(VotingPeriod) +
-                dao.getConfiguration(GracePeriod)
+            block.timestamp < vote.startingTime + dao.getConfiguration(VotingPeriod) + dao.getConfiguration(GracePeriod)
         ) {
             return VotingState.GRACE_PERIOD;
         }
