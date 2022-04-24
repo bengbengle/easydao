@@ -196,7 +196,8 @@ contract TributeNFTContract is
     }
 
     /**
-     *  @notice required function from IERC1155 standard to be able to to receive tokens
+     * @notice required function from IERC1155 standard to be able to to receive tokens
+     * @notice IERC1155 标准所需的功能，以便能够接收令牌
      */
     function onERC1155Received(
         address,

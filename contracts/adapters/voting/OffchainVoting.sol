@@ -225,6 +225,7 @@ contract OffchainVotingContract is
 
     /*
      * @notice Returns the voting result of a given proposal.
+     * @notice 返回给定提案的投票结果
      * possible results:
      * 0: has not started
      * 1: tie
@@ -284,6 +285,15 @@ contract OffchainVotingContract is
      * Saves the vote result to the storage if resultNode (vote) is valid.
      * A valid vote node must satisfy all the conditions in the function,
      * so it can be stored.
+     *  如果 resultNode (vote) 有效，则将投票结果保存到存储中。 
+     * 一个有效的投票节点必须满足函数中的所有条件，所以它可以被存储。
+     * 提交投票结果前需要检查的内容： 
+     * - 如果宽限期结束，什么也不做 
+     * - 如果是第一个结果（投票），现在是提交它的合适时间吗？ 
+     * - nbYes 和 nbNo 之间的差异是 +50% 的选票吗？ 
+     * - 这是在投票期之后吗？ 
+     * - 如果我们已经有一个被挑战的结果，就像还没有结果一样 
+     * - 如果我们已经有一个未被质疑的结果， 新的比旧的重吗？
      * What needs to be checked before submitting a vote result:
      * - if the grace period has ended, do nothing
      * - if it's the first result (vote), is this a right time to submit it?

@@ -65,11 +65,10 @@ contract OnboardingContract is IOnboarding, AdapterGuard, Reimbursable {
     }
 
     // proposals per dao
-    mapping(DaoRegistry => mapping(bytes32 => ProposalDetails))
-        public proposals;
+    mapping(DaoRegistry => mapping(bytes32 => ProposalDetails)) public proposals;
+
     // minted units per dao, per token, per applicant
-    mapping(DaoRegistry => mapping(address => mapping(address => uint88)))
-        public units;
+    mapping(DaoRegistry => mapping(address => mapping(address => uint88))) public units;
 
     /**
      * @notice Updates the DAO registry with the new configurations if valid.
@@ -127,12 +126,12 @@ contract OnboardingContract is IOnboarding, AdapterGuard, Reimbursable {
     }
 
     /**
-     * @notice Submits and sponsors the proposal. Only members can call this function.
-     * @param proposalId The proposal id to submit to the DAO Registry.
-     * @param applicant The applicant address.
-     * @param tokenToMint The token to be minted if the proposal pass.
-     * @param tokenAmount The amount of token to mint.
-     * @param data Additional proposal information.
+     * @notice 提交并赞助提案。只有成员才能调用此函数。 
+     * @param proposalId 提交给 DAO Registry 的提案 ID。 
+     * @param 申请人申请人地址。 
+     * @param tokenToMint 提案通过时要铸造的代币。 
+     * @param tokenAmount 要铸造的代币数量。 
+     * @param data 附加提案信息。
      */
     // slither-disable-next-line reentrancy-benign
     function submitProposal(
@@ -171,8 +170,8 @@ contract OnboardingContract is IOnboarding, AdapterGuard, Reimbursable {
     }
 
     /**
-     * @notice Once the vote on a proposal is finished, it is time to process it. Anybody can call this function.
-     * @param proposalId The proposal id to be processed. It needs to exist in the DAO Registry.
+     *  一旦对提案的投票完成，就该处理它了。任何人都可以调用这个函数。 
+     * @param proposalId 要处理的提案 ID。它需要存在于 DAO 注册表中。
      */
     // slither-disable-next-line reentrancy-benign
     function processProposal(DaoRegistry dao, bytes32 proposalId)
@@ -259,8 +258,8 @@ contract OnboardingContract is IOnboarding, AdapterGuard, Reimbursable {
     }
 
     /**
-     * @notice Starts a vote on the proposal to onboard a new member.
-     * @param proposalId The proposal id to be processed. It needs to exist in the DAO Registry.
+     * @notice 开始对加入新成员的提案进行投票。 
+     * @param proposalId 要处理的提案 ID。它需要存在于 DAO 注册表中。
      */
     function _sponsorProposal(
         DaoRegistry dao,

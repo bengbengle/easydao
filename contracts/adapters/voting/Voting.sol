@@ -109,8 +109,16 @@ contract VotingContract is IVoting, MemberGuard, AdapterGuard, Reimbursable {
      * @param dao The DAO address.
      * @param proposalId The proposal needs to be sponsored, and not processed.
      * @param voteValue Only Yes (1) and No (2) votes are allowed.
+     * @notice 向 DAO Registry 提交投票。 
+     * @notice 投票必须在 startNewVotingForProposal 中定义的开始时间之后提交。 
+     * @notice 投票需要在投票期内提交。 
+     * @notice 会员不能投票两次或多次。 
+     * @param dao DAO 地址。 
+     * @param proposalId 该提案需要被赞助，而不是被处理。 
+     * @param voteValue 只允许是 (1) 和否 (2) 投票。
      */
     // The function is protected against reentrancy with the reimbursable modifier
+    // 使用 reimbursable 修饰符保护该函数不被重入
     //slither-disable-next-line reentrancy-no-eth,reentrancy-benign
     function submitVote(
         DaoRegistry dao,
@@ -173,6 +181,10 @@ contract VotingContract is IVoting, MemberGuard, AdapterGuard, Reimbursable {
      * @param dao The DAO address.
      * @param proposalId The proposal that needs to have the votes computed.
      * @return state
+     * @notice 根据提案计算投票结果。 
+     * @param dao DAO 地址。 
+     * @param proposalId 需要计算投票的提案。 
+     * @return 状态
      * The possible results are:
      * 0: has not started
      * 1: tie

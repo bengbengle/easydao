@@ -98,16 +98,16 @@ contract DaoFactory is CloneFactory {
      * @dev The DAO must be in `CREATION` state.
      * @param dao DaoRegistry to have adapters added to.
      * @param adapters Adapter structs to be added to the DAO.
+     * @notice 为 DaoRegistry 函数添加适配器并设置它们的 ACL。 
+     * @dev 一个新的 DAO 仅在启用核心模块的情况下实例化，以降低调用成本。必须进行此调用以添加适配器。 * @dev 消息发送者必须是 DAO 的活跃成员。 * @dev DAO 必须处于 `CREATION` 状态。 * @param dao DaoRegistry 添加适配器。 
+     * @param adapters 要添加到 DAO 的适配器结构
      */
     function addAdapters(DaoRegistry dao, Adapter[] calldata adapters)
         external
     {
         require(dao.isMember(msg.sender), "not member");
-        //Registring Adapters
-        require(
-            dao.state() == DaoRegistry.DaoState.CREATION,
-            "this DAO has already been setup"
-        );
+        // Registring Adapters
+        require(dao.state() == DaoRegistry.DaoState.CREATION, "this DAO has already been setup");
 
         for (uint256 i = 0; i < adapters.length; i++) {
             //slither-disable-next-line calls-loop

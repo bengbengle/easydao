@@ -188,24 +188,24 @@ contract BankExtension is IExtension, ERC165 {
     }
 
     /**
-     * @return Whether or not the given token is an available internal token in the bank
-     * @param token The address of the token to look up
+     * @return 给定的令牌是否是银行中可用的内部令牌 
+     * @param token 要查找的令牌地址
      */
     function isInternalToken(address token) external view returns (bool) {
         return availableInternalTokens[token];
     }
 
     /**
-     * @return Whether or not the given token is an available token in the bank
-     * @param token The address of the token to look up
+     * @return 给定的代币是否是银行中可用的代币 
+     * @param token 要查找的令牌地址
      */
     function isTokenAllowed(address token) public view returns (bool) {
         return availableTokens[token];
     }
 
     /**
-     * @notice Sets the maximum amount of external tokens allowed in the bank
-     * @param maxTokens The maximum amount of token allowed
+     * @notice 设置银行允许的最大 external 代币数量 
+     * @param maxTokens 允许的最大令牌数量
      */
     function setMaxExternalTokens(uint8 maxTokens) external {
         require(!initialized, "bank already initialized");
@@ -221,9 +221,9 @@ contract BankExtension is IExtension, ERC165 {
      */
 
     /**
-     * @notice Registers a potential new token in the bank
-     * @dev Cannot be a reserved token or an available internal token
-     * @param token The address of the token
+     * @notice 在银行注册一个潜在的新代币 
+     * @dev 不能是保留令牌或可用的内部令牌 
+     * @param token 代币地址
      */
     function registerPotentialNewToken(DaoRegistry _dao, address token)
         external
@@ -243,9 +243,9 @@ contract BankExtension is IExtension, ERC165 {
     }
 
     /**
-     * @notice Registers a potential new internal token in the bank
-     * @dev Can not be a reserved token or an available token
-     * @param token The address of the token
+     * @notice 在银行注册一个潜在的 新 内部代币 
+     * @dev 不能是保留令牌或可用令牌 
+     * @param token 代币地址
      */
     function registerPotentialNewInternalToken(DaoRegistry _dao, address token)
         external
@@ -313,47 +313,47 @@ contract BankExtension is IExtension, ERC165 {
      */
 
     /**
-     * @return The token from the bank of a given index
-     * @param index The index to look up in the bank's tokens
+     * @return 来自给定索引的银行的代币 
+     * @param index 要在银行代币中查找的索引
      */
     function getToken(uint256 index) external view returns (address) {
         return tokens[index];
     }
 
     /**
-     * @return The amount of token addresses in the bank
+     * @return 银行中的代币地址总数
      */
     function nbTokens() external view returns (uint256) {
         return tokens.length;
     }
 
     /**
-     * @return All the tokens registered in the bank.
+     * @return 所有在银行注册的代币。
      */
     function getTokens() external view returns (address[] memory) {
         return tokens;
     }
 
     /**
-     * @return The internal token at a given index
-     * @param index The index to look up in the bank's array of internal tokens
+     * @return 给定索引处的内部令牌 
+     * @param index 要在银行内部令牌数组中查找的索引
      */
     function getInternalToken(uint256 index) external view returns (address) {
         return internalTokens[index];
     }
 
     /**
-     * @return The amount of internal token addresses in the bank
+     * @return 银行内部代币地址数量
      */
     function nbInternalTokens() external view returns (uint256) {
         return internalTokens.length;
     }
 
     /**
-     * @notice Adds to a member's balance of a given token
-     * @param member The member whose balance will be updated
-     * @param token The token to update
-     * @param amount The new balance
+     * @notice 添加给定令牌的成员余额 
+     * @param member 余额将被更新的成员 
+     * @param token 要更新的令牌 
+     * @param amount 新余额
      */
     function addToBalance(
         DaoRegistry _dao,
@@ -377,6 +377,10 @@ contract BankExtension is IExtension, ERC165 {
      * @param member The member whose balance will be updated
      * @param token The token to update
      * @param amount The new balance
+     * @notice 从给定令牌的成员余额中删除 
+     * @param member 余额将被更新的成员 
+     * @param token 要更新的令牌 
+     * @param amount 新余额
      */
     function subtractFromBalance(
         DaoRegistry _dao,
@@ -510,11 +514,11 @@ contract BankExtension is IExtension, ERC165 {
     }
 
     /**
-     * @notice Creates a new amount checkpoint for a token of a certain member
-     * @dev Reverts if the amount is greater than 2**64-1
-     * @param member The member whose checkpoints will be added to
-     * @param token The token of which the balance will be changed
-     * @param amount The amount to be written into the new checkpoint
+     * @notice 为某个成员的代币创建一个新的金额检查点 
+     * @dev 如果数量大于 2**64-1，则还原 
+     * @param member 将添加检查点的成员 
+     * @param token 需要更改余额的token 
+     * @param amount 要写入新检查点的金额
      */
     function _createNewAmountCheckpoint(
         address member,
@@ -540,21 +544,16 @@ contract BankExtension is IExtension, ERC165 {
         require(isValidToken, "token not registered");
 
         uint32 nCheckpoints = numCheckpoints[token][member];
+        // 我们应该允许数量更新的唯一条件:  
+        // 当 block.number 与 fromBlock 值完全匹配时。 
+        // 任何与此不同的东西都应该生成一个新的检查点。
         if (
-            // The only condition that we should allow the amount update
-            // is when the block.number exactly matches the fromBlock value.
-            // Anything different from that should generate a new checkpoint.
             //slither-disable-next-line incorrect-equality
-            nCheckpoints > 0 &&
-            checkpoints[token][member][nCheckpoints - 1].fromBlock ==
-            block.number
+            nCheckpoints > 0 && checkpoints[token][member][nCheckpoints - 1].fromBlock == block.number
         ) {
             checkpoints[token][member][nCheckpoints - 1].amount = newAmount;
         } else {
-            checkpoints[token][member][nCheckpoints] = Checkpoint(
-                uint96(block.number),
-                newAmount
-            );
+            checkpoints[token][member][nCheckpoints] = Checkpoint(uint96(block.number), newAmount);
             numCheckpoints[token][member] = nCheckpoints + 1;
         }
         //slither-disable-next-line reentrancy-events

@@ -35,8 +35,8 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     bool public initialized = false; // internally tracks deployment under eip-1167 proxy pattern
 
     enum DaoState {
-        CREATION,
-        READY
+        CREATION,   // 刚创建，未设置，不能使用
+        READY       // 这个 DAO 已经设置好
     }
 
     /*
@@ -171,11 +171,11 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     constructor() {}
 
     /**
-     * @notice Initialises the DAO
-     * @dev Involves initialising available tokens, checkpoints, and membership of creator
-     * @dev Can only be called once
-     * @param creator The DAO's creator, who will be an initial member
-     * @param payer The account which paid for the transaction to create the DAO, who will be an initial member
+     * @notice 初始化 DAO 
+     * @dev 涉及初始化可用令牌、检查点和创建者的成员资格 
+     * @dev 只能调用一次 
+     * @param creator DAO 的创建者，他将成为初始成员 
+     * @param payer 为创建 DAO 的交易支付的账户，他将成为初始成员
      */
     //slither-disable-next-line reentrancy-no-eth
     function initialize(address creator, address payer) external {
@@ -188,12 +188,10 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
 
     /**
      * @dev Sets the state of the dao to READY
+     * @dev 将 dao 的状态设置为 READY
      */
     function finalizeDao() external {
-        require(
-            isActiveMember(this, msg.sender) || isAdapter(msg.sender),
-            "not allowed to finalize"
-        );
+        require(isActiveMember(this, msg.sender) || isAdapter(msg.sender), "not allowed to finalize");
         state = DaoState.READY;
     }
 
@@ -209,6 +207,7 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
 
     /**
      * @notice Contract lock strategy to release the lock only the caller is an adapter or extension.
+     * @notice 合约锁策略释放锁的只有调用者是适配器或扩展。
      */
     function unlockSession() external {
         if (isAdapter(msg.sender) || isExtension(msg.sender)) {
@@ -232,8 +231,8 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-     * @notice Registers a member address in the DAO if it is not registered or invalid.
-     * @notice A potential new member is a member that holds no shares, and its registration still needs to be voted on.
+     * @notice 如果成员地址未注册或无效，则在 DAO 中注册成员地址。 
+     * @notice 潜在新会员是不持有股份的会员，其注册仍需投票。
      */
     function potentialNewMember(address memberAddress)
         public
@@ -243,10 +242,7 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
 
         Member storage member = members[memberAddress];
         if (!DaoHelper.getFlag(member.flags, uint8(MemberFlag.EXISTS))) {
-            require(
-                memberAddressesByDelegatedKey[memberAddress] == address(0x0),
-                "member address already taken as delegated key"
-            );
+            require(memberAddressesByDelegatedKey[memberAddress] == address(0x0), "member address already taken as delegated key");
             member.flags = DaoHelper.setFlag(
                 member.flags,
                 uint8(MemberFlag.EXISTS),
@@ -275,6 +271,10 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
      * @dev Changes the value of a key in the configuration mapping
      * @param key The configuration key for which the value will be set
      * @param value The value to set the key
+     * @notice 设置配置值 
+     * @dev 改变配置映射中某个键的值 
+     * @param key 要设置值的配置键 
+     * @param value 设置key的值
      */
     function setAddressConfiguration(bytes32 key, address value)
         external
@@ -627,9 +627,9 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-     * @return Whether or not a flag is set for a given member
-     * @param memberAddress The member to check against flag
-     * @param flag The flag to check in the member
+     * @return 是否为成员设置了标志 
+     * @param memberAddress 要检查标志的成员 
+     * @param flag 签入成员的标志
      */
     function getMemberFlag(address memberAddress, MemberFlag flag)
         public
@@ -639,6 +639,9 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
         return DaoHelper.getFlag(members[memberAddress].flags, uint8(flag));
     }
 
+    /**
+     * @return 成员长度
+     */
     function getNbMembers() external view returns (uint256) {
         return _members.length;
     }
@@ -678,11 +681,8 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
             "member does not exist"
         );
 
-        // Reset the delegation of the previous delegate
-        // 重置前一个委托
-        memberAddressesByDelegatedKey[
-            getCurrentDelegateKey(memberAddr)
-        ] = address(0x0);
+        // 重置当前的委托
+        memberAddressesByDelegatedKey[getCurrentDelegateKey(memberAddr)] = address(0x0);
 
         memberAddressesByDelegatedKey[newDelegateKey] = memberAddr;
 
@@ -709,7 +709,7 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
 
     /**
      * @param 将返回其委托的成员 
-     * @return 成员当前时间的委托密钥
+     * @return 成员当前时间的委托 地址
      */
     function getCurrentDelegateKey(address memberAddr)
         public
@@ -740,11 +740,11 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-     * @notice Determine the prior number of votes for an account as of a block number
-     * @dev Block number must be a finalized block or else this function will revert to prevent misinformation.
-     * @param memberAddr The address of the account to check
-     * @param blockNumber The block number to get the vote balance at
-     * @return The number of votes the account had as of the given block
+     * @notice 确定一个账户在区块号之前的投票数 
+     * @dev 区块编号必须是最终区块，否则此功能将恢复以防止错误信息。 
+     * @param memberAddr 要检查的账户地址 
+     * @param blockNumber 获得投票余额的区块号 
+     * @return 账户在给定区块中的投票数
      */
     function getPriorDelegateKey(address memberAddr, uint256 blockNumber)
         external
@@ -758,14 +758,14 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
             return memberAddr;
         }
 
-        // First check most recent balance
+        // 首先检查最近的余额
         if (
             checkpoints[memberAddr][nCheckpoints - 1].fromBlock <= blockNumber
         ) {
             return checkpoints[memberAddr][nCheckpoints - 1].delegateKey;
         }
 
-        // Next check implicit zero balance
+        // 接下来检查隐式零余额
         if (checkpoints[memberAddr][0].fromBlock > blockNumber) {
             return memberAddr;
         }
@@ -787,18 +787,18 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-     * @notice Creates a new delegate checkpoint of a certain member
-     * @param member The member whose delegate checkpoints will be added to
-     * @param newDelegateKey The delegate key that will be written into the new checkpoint
+     * @notice 创建某个成员的新委托检查点 
+     * @param member 委托检查点将被添加到的成员 
+     * @param newDelegateKey 将被写入新检查点的委托密钥
      */
     function _createNewDelegateCheckpoint(
         address member,
         address newDelegateKey
     ) internal {
         uint32 nCheckpoints = numCheckpoints[member];
-        // The only condition that we should allow the deletegaKey upgrade
-        // is when the block.number exactly matches the fromBlock value.
-        // Anything different from that should generate a new checkpoint.
+        // 我们应该允许 deletegaKey 升级的唯一条件 
+        // 当 block.number 与 fromBlock 值完全匹配时。 
+        // 任何与此不同的东西都应该生成一个新的检查点。
         if (
             //slither-disable-next-line incorrect-equality
             nCheckpoints > 0 &&

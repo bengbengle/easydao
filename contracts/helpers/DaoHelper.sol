@@ -190,10 +190,6 @@ library DaoHelper {
     }
 
     /**
-     * A DAO is in creation mode is the state of the DAO is equals to CREATION and
-     * 1. The number of members in the DAO is ZERO or,
-     * 2. The sender of the tx is a DAO member (usually the DAO owner) or,
-     * 3. The sender is an adapter.
      * DAO 处于创建模式是 DAO 的状态等于 CREATION 并且 
      * 1. DAO 中的成员数量为零，或者， 
      * 2. tx 的发送者是 DAO 成员（通常是 DAO 所有者），或者， 

@@ -42,18 +42,13 @@ contract CouponOnboardingContract is Reimbursable, AdapterGuard, Signatures {
 
     using SafeERC20 for IERC20;
 
-    string public constant COUPON_MESSAGE_TYPE =
-        "Message(address authorizedMember,uint256 amount,uint256 nonce)";
-    bytes32 public constant COUPON_MESSAGE_TYPEHASH =
-        keccak256(abi.encodePacked(COUPON_MESSAGE_TYPE));
+    string public constant COUPON_MESSAGE_TYPE = "Message(address authorizedMember,uint256 amount,uint256 nonce)";
+    bytes32 public constant COUPON_MESSAGE_TYPEHASH = keccak256(abi.encodePacked(COUPON_MESSAGE_TYPE));
 
-    bytes32 constant SignerAddressConfig =
-        keccak256("coupon-onboarding.signerAddress");
-    bytes32 constant TokenAddrToMint =
-        keccak256("coupon-onboarding.tokenAddrToMint");
+    bytes32 constant SignerAddressConfig = keccak256("coupon-onboarding.signerAddress");
+    bytes32 constant TokenAddrToMint = keccak256("coupon-onboarding.tokenAddrToMint");
 
-    bytes32 constant ERC20InternalTokenAddr =
-        keccak256("coupon-onboarding.erc20.internal.token.address");
+    bytes32 constant ERC20InternalTokenAddr = keccak256("coupon-onboarding.erc20.internal.token.address");
 
     mapping(address => mapping(uint256 => uint256)) private _flags;
 

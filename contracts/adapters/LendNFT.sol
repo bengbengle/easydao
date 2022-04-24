@@ -160,6 +160,8 @@ contract LendNFTContract is
      */
     // The function can be called only from the _onERC1155Received & _onERC721Received functions
     // Which are protected against reentrancy attacks.
+    // 该函数只能从 _onERC1155Received 和 _onERC721Received 函数中调用 
+    // 可以防止重入攻击。
     //slither-disable-next-line reentrancy-no-eth
     function _processProposal(DaoRegistry dao, bytes32 proposalId)
         internal
