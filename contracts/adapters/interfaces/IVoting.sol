@@ -29,8 +29,9 @@ SOFTWARE.
  */
 
 interface IVoting {
+    // 未开始，  通过， 未通过， 平局， 投票中， 结束投票 等待结果宽限期
     enum VotingState {
-        NOT_STARTED,
+        NOT_STARTED,   
         TIE,
         PASS,
         NOT_PASS,

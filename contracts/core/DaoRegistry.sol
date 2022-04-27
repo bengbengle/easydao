@@ -34,9 +34,11 @@ SOFTWARE.
 contract DaoRegistry is MemberGuard, AdapterGuard {
     bool public initialized = false; // internally tracks deployment under eip-1167 proxy pattern
 
+    // 刚创建，未设置，不能使用
+    // 这个 DAO 已经设置好
     enum DaoState {
-        CREATION,   // 刚创建，未设置，不能使用
-        READY       // 这个 DAO 已经设置好
+        CREATION,   
+        READY       
     }
 
     /*
@@ -75,45 +77,47 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
         PROCESSED
     }
 
+    // 替换适配器 
+    // 提交提案 
+    // 更新委托者地址
+    // 设置配置
+    // 添加 EXTENSION
+    // 移除 EXTENSION
+    // 添加 Dao 成员
     enum AclFlag {
-        REPLACE_ADAPTER, // 替换适配器
-        SUBMIT_PROPOSAL, // 提交提案 
-        UPDATE_DELEGATE_KEY, // 更新委托密钥 
-        SET_CONFIGURATION, // 设置配置
-        ADD_EXTENSION,  // 添加 EXTENSION 
-        REMOVE_EXTENSION, // 移除 EXTENSION
-        NEW_MEMBER // 添加 Dao 成员
+        REPLACE_ADAPTER, 
+        SUBMIT_PROPOSAL, 
+        UPDATE_DELEGATE_KEY,
+        SET_CONFIGURATION, 
+        ADD_EXTENSION,   
+        REMOVE_EXTENSION,
+        NEW_MEMBER
     }
 
     /*
      * STRUCTURES
      */
     struct Proposal {
-        // the structure to track all the proposals in the DAO，the adapter address that called the functions to change the DAO state
-        // 跟踪 DAO 中所有提案的结构，调用函数以更改 DAO 状态的适配器地址 
-        address adapterAddress; 
+        // 跟踪 DAO 中所有提案的结构， 调用函数以更改 DAO 状态的适配器地址 
+        address adapterAddress;
         
-        // flags to track the state of the proposal: exist, sponsored, processed, canceled, etc.
         // 跟踪提案状态的标志：存在、赞助、处理、取消等
         uint256 flags;
     }
 
+    // 跟踪 DAO 中所有成员的结构， 用于跟踪成员状态的标志：存在等
     struct Member {
-        // the structure to track all the members in the DAO flags to track the state of the member: exists, etc
-        // 跟踪 DAO 中所有成员的结构， 用于跟踪成员状态的标志：存在等
-        uint256 flags; 
+        uint256 flags;
     }
 
+    // 用于标记给定区块的投票数的检查点
     struct Checkpoint {
-        // A checkpoint for marking number of votes from a given block
-        // 用于标记给定区块的投票数的检查点
         uint96 fromBlock;
         uint160 amount;
     }
 
+    // 用于标记给定块中成员的委托密钥的检查点
     struct DelegateCheckpoint {
-        // A checkpoint for marking the delegate key for a member from a given block
-        // 用于标记给定块中成员的委托密钥的检查点
         uint96 fromBlock;
         address delegateKey;
     }
@@ -132,7 +136,8 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     /*
      * PUBLIC VARIABLES
      */
-    mapping(address => Member) public members; // the map to track all members of the DAO
+    //  用于跟踪 DAO 的所有成员的地图
+    mapping(address => Member) public members;
     address[] private _members;
 
     // delegate key => member address mapping
@@ -145,29 +150,32 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
 
     DaoState public state;
 
-    /// @notice The map that keeps track of all proposasls submitted to the DAO, dao --> proposals
+    /// @notice 跟踪所有提交给 DAO 的提案的地图，dao --> 提案
     mapping(bytes32 => Proposal) public proposals;
-    /// @notice The map that tracks the voting adapter address per proposalId, proposalId --> VotingAdapter 
+
+    /// @notice 跟踪每个proposalId的投票适配器地址的映射，proposalId --> VotingAdapter
     mapping(bytes32 => address) public votingAdapter;
-    /// @notice The map that keeps track of all adapters registered in the DAO, dao --> adapters
+
+    /// @notice 跟踪在 DAO 中注册的所有适配器的映射，dao --> adapters
     mapping(bytes32 => address) public adapters;
-    /// @notice The inverse map to get the adapter id based on its address, adapter address --> adapter id
+
     /// @notice 根据地址获取适配器 id 的逆映射 adapter_address --> [] {adapter_id, acl }
     mapping(address => AdapterEntry) public inverseAdapters;
-    /// @notice The map that keeps track of all extensions registered in the DAO, dao --> ext
+
     /// @notice 跟踪在 DAO 中注册的所有扩展的映射
     mapping(bytes32 => address) public extensions;
+
     /// @notice The inverse map to get the extension id based on its address, addr --> ext
     /// @notice 根据地址获取扩展ID的逆映射 ext_address --> []{ext_id, is_del, [acl]
     mapping(address => ExtensionEntry) public inverseExtensions;
-    /// @notice The map that keeps track of configuration parameters for the DAO and adapters
+
     /// @notice 跟踪 DAO 和适配器的配置参数的映射
     mapping(bytes32 => uint256) public mainConfiguration;
     mapping(bytes32 => address) public addressConfiguration;
 
     uint256 public lockedAt;
 
-    /// @notice Clonable contract must have an empty constructor
+    /// @notice 可克隆合约必须有一个空的构造函数
     constructor() {}
 
     /**
@@ -197,7 +205,7 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
 
     /**
      * @notice Contract lock strategy to lock only the caller is an adapter or extension.
-     * @notice 合约锁定策略只锁定调用者是适配器或扩展
+     * @notice 合约锁定策略只锁定 调用者是 adapter 或 ext
      */
     function lockSession() external {
         if (isAdapter(msg.sender) || isExtension(msg.sender)) {
@@ -232,7 +240,7 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
 
     /**
      * @notice 如果成员地址未注册或无效，则在 DAO 中注册成员地址。 
-     * @notice 潜在新会员是不持有股份的会员，其注册仍需投票。
+     * @notice 潜在会员是不持有股份的会员，其注册仍需投票。
      */
     function potentialNewMember(address memberAddress)
         public
@@ -267,12 +275,7 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-     * @notice Sets an configuration value
-     * @dev Changes the value of a key in the configuration mapping
-     * @param key The configuration key for which the value will be set
-     * @param value The value to set the key
-     * @notice 设置配置值 
-     * @dev 改变配置映射中某个键的值 
+     * @notice 设置配置值， 改变配置映射中某个键的值 
      * @param key 要设置值的配置键 
      * @param value 设置key的值
      */
@@ -286,8 +289,8 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-     * @return The configuration value of a particular key
-     * @param key The key to look up in the configuration mapping
+     * @return 根据 key 获取配置中的 value 
+     * @param key 在配置映射中查找的key
      */
     function getConfiguration(bytes32 key) external view returns (uint256) {
         return mainConfiguration[key];
@@ -320,18 +323,14 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-     * @notice Replaces an adapter in the registry in a single step.
-     * @notice It handles addition and removal of adapters as special cases.
-     * @dev It removes the current adapter if the adapterId maps to an existing adapter address.
-     * @dev It adds an adapter if the adapterAddress parameter is not zeroed.
-     * @param adapterId The unique identifier of the adapter
-     * @param adapterAddress The address of the new adapter or zero if it is a removal operation
-     * @param acl The flags indicating the access control layer or permissions of the new adapter
-     * @param keys The keys indicating the adapter configuration names.
-     * @param values The values indicating the adapter configuration values.
-     * @notice 一步替换注册表中的适配器, 它处理适配器的添加和删除作为特殊情况。
-     * @notice 如果 adapterId 映射到现有适配器地址，则删除当前适配器。 * @dev 如果adapterAddress 参数不为零，它会添加一个适配器。 * @param adapterId 适配器的唯一标识符 * @param adapterAddress 新适配器的地址，如果是删除操作，则为零 * @param acl 表示新适配器的访问控制层或权限的标志 * @param keys 表示适配器配置名称的键。 
-     * @param values 表示适配器配置值的值。
+     * @notice 更改注册表中的适配器, 它处理适配器的添加和删除作为特殊情况
+     * @notice 如果 adapterId 映射到现有适配器地址，则删除当前适配器
+     * @dev 如果 adapterAddress 参数不为零，它会添加一个适配器
+     * @param adapterId 适配器的唯一标识符
+     * @param adapterAddress 新适配器的地址， 如果是删除操作， 则为零 
+     * @param acl 表示新适配器的访问控制层或权限的标志 
+     * @param keys 表示适配器配置名称的键 
+     * @param values 表示适配器配置值的值
      */
     function replaceAdapter(
         bytes32 adapterId,
@@ -357,10 +356,8 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
         }
 
         if (adapterAddress != address(0x0)) {
-            require(
-                inverseAdapters[adapterAddress].id == bytes32(0),
-                "adapterAddress already in use"
-            );
+            require(inverseAdapters[adapterAddress].id == bytes32(0), "adapterAddress already in use");
+
             adapters[adapterId] = adapterAddress;
             inverseAdapters[adapterAddress].id = adapterId;
             inverseAdapters[adapterAddress].acl = acl;
@@ -369,10 +366,6 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-     * @notice Adds a new extension to the registry
-     * @param extensionId The unique identifier of the new extension
-     * @param extension The address of the extension
-     * @param creator The DAO's creator, who will be an initial member
      * @notice 向注册表添加新扩展 
      * @param extensionId 新扩展的唯一标识符 
      * @param extension 扩展的地址 
@@ -384,15 +377,11 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
         IExtension extension,
         address creator
     ) external hasAccess(this, AclFlag.ADD_EXTENSION) {
+        
         require(extensionId != bytes32(0), "extension id must not be empty");
-        require(
-            extensions[extensionId] == address(0x0),
-            "extension Id already in use"
-        );
-        require(
-            !inverseExtensions[address(extension)].deleted,
-            "extension can not be re-added"
-        );
+        require(extensions[extensionId] == address(0x0), "extension Id already in use");
+        require(!inverseExtensions[address(extension)].deleted, "extension can not be re-added");
+       
         extensions[extensionId] = address(extension);
         inverseExtensions[address(extension)].id = extensionId;
         extension.initialize(this, creator);

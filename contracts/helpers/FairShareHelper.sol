@@ -28,6 +28,7 @@ SOFTWARE.
 library FairShareHelper {
     /**
      * @notice calculates the fair unit amount based the total units and current balance.
+     * @notice 根据总 unit 和当前 balance 计算 fair unit 数量
      */
     function calc(
         uint256 balance,

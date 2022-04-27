@@ -330,7 +330,9 @@ Contracts:
 - `OFFCHAIN_ADMIN_ADDR`: The address of the admin account that manages the offchain voting adapter.
 - `VOTING_PERIOD_SECONDS`: The maximum amount of time in seconds that members are allowed vote on proposals.
 - `GRACE_PERIOD_SECONDS`: The minimum time in seconds after the voting period has ended, that the members need to wait before processing a proposal.
+- `GRACE_PERIOD_SECONDS`: 投票期结束后，成员在处理提案之前需要等待的最短时间（以秒为单位）.
 - `DAO_ARTIFACTS_OWNER_ADDR`: The owner address of the artifacts deployed. Leave it empty to if you want to use the `DAO_OWNER_ADDR` as the artifacts owner.
+- `DAO_ARTIFACTS_OWNER_ADDR`: 部署的工件的所有者地址。如果您想使用 `DAO_OWNER_ADDR` 作为工件所有者，请将其留空
 - `DAO_ARTIFACTS_CONTRACT_ADDR`: The `DaoArtifacts` contract address that will be used in the deployment script to fetch Adapters and Factories during the deployment to save gas costs.
 
 Snapshot-hub:

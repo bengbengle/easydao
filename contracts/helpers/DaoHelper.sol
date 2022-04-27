@@ -77,7 +77,7 @@ library DaoHelper {
     uint8 internal constant MAX_TOKENS_GUILD_BANK = 200;
 
     function totalTokens(BankExtension bank) internal view returns (uint256) {
-        return memberTokens(bank, TOTAL) - memberTokens(bank, GUILD); //GUILD is accounted for twice otherwise
+        return memberTokens(bank, TOTAL) - memberTokens(bank, GUILD); //否则 GUILD 被计算两次  GUILD is accounted for twice otherwise
     }
 
     /**
@@ -139,10 +139,13 @@ library DaoHelper {
     }
 
     //helper 16,8,4,2,1 --> 4,3,2,1,0 --> 16 / 2 ** 4 --> 16 / 2 ** 4  -> 7 , 15 
+    // 0 --> 1
+    // 
     function getFlag(uint256 flags, uint256 flag) internal pure returns (bool) {
         return (flags >> uint8(flag)) % 2 == 1;
     }
 
+    // 权限 flag
     function setFlag(
         uint256 flags,
         uint256 flag,
@@ -161,7 +164,7 @@ library DaoHelper {
 
     /**
      * @notice Checks if a given address is reserved.
-     * @notice 检查给定地址是否被保留
+     * @notice 检查给定地址是否是预留的， escrow: 第三方托管
      */
     function isNotReservedAddress(address addr) internal pure returns (bool) {
         return addr != GUILD && addr != TOTAL && addr != ESCROW;
@@ -169,7 +172,7 @@ library DaoHelper {
 
     /**
      * @notice Checks if a given address is zeroed.
-     * @notice 检查给定地址是否归零
+     * @notice 检查给定地址是否是 零
      */
     function isNotZeroAddress(address addr) internal pure returns (bool) {
         return addr != address(0x0);

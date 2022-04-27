@@ -41,7 +41,8 @@ abstract contract AdapterGuard {
         );
         _;
     }
-
+    
+    // 同一区块内不能调用两次
     modifier reentrancyGuard(DaoRegistry dao) {
         require(dao.lockedAt() != block.number, "reentrancy guard");
         dao.lockSession();

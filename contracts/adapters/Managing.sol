@@ -41,15 +41,15 @@ contract ManagingContract is IManaging, AdapterGuard, Reimbursable {
         public configurations;
 
     /**
-     * @notice Creates a proposal to replace, remove or add an adapter.
-     * @dev If the adapterAddress is equal to 0x0, the adapterId is removed from the registry if available.
-     * @dev If the adapterAddress is a reserved address, it reverts.
-     * @dev keys and value must have the same length.
-     * @dev proposalId can not be reused.
-     * @param dao The dao address.
-     * @param proposalId Tproposal details
-     * @param proposal The proposal details
-     * @param data Additional data to pass to the voting contract and identify the submitter
+     * @notice 创建替换、删除或添加适配器的提议。 
+     * @dev 如果 adapterAddress 等于 0x0，adapterId 会从注册表中删除（如果可用）。 
+     * @dev 如果 adapterAddress 是保留地址，它会恢复。 
+     * @dev 键和值必须具有相同的长度。 
+     * @dev proposalId 不能重复使用。 
+     * @param dao dao 地址。 
+     * @param proposalId Tproposal 详细信息 
+     * @param proposal 提案详情 
+     * @param data 传递给投票合约并识别提交者的附加数据
      */
     // slither-disable-next-line reentrancy-benign
     function submitProposal(
@@ -94,9 +94,7 @@ contract ManagingContract is IManaging, AdapterGuard, Reimbursable {
             );
         }
 
-        IVoting votingContract = IVoting(
-            dao.getAdapterAddress(DaoHelper.VOTING)
-        );
+        IVoting votingContract = IVoting(dao.getAdapterAddress(DaoHelper.VOTING));
         address senderAddress = votingContract.getSenderAddress(
             dao,
             address(this),
@@ -109,13 +107,13 @@ contract ManagingContract is IManaging, AdapterGuard, Reimbursable {
     }
 
     /**
-     * @notice Processes a proposal that was sponsored.
-     * @dev Only members can process a proposal.
-     * @dev Only if the voting pass the proposal is processed.
-     * @dev Reverts when the adapter address is already in use and it is an adapter addition.
-     * @dev Reverts when the extension address is already in use and it is an extension addition.
-     * @param dao The dao address.
-     * @param proposalId The proposal id.
+     * @notice 处理发起的提案。 
+     * @dev 只有成员才能处理提案。 
+     * @dev 仅当投票通过时，提案才会被处理。 
+     * @dev 当适配器地址已被使用并且它是适配器添加时恢复。 
+     * @dev 当扩展地址已被使用并且它是扩展添加时恢复。 
+     * @param dao dao 地址。 
+     * @param proposalId 提案 ID。
      */
     // slither-disable-next-line reentrancy-benign
     function processProposal(DaoRegistry dao, bytes32 proposalId)
@@ -153,8 +151,8 @@ contract ManagingContract is IManaging, AdapterGuard, Reimbursable {
     }
 
     /**
-     * @notice If the extension is already registered, it removes the extension from the DAO Registry.
-     * @notice If the adapterOrExtensionAddr is provided, the new address is added as a new extension to the DAO Registry.
+     * @notice 如果扩展已经注册，它会从 DAO 注册表中删除扩展。 
+     * @notice 如果提供了 adapterOrExtensionAddr，则新地址将作为新扩展添加到 DAO 注册表。
      */
     function _replaceExtension(DaoRegistry dao, ProposalDetails memory proposal)
         internal

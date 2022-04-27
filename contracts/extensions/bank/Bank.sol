@@ -416,10 +416,10 @@ contract BankExtension is IExtension, ERC165 {
     }
 
     /**
-     * @notice Returns an member's balance of a given token
-     * @param member The address to look up
-     * @param tokenAddr The token where the member's balance of which will be returned
-     * @return The amount in account's tokenAddr balance
+     * @notice 返回给定代币的 余额 
+     * @param member 要查找的地址 
+     * @param tokenAddr 返回成员余额的token 
+     * @return 账户的 tokenAddr 余额中的金额
      */
     function balanceOf(address member, address tokenAddr)
         public
@@ -427,10 +427,7 @@ contract BankExtension is IExtension, ERC165 {
         returns (uint160)
     {
         uint32 nCheckpoints = numCheckpoints[tokenAddr][member];
-        return
-            nCheckpoints > 0
-                ? checkpoints[tokenAddr][member][nCheckpoints - 1].amount
-                : 0;
+        return nCheckpoints > 0 ? checkpoints[tokenAddr][member][nCheckpoints - 1].amount : 0;
     }
 
     /**

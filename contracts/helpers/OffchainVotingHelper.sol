@@ -162,11 +162,13 @@ contract OffchainVotingHelperContract {
         }
 
         // If the weight is 0, the member has no permission to vote
+        // always check the weight of the member, not the delegate， memberAddr
+        // 如果权重 为 0，则该成员无权投票， 始终检查成员的权重，而不是代表的权重
         if (
             node.choice != 0 &&
             GovernanceHelper.getVotingWeight(
                 dao,
-                memberAddr, // always check the weight of the member, not the delegate
+                memberAddr, 
                 node.proposalId,
                 blockNumber
             ) ==
@@ -275,14 +277,15 @@ contract OffchainVotingHelperContract {
             return IVoting.VotingState.IN_PROGRESS;
         }
 
-        // If the vote has started but the voting period has not passed yet,
-        // it's in progress
+        // If the vote has started but the voting period has not passed yet, it's in progress
+        // 如果投票已经开始， 但投票期尚未结束，则表示正在进行中
         // slither-disable-next-line timestamp
         if (block.timestamp < startingTime + votingPeriod) {
             return IVoting.VotingState.IN_PROGRESS;
         }
 
         // If no result have been submitted but we are before grace + voting period,
+        // 如果没有提交结果， 但我们在宽限期 + 投票期之前
         // then the proposal is GRACE_PERIOD
         // slither-disable-next-line timestamp
         if (
@@ -293,6 +296,7 @@ contract OffchainVotingHelperContract {
         }
 
         // If the vote has started but the voting period has not passed yet, it's in progress
+        // 如果投票已经开始， 但投票期尚未结束，则表示正在进行中
         // slither-disable-next-line timestamp
         if (block.timestamp < gracePeriodStartingTime + gracePeriod) {
             return IVoting.VotingState.GRACE_PERIOD;

@@ -37,11 +37,6 @@ library GovernanceHelper {
     bytes32 public constant DEFAULT_GOV_TOKEN_CFG = keccak256(abi.encodePacked(ROLE_PREFIX, "default"));
 
     /*
-     * @dev Checks if the member address holds enough funds to be considered a governor.
-     * @param dao The DAO Address.
-     * @param memberAddr The message sender to be verified as governor.
-     * @param proposalId The proposal id to retrieve the governance token address if configured.
-     * @param snapshot The snapshot id to check the balance of the governance token for that member configured.
      * @dev 检查成员地址是否拥有足够的资金被视为州长。 
      * @param dao DAO 地址。 
      * @param memberAddr 要验证为州长的消息发送者。 
@@ -56,8 +51,6 @@ library GovernanceHelper {
     ) internal view returns (uint256) {
         (address adapterAddress, ) = dao.proposals(proposalId);
 
-        // 1st - if there is any governance token configuration
-        // for the adapter address, then read the voting weight based on that token.
         // 1st - 适配器 如果有任何治理令牌配置, 读取基于该令牌的投票权重。
         bytes32 adapterAddressToken = keccak256(abi.encodePacked(ROLE_PREFIX, adapterAddress));
         address governanceToken = dao.getAddressConfiguration(adapterAddressToken);
@@ -66,18 +59,13 @@ library GovernanceHelper {
             return getVotingWeight(dao, governanceToken, voterAddr, snapshot);
         }
 
-        // 2nd - if there is no governance token configured for the adapter,
-        // then check if exists a default governance token.
-        // If so, then read the voting weight based on that token.
-        // 2nd - 如果没有为适配器配置治理令牌， 检查是否存在默认治理令牌。 
-        // 如果是，则根据该令牌读取投票权重。
+        // 2nd - 如果没有为适配器配置治理令牌， 检查是否存在默认治理令牌。 如果是，则根据该令牌读取投票权重。
         governanceToken = dao.getAddressConfiguration(DEFAULT_GOV_TOKEN_CFG);
         if (DaoHelper.isNotZeroAddress(governanceToken)) {
             return getVotingWeight(dao, governanceToken, voterAddr, snapshot);
         }
 
-        // 3rd - if none of the previous options are available, assume the
-        // governance token is UNITS, then read the voting weight based on that token.
+        
         // 如果前面的选项都不可用，则假设治理代币是 UNITS，然后读取基于该代币的投票权重。
 
         BankExtension bank = BankExtension(

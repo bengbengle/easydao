@@ -29,17 +29,18 @@ SOFTWARE.
  */
 
 interface IManaging {
+    // 未知， 适配器， 扩展
     enum UpdateType {
         UNKNOWN,
         ADAPTER,
         EXTENSION
     }
-
+    // 数字, 地址
     enum ConfigType {
         NUMERIC,
         ADDRESS
     }
-
+    // configType
     struct Configuration {
         bytes32 key;
         uint256 numericValue;

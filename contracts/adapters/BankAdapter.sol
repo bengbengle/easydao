@@ -56,6 +56,7 @@ contract BankAdapterContract is AdapterGuard, Reimbursable {
         BankExtension bank = BankExtension(
             dao.getExtensionAddress(DaoHelper.BANK)
         );
+
         uint256 balance = bank.balanceOf(account, token);
         require(balance > 0, "nothing to withdraw");
 
@@ -73,9 +74,8 @@ contract BankAdapterContract is AdapterGuard, Reimbursable {
         reentrancyGuard(dao)
     {
         // 我们不需要检查 token 是否被银行支持， 因为如果不是，余额将永远为零。
-        BankExtension bank = BankExtension(
-            dao.getExtensionAddress(DaoHelper.BANK)
-        );
+        BankExtension bank = BankExtension(dao.getExtensionAddress(DaoHelper.BANK));
+        
         bank.updateToken(
             dao,
             token
@@ -84,14 +84,12 @@ contract BankAdapterContract is AdapterGuard, Reimbursable {
 
     /*
      * @notice 允许任何人将 eth 发送到银行分机 
-     * @param dao DAO 地址
+     * @param dao DAO 的地址
      */
     function sendEth(DaoRegistry dao) external payable reimbursable(dao) {
         require(msg.value > 0, "no eth sent!");
 
-        BankExtension bank = BankExtension(
-            dao.getExtensionAddress(DaoHelper.BANK)
-        );
+        BankExtension bank = BankExtension(dao.getExtensionAddress(DaoHelper.BANK));
         
         bank.addToBalance{
             value: msg.value

@@ -64,11 +64,12 @@ contract OffchainVotingContract is
         uint64 startingTime;
         uint64 gracePeriodStartingTime;
         bool isChallenged;
-        bool forceFailed;
-        uint256 nbMembers;
         uint256 stepRequested;
+        bool forceFailed;
         uint256 fallbackVotesCount;
+
         mapping(address => bool) fallbackVotes;
+        uint256 nbMembers;
     }
 
     struct VotingDetails {
@@ -424,10 +425,8 @@ contract OffchainVotingContract is
         );
         // slither-disable-next-line timestamp
         require(vote.stepRequested == 0, "other step already requested");
-        require(
-            voteResult(dao, proposalId) == VotingState.GRACE_PERIOD,
-            "should be grace period"
-        );
+        require(voteResult(dao, proposalId) == VotingState.GRACE_PERIOD, "should be grace period");
+
         vote.stepRequested = index;
         vote.gracePeriodStartingTime = uint64(block.timestamp);
     }
@@ -445,11 +444,9 @@ contract OffchainVotingContract is
         uint256 gracePeriod = dao.getConfiguration(GracePeriod);
         //if the vote has started but the voting period has not passed yet, it's in progress
         require(vote.stepRequested > 0, "no step request");
+
         // slither-disable-next-line timestamp
-        require(
-            block.timestamp >= vote.gracePeriodStartingTime + gracePeriod,
-            "grace period"
-        );
+        require(block.timestamp >= vote.gracePeriodStartingTime + gracePeriod, "grace period");
 
         _challengeResult(dao, proposalId);
     }
