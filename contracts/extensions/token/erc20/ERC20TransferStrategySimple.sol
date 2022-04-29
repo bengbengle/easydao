@@ -32,15 +32,13 @@ SOFTWARE.
  */
 
 /**
- *
- * The ERC20Extension is a contract to give erc20 functionality
- * to the internal token units held by DAO members inside the DAO itself.
+ * ERC20Extension 是为 DAO 成员持有的内部代币
  */
 contract ERC20TransferStrategySimple is IERC20TransferStrategy {
-    bytes32 public constant ERC20_EXT_TRANSFER_TYPE =
-        keccak256("erc20.transfer.type");
 
-    /// @notice Clonable contract must have an empty constructor
+    bytes32 public constant ERC20_EXT_TRANSFER_TYPE = keccak256("erc20.transfer.type");
+
+    // @notice 可克隆合约必须有一个空的构造函数
     // constructor() {}
 
     function hasBankAccess(DaoRegistry dao, address caller)
@@ -64,7 +62,7 @@ contract ERC20TransferStrategySimple is IERC20TransferStrategy {
         uint256 amount,
         address caller
     ) external view override returns (ApprovalType, uint256) {
-        //if the transfer is an internal transfer, then make it unlimited
+        // 如果转移是内部转移， 则使其无限制
         if (hasBankAccess(dao, caller)) {
             return (ApprovalType.SPECIAL, amount);
         }
@@ -78,7 +76,7 @@ contract ERC20TransferStrategySimple is IERC20TransferStrategy {
         } else if (transferType == 1) {
             return (ApprovalType.STANDARD, amount);
         }
-        //transfer not allowed
+        // transfer not allowed，
         return (ApprovalType.NONE, 0);
     }
 }

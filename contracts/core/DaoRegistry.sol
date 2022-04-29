@@ -34,8 +34,8 @@ SOFTWARE.
 contract DaoRegistry is MemberGuard, AdapterGuard {
     bool public initialized = false; // internally tracks deployment under eip-1167 proxy pattern
 
-    // 刚创建，未设置，不能使用
-    // 这个 DAO 已经设置好
+    // CREATION，刚创建 ，未设置，不能使用
+    // READY 这个 DAO 已经设置好
     enum DaoState {
         CREATION,   
         READY       
@@ -52,6 +52,7 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
         address votingAdapter
     );
     event ProcessedProposal(bytes32 proposalId, uint256 flags);
+
     event AdapterAdded(
         bytes32 adapterId,
         address adapterAddress,
@@ -185,7 +186,6 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
      * @param creator DAO 的创建者，他将成为初始成员 
      * @param payer 为创建 DAO 的交易支付的账户，他将成为初始成员
      */
-    //slither-disable-next-line reentrancy-no-eth
     function initialize(address creator, address payer) external {
         require(!initialized, "dao already initialized");
         initialized = true;
@@ -249,7 +249,10 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
         require(memberAddress != address(0x0), "invalid member address");
 
         Member storage member = members[memberAddress];
-        if (!DaoHelper.getFlag(member.flags, uint8(MemberFlag.EXISTS))) {
+        
+        bool is_exists = DaoHelper.getFlag(member.flags, uint8(MemberFlag.EXISTS));
+
+        if (!is_exists) {
             require(memberAddressesByDelegatedKey[memberAddress] == address(0x0), "member address already taken as delegated key");
             member.flags = DaoHelper.setFlag(
                 member.flags,
@@ -371,7 +374,6 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
      * @param extension 扩展的地址 
      * @param creator DAO 的创建者，他将成为初始成员
      */
-    // slither-disable-next-line reentrancy-events
     function addExtension(
         bytes32 extensionId,
         IExtension extension,
@@ -403,7 +405,7 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
         require(extensionAddress != address(0x0), "extensionId not registered");
         ExtensionEntry storage extEntry = inverseExtensions[extensionAddress];
         extEntry.deleted = true;
-        //slither-disable-next-line mapping-deletion
+
         delete inverseExtensions[extensionAddress];
         delete extensions[extensionId];
         emit ExtensionRemoved(extensionId);
@@ -438,8 +440,7 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
         view
         returns (bool)
     {
-        return
-            DaoHelper.getFlag(inverseAdapters[adapterAddress].acl, uint8(flag));
+        return DaoHelper.getFlag(inverseAdapters[adapterAddress].acl, uint8(flag));
     }
 
     /**
@@ -453,12 +454,10 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
         address extensionAddress,
         uint8 flag
     ) external view returns (bool) {
-        return
-            isAdapter(adapterAddress) &&
-            DaoHelper.getFlag(
-                inverseExtensions[extensionAddress].acl[adapterAddress],
-                uint8(flag)
-            );
+        
+        uint256 flags = inverseExtensions[extensionAddress].acl[adapterAddress]; 
+        
+        return isAdapter(adapterAddress) && DaoHelper.getFlag(flags, uint8(flag));
     }
 
     /**
@@ -487,9 +486,7 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
         return extensions[extensionId];
     }
 
-    /**
-     * PROPOSALS
-     */
+
     /**
      * @notice 向 DAO 注册表提交提案
      */
@@ -498,11 +495,14 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
         hasAccess(this, AclFlag.SUBMIT_PROPOSAL)
     {
         require(proposalId != bytes32(0), "invalid proposalId");
-        require(
-            !getProposalFlag(proposalId, ProposalFlag.EXISTS),
-            "proposalId must be unique"
-        );
-        proposals[proposalId] = Proposal(msg.sender, 1); // 1 means that only the first flag is being set i.e. EXISTS
+        
+        bool is_exists = getProposalFlag(proposalId, ProposalFlag.EXISTS);
+
+        require(!is_exists, "proposalId must be unique");
+
+        // “1” 表示只设置了第一个标志，即 EXISTS
+        proposals[proposalId] = Proposal(msg.sender, 1);
+
         emit SubmittedProposal(proposalId, 1);
     }
 
@@ -553,10 +553,6 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-     * @notice Sets a flag of a proposal
-     * @dev Reverts if the proposal is already processed
-     * @param proposalId The ID of the proposal to be changed
-     * @param flag The flag that will be set on the proposal
      * @notice 设置提案的标志 
      * @dev 如果提案已经处理，则恢复 
      * @param proposalId 要更改的提案ID 
@@ -592,19 +588,19 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
      */
 
     /**
-     * @return Whether or not a given address is a member of the DAO.
-     * @dev it will resolve by delegate key, not member address.
-     * @param addr The address to look up
-     */
+    * @return 给定地址是否是 DAO 的成员
+    * @dev 它将通过委托密钥解决，而不是成员地址 
+    * @param addr 要查找的地址
+    */
     function isMember(address addr) external view returns (bool) {
         address memberAddress = memberAddressesByDelegatedKey[addr];
         return getMemberFlag(memberAddress, MemberFlag.EXISTS);
     }
 
     /**
-     * @return Whether or not a flag is set for a given proposal
-     * @param proposalId The proposal to check against flag
-     * @param flag The flag to check in the proposal
+     * @return 是否为 提案 设置了 标志 
+     * @param proposalId 要检查标志的提案 
+     * @param flag 要签入提案的标志
      */
     function getProposalFlag(bytes32 proposalId, ProposalFlag flag)
         public
@@ -615,7 +611,7 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-     * @return 是否为成员设置了标志 
+     * @return 是否 为成员 设置了 标志 
      * @param memberAddress 要检查标志的成员 
      * @param flag 签入成员的标志
      */
@@ -684,7 +680,7 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
 
     /**
      * @param checkAddr 检查委托的地址 
-     * @return 委托的地址，如果不是委托，则返回检查的地址
+     * @return 委托的地址， 如果不是委托， 则返回检查的地址
      */
     function getAddressIfDelegated(address checkAddr)
         external
@@ -788,7 +784,6 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
         // 当 block.number 与 fromBlock 值完全匹配时。 
         // 任何与此不同的东西都应该生成一个新的检查点。
         if (
-            //slither-disable-next-line incorrect-equality
             nCheckpoints > 0 &&
             checkpoints[member][nCheckpoints - 1].fromBlock == block.number
         ) {

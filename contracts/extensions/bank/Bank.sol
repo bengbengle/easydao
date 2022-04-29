@@ -92,21 +92,21 @@ contract BankExtension is IExtension, ERC165 {
     // tokenAddress => memberAddress => numCheckpoints
     mapping(address => mapping(address => uint32)) public numCheckpoints;
 
-    /// @notice Clonable contract must have an empty constructor
     constructor() {}
 
-    // slither-disable-next-line calls-loop
     modifier hasExtensionAccess(DaoRegistry _dao, AclFlag flag) {
         require(
             dao == _dao &&
-                (address(this) == msg.sender ||
+                (
+                    address(this) == msg.sender ||
                     address(dao) == msg.sender ||
                     DaoHelper.isInCreationModeAndHasAccess(dao) ||
                     dao.hasAdapterAccessToExtension(
                         msg.sender,
                         address(this),
                         uint8(flag)
-                    )),
+                    )
+                ),
             "bank::accessDenied:"
         );
         _;

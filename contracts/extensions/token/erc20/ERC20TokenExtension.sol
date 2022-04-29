@@ -89,16 +89,15 @@ contract ERC20Extension is AdapterGuard, IExtension, IERC20 {
     }
 
     /**
-     * @dev Sets the token address if the extension is not initialized,
-     * not reserved and not zero.
+     * @dev 如果扩展未初始化， 未保留且不为零，则设置令牌地址
      */
     function setToken(address _tokenAddress) external {
+        // 是否预留
+        bool not_reserved = DaoHelper.isNotReservedAddress(_tokenAddress);
+
         require(!initialized, "already initialized");
         require(_tokenAddress != address(0x0), "invalid token address");
-        require(
-            DaoHelper.isNotReservedAddress(_tokenAddress),
-            "token address already in use"
-        );
+        require(not_reserved, "token address already in use");
 
         tokenAddress = _tokenAddress;
     }
@@ -172,7 +171,7 @@ contract ERC20Extension is AdapterGuard, IExtension, IERC20 {
     }
 
     /**
-     * @dev Returns the amount of tokens owned by `account` considering the snapshot.
+     * @dev 考虑 snapshot，返回 `account` 拥有的代币数量
      */
     function getPriorAmount(address account, uint256 snapshot)
         external
@@ -186,12 +185,9 @@ contract ERC20Extension is AdapterGuard, IExtension, IERC20 {
     }
 
     /**
-     * @dev Returns the remaining number of tokens that `spender` will be
-     * allowed to spend on behalf of `owner` through {transferFrom}. This is
-     * zero by default.
-     *
-     * This value changes when {approve} or {transferFrom} are called.
-     */
+    * @dev 返回 `spender` 将被允许通过 {transferFrom} 代表 `owner`  花费的剩余代币数量。 这是默认情况下为零 
+    * 当调用 {approve} 或 {transferFrom} 时，此值会发生变化
+    */
     function allowance(address owner, address spender)
         public
         view
@@ -209,7 +205,6 @@ contract ERC20Extension is AdapterGuard, IExtension, IERC20 {
      *
      * Emits an {Approval} event.
      */
-    // slither-disable-next-line reentrancy-benign
     function approve(address spender, uint256 amount)
         public
         override
@@ -217,23 +212,19 @@ contract ERC20Extension is AdapterGuard, IExtension, IERC20 {
         returns (bool)
     {
         address senderAddr = dao.getAddressIfDelegated(msg.sender);
-        require(
-            DaoHelper.isNotZeroAddress(senderAddr),
-            "ERC20: approve from the zero address"
-        );
-        require(
-            DaoHelper.isNotZeroAddress(spender),
-            "ERC20: approve to the zero address"
-        );
+
         require(dao.isMember(senderAddr), "sender is not a member");
-        require(
-            DaoHelper.isNotReservedAddress(spender),
-            "spender can not be a reserved address"
-        );
+
+        require(DaoHelper.isNotZeroAddress(senderAddr), "ERC20: approve from the zero address");
+
+        require(DaoHelper.isNotZeroAddress(spender), "ERC20: approve to the zero address");
+        
+        require(DaoHelper.isNotReservedAddress(spender), "spender can not be a reserved address");
 
         _allowances[senderAddr][spender] = amount;
-        // slither-disable-next-line reentrancy-events
+
         emit Approval(senderAddr, spender, amount);
+
         return true;
     }
 
@@ -252,12 +243,9 @@ contract ERC20Extension is AdapterGuard, IExtension, IERC20 {
         override
         returns (bool)
     {
-        return
-            transferFrom(
-                dao.getAddressIfDelegated(msg.sender),
-                recipient,
-                amount
-            );
+        address senderAddr = dao.getAddressIfDelegated(msg.sender); 
+        
+        return transferFrom(senderAddr, recipient, amount);
     }
 
     function _transferInternal(
@@ -266,8 +254,11 @@ contract ERC20Extension is AdapterGuard, IExtension, IERC20 {
         uint256 amount,
         BankExtension bank
     ) internal {
+        
         DaoHelper.potentialNewMember(recipient, dao, bank);
+
         bank.internalTransfer(dao, senderAddr, recipient, tokenAddress, amount);
+    
     }
 
     /**
@@ -288,14 +279,13 @@ contract ERC20Extension is AdapterGuard, IExtension, IERC20 {
         address recipient,
         uint256 amount
     ) public override returns (bool) {
-        require(
-            DaoHelper.isNotZeroAddress(recipient),
-            "ERC20: transfer to the zero address"
-        );
+        
+        require(DaoHelper.isNotZeroAddress(recipient), "ERC20: transfer to the zero address");
 
-        IERC20TransferStrategy strategy = IERC20TransferStrategy(
-            dao.getAdapterAddress(DaoHelper.TRANSFER_STRATEGY)
-        );
+        address adapter = dao.getAdapterAddress(DaoHelper.TRANSFER_STRATEGY);
+
+        IERC20TransferStrategy strategy = IERC20TransferStrategy(adapter);
+
         (
             IERC20TransferStrategy.ApprovalType approvalType,
             uint256 allowedAmount
@@ -307,29 +297,25 @@ contract ERC20Extension is AdapterGuard, IExtension, IERC20 {
                 amount,
                 msg.sender
             );
-
-        BankExtension bank = BankExtension(
-            dao.getExtensionAddress(DaoHelper.BANK)
-        );
+            
+        address ext = dao.getExtensionAddress(DaoHelper.BANK);
+        BankExtension bank = BankExtension(ext);
 
         if (approvalType == IERC20TransferStrategy.ApprovalType.NONE) {
             revert("transfer not allowed");
         }
-
+        
         if (approvalType == IERC20TransferStrategy.ApprovalType.SPECIAL) {
             _transferInternal(sender, recipient, amount, bank);
-            //slither-disable-next-line reentrancy-events
+
             emit Transfer(sender, recipient, amount);
             return true;
         }
 
         if (sender != msg.sender) {
             uint256 currentAllowance = _allowances[sender][msg.sender];
-            //check if sender has approved msg.sender to spend amount
-            require(
-                currentAllowance >= amount,
-                "ERC20: transfer amount exceeds allowance"
-            );
+
+            require(currentAllowance >= amount, "ERC20: transfer amount exceeds allowance");
 
             if (allowedAmount >= amount) {
                 _allowances[sender][msg.sender] = currentAllowance - amount;
@@ -338,7 +324,7 @@ contract ERC20Extension is AdapterGuard, IExtension, IERC20 {
 
         if (allowedAmount >= amount) {
             _transferInternal(sender, recipient, amount, bank);
-            //slither-disable-next-line reentrancy-events
+
             emit Transfer(sender, recipient, amount);
             return true;
         }

@@ -45,7 +45,7 @@ contract NFTCollectionFactory is IFactory, CloneFactory, ReentrancyGuard {
     }
 
     /**
-     * @notice Create and initialize a new Standard NFT Extension which is based on ERC712 
+     * @notice 创建 并 初始化 基于 ERC712 的新标准 NFT 扩展 
      */
     function create(address dao) external nonReentrant {
         require(dao != address(0x0), "invalid dao addr");
@@ -56,7 +56,7 @@ contract NFTCollectionFactory is IFactory, CloneFactory, ReentrancyGuard {
     }
 
     /**
-     * @notice Returns the extension address created for that DAO, or 0x0... if it does not exist.
+     * @notice 返回为该 DAO 创建的扩展地址，如果不存在，则返回 0x0...。
      */
     function getExtensionAddress(address dao)
         external

@@ -66,7 +66,7 @@ contract InternalTokenVestingExtensionFactory is
     }
 
     /**
-     * @notice Returns the extension address created for that DAO, or 0x0... if it does not exist.
+     * @notice 返回为该 DAO 创建的扩展地址，如果不存在，则返回 0x0...。
      */
     function getExtensionAddress(address dao)
         external

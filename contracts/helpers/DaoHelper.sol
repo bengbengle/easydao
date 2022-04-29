@@ -163,7 +163,6 @@ library DaoHelper {
     }
 
     /**
-     * @notice Checks if a given address is reserved.
      * @notice 检查给定地址是否是预留的， escrow: 第三方托管
      */
     function isNotReservedAddress(address addr) internal pure returns (bool) {

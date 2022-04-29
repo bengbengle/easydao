@@ -49,19 +49,17 @@ contract LendNFTContract is
     }
 
     struct ProposalDetails {
-        // The proposal id.
+        // 提案编号
         bytes32 id;
-        // The applicant address (who will receive the DAO internal tokens and
-        // become a member; this address may be different than the actual owner
-        // of the ERC-721 token being provided as tribute).
-        address applicant;
-        // The address of the ERC-721 or ERC-1155 token that will be transferred to the DAO
-        // in exchange for DAO internal tokens.
+        // 申请者地址（将接收 DAO 内部代币并成为成员； 此地址可能与作为贡品的 ERC-721 代币的实际所有者不同 ） 。    
         address nftAddr;
-        // The nft token identifier.
+        // nft 令牌标识符
         uint256 nftTokenId;
+        // 捐赠数额
         uint256 tributeAmount;
-        // The amount requested of DAO internal tokens (UNITS).
+        // 申请人
+        address applicant;
+        // DAO 内部代币（UNITS）的请求数量
         uint88 requestAmount;
         uint64 lendingPeriod;
         bool sentBack;
@@ -69,21 +67,21 @@ contract LendNFTContract is
         address previousOwner;
     }
 
-    // Keeps track of all nft tribute proposals handled by each DAO.
+    // 跟踪每个 DAO 处理的所有 nft 致敬提案
     mapping(address => mapping(bytes32 => ProposalDetails)) public proposals;
 
     /**
-     * @notice Configures the adapter for a particular DAO.
-     * @notice Registers the DAO internal token with the DAO Bank.
-     * @dev Only adapters registered to the DAO can execute the function call (or if the DAO is in creation mode).
-     * @dev A DAO Bank extension must exist and be configured with proper access for this adapter.
-     * @param dao The DAO address.
-     * @param token The token address that will be configured as internal token.
+     * @notice 为特定 DAO 配置适配器， 向 DAO 银行注册 DAO 内部令牌
+     * @dev 只有注册到 DAO 的适配器才能执行函数调用（或者如果 DAO 处于创建模式）
+     * @dev 必须存在 DAO 银行扩展，并为此适配器配置适当的访问权限
+     * @param dao DAO 地址
+     * @param token 将被配置为内部令牌的令牌地址
      */
     function configureDao(DaoRegistry dao, address token)
         external
         onlyAdapter(dao)
     {
+
         BankExtension(dao.getExtensionAddress(DaoHelper.BANK))
             .registerPotentialNewInternalToken(dao, token);
     }
@@ -150,19 +148,15 @@ contract LendNFTContract is
     }
 
     /**
-     * @notice Processes the proposal to handle minting and exchange of DAO internal tokens for tribute token (passed vote).
-     * @dev Proposal id must exist.
-     * @dev Only proposals that have not already been processed are accepted.
-     * @dev Only sponsored proposals with completed voting are accepted.
-     * @dev The owner of the ERC-721 token provided as tribute must first separately `approve` the NFT extension as spender of that token (so the NFT can be transferred for a passed vote).
-     * @param dao The DAO address.
-     * @param proposalId The proposal id.
-     */
-    // The function can be called only from the _onERC1155Received & _onERC721Received functions
-    // Which are protected against reentrancy attacks.
-    // 该函数只能从 _onERC1155Received 和 _onERC721Received 函数中调用 
-    // 可以防止重入攻击。
-    //slither-disable-next-line reentrancy-no-eth
+    * @notice 处理提案以处理 DAO 内部代币的 铸造 和 交换 以获取贡品代币（通过投票） 
+    * @dev 提案 ID 必须存在
+    * @dev 仅接受 尚未处理的提案 
+    * @dev 仅接受 已完成投票的赞助提案 
+    * @dev 作为贡品提供的 ERC-721 代币的所有者必须首先单独 “批准” NFT 扩展作 为该代币的花费者 （以便 NFT 可以转移以获得通过的投票）     
+    * @param dao The DAO address.
+    * @param proposalId The proposal id.
+    */
+    // 该函数只能从 _onERC1155Received 和 _onERC721Received 函数中调用 , 可以防止重入攻击。
     function _processProposal(DaoRegistry dao, bytes32 proposalId)
         internal
         returns (
@@ -171,15 +165,12 @@ contract LendNFTContract is
         )
     {
         proposal = proposals[address(dao)][proposalId];
-        //slither-disable-next-line timestamp
+
+        bool is_processed = dao.getProposalFlag(proposalId, DaoRegistry.ProposalFlag.PROCESSED);
+
         require(proposal.id == proposalId, "proposal does not exist");
-        require(
-            !dao.getProposalFlag(
-                proposalId,
-                DaoRegistry.ProposalFlag.PROCESSED
-            ),
-            "proposal already processed"
-        );
+
+        require(!is_processed, "proposal already processed");
 
         IVoting votingContract = IVoting(dao.votingAdapter(proposalId));
         require(address(votingContract) != address(0), "adapter not found");
@@ -187,7 +178,8 @@ contract LendNFTContract is
         voteResult = votingContract.voteResult(dao, proposalId);
 
         dao.processProposal(proposalId);
-        //if proposal passes and its an erc721 token - use NFT Extension
+        // if proposal passes and its an erc721 token - use NFT Extension
+        // 如果提案通过并且它是一个 erc721 令牌 - 使用 NFT 扩展
         if (voteResult == IVoting.VotingState.PASS) {
             BankExtension bank = BankExtension(
                 dao.getExtensionAddress(DaoHelper.BANK)
@@ -233,25 +225,24 @@ contract LendNFTContract is
     }
 
     /**
-     * @notice Sends the NFT back to the original owner.
+     * @notice 将 NFT 发回给原始所有者.
      */
-    // slither-disable-next-line reentrancy-benign
     function sendNFTBack(DaoRegistry dao, bytes32 proposalId)
         external
         reimbursable(dao)
     {
         ProposalDetails storage proposal = proposals[address(dao)][proposalId];
+        
         require(proposal.lendingStart > 0, "lending not started");
+        
         require(!proposal.sentBack, "already sent back");
-        require(
-            msg.sender == proposal.previousOwner,
-            "only the previous owner can withdraw the NFT"
-        );
+
+        require(msg.sender == proposal.previousOwner, "only the previous owner can withdraw the NFT");
 
         proposal.sentBack = true;
-        //slither-disable-next-line timestamp
+
         uint256 elapsedTime = block.timestamp - proposal.lendingStart;
-        //slither-disable-next-line timestamp
+
         if (elapsedTime < proposal.lendingPeriod) {
             InternalTokenVestingExtension vesting = InternalTokenVestingExtension(
                     dao.getExtensionAddress(
@@ -282,7 +273,7 @@ contract LendNFTContract is
             );
         }
 
-        // Only ERC-721 tokens will contain tributeAmount == 0
+        // 只有 ERC-721 代币将包含贡品金额 == 0
         if (proposal.tributeAmount == 0) {
             NFTExtension nftExt = NFTExtension(
                 dao.getExtensionAddress(DaoHelper.NFT)
@@ -310,7 +301,7 @@ contract LendNFTContract is
     }
 
     /**
-     *  @notice required function from IERC1155 standard to be able to to receive tokens
+     *  @notice required function from IERC1155 standard to be able to to receive tokens， 接收令牌 1155
      */
     function onERC1155Received(
         address,
@@ -319,7 +310,9 @@ contract LendNFTContract is
         uint256 value,
         bytes calldata data
     ) external override returns (bytes4) {
+    
         ProcessProposal memory ppS = abi.decode(data, (ProcessProposal));
+
         return _onERC1155Received(ppS.dao, ppS.proposalId, from, id, value);
     }
 
@@ -331,8 +324,7 @@ contract LendNFTContract is
         uint256 value
     ) internal reimbursable(dao) returns (bytes4) {
         (
-            ProposalDetails storage proposal,
-            IVoting.VotingState voteResult
+            ProposalDetails storage proposal, IVoting.VotingState voteResult
         ) = _processProposal(dao, proposalId);
 
         require(proposal.nftTokenId == id, "wrong NFT");
@@ -340,30 +332,25 @@ contract LendNFTContract is
         proposal.tributeAmount = value;
         proposal.previousOwner = from;
 
-        // Strict matching is expect to ensure the vote has passed.
-        // slither-disable-next-line incorrect-equality,timestamp
+        // 严格匹配是为了确保投票通过。
         if (voteResult == IVoting.VotingState.PASS) {
-            address erc1155ExtAddr = dao.getExtensionAddress(
-                DaoHelper.ERC1155_EXT
-            );
+
+            address erc1155ExtAddr = dao.getExtensionAddress(DaoHelper.ERC1155_EXT);
 
             IERC1155 erc1155 = IERC1155(msg.sender);
-            erc1155.safeTransferFrom(
-                address(this),
-                erc1155ExtAddr,
-                id,
-                value,
-                ""
-            );
+
+            erc1155.safeTransferFrom(address(this), erc1155ExtAddr, id, value, "");
+
         } else {
             IERC1155 erc1155 = IERC1155(msg.sender);
             erc1155.safeTransferFrom(address(this), from, id, value, "");
         }
+
         return this.onERC1155Received.selector;
     }
 
     /**
-     *  @notice required function from IERC1155 standard to be able to to batch receive tokens
+     *  @notice required function from IERC1155 standard to be able to to batch receive tokens， 批量接收令牌 1155
      */
     function onERC1155BatchReceived(
         address,
@@ -375,6 +362,7 @@ contract LendNFTContract is
         revert("not supported");
     }
 
+    // 批量接收 721
     function onERC721Received(
         address,
         address from,

@@ -372,18 +372,16 @@ const validateContractConfigs = (contractConfigs) => {
 };
 
 /**
- * Deploys all the contracts defined in the configs/contracts.config.ts.
- * The contracts must be enabled in the configs/networks/*.config.ts,
- * and should not be skipped in the auto deploy process.
- * Each one of the contracts must be provided in the options object.
- * If the contract is not found in the options object the deployment reverts with an error.
- * It also configures the DAO with the proper access, and configuration parameters for all
- * adapters and extensions.
+ * 部署 configs/contracts.config.ts 中定义的所有合约。 
+ * 合约必须在 configs/networks/.config.ts 中启用， 并且不应在自动部署过程中跳过。 
+ * 每一份合约都必须在 options 对象中提供。 
+ * 如果在 options 对象中找不到合约，则部署将返回并出现错误。
+ * 它还为 DAO 配置正确的访问权限，并为所有适配器和扩展配置参数。
  *
- * The Offchain voting is deployed only if it is required via options.offchainVoting parameter.
+ *   
+ * 仅当通过 options.offchainVoting 参数需要时才部署链下投票。
  *
- * All the deployed contracts will be returned in a map with the aliases defined in the
- * configs/networks/*.config.ts.
+ * 所有已部署的合约都将在映射中返回，其中别名在 ​​ configs/networks/.config.ts 中定义。
  */
 const deployDao = async (options) => {
   validateContractConfigs(options.contractConfigs);

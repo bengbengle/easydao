@@ -45,16 +45,14 @@ contract InternalTokenVestingExtension is IExtension {
     }
 
     modifier hasExtensionAccess(DaoRegistry dao, AclFlag flag) {
-        require(
-            dao == _dao &&
-                (DaoHelper.isInCreationModeAndHasAccess(_dao) ||
-                    _dao.hasAdapterAccessToExtension(
-                        msg.sender,
-                        address(this),
-                        uint8(flag)
-                    )),
-            "vestingExt::accessDenied"
-        );
+        
+        bool isInCreation = DaoHelper.isInCreationModeAndHasAccess(_dao);
+        
+        bool hasAdapterAccess = _dao.hasAdapterAccessToExtension(msg.sender, address(this), uint8(flag));
+        
+        bool hasAccess = isInCreation || hasAdapterAccess;
+
+        require( dao == _dao && hasAccess, "vestingExt::accessDenied");
 
         _;
     }
@@ -88,7 +86,6 @@ contract InternalTokenVestingExtension is IExtension {
         uint88 amount,
         uint64 endDate
     ) external hasExtensionAccess(dao, AclFlag.NEW_VESTING) {
-        //slither-disable-next-line timestamp
         require(endDate > block.timestamp, "vestingExt::end date in the past");
         VestingSchedule storage schedule = vesting[member][internalToken];
         uint88 minBalance = getMinimumBalanceInternal(
