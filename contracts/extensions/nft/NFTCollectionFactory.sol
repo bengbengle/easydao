@@ -45,7 +45,7 @@ contract NFTCollectionFactory is IFactory, CloneFactory, ReentrancyGuard {
     }
 
     /**
-     * @notice Create and initialize a new Standard NFT Extension which is based on ERC712
+     * @notice Create and initialize a new Standard NFT Extension which is based on ERC712 
      */
     function create(address dao) external nonReentrant {
         require(dao != address(0x0), "invalid dao addr");
