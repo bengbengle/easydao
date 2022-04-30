@@ -101,8 +101,8 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
      * @param token 成员应收到资金的分配代币。必须得到 DAO 的支持
      *
      */
-    // slither-disable-next-line reentrancy-benign
-    function submitProposal(
+     
+        function submitProposal(
         DaoRegistry dao,
         bytes32 proposalId,
         address unitHolderAddr,
@@ -174,7 +174,7 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
     // The function is protected against reentrancy with the reentrancyGuard
     // Which prevents concurrent modifications in the DAO registry.
     // 使用 reentrancyGuard 防止函数重入，这可以防止 DAO 注册表中的并发修改。
-    //slither-disable-next-line reentrancy-no-eth
+     
     function processProposal(DaoRegistry dao, bytes32 proposalId)
         external
         override
@@ -244,8 +244,8 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
      * @param dao The dao address.
      * @param toIndex The index to control the cached for-loop.
      */
-    // slither-disable-next-line reentrancy-benign
-    function distribute(DaoRegistry dao, uint256 toIndex)
+     
+        function distribute(DaoRegistry dao, uint256 toIndex)
         external
         override
         reimbursable(dao)
@@ -284,7 +284,7 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
                 token,
                 amount
             );
-            //slither-disable-next-line reentrancy-events
+             
             emit Distributed(address(dao), token, amount, unitHolderAddr);
         } else {
             // Set the max index supported which is based on the number of members
@@ -297,7 +297,7 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
             distribution.currentIndex = maxIndex;
             if (maxIndex == nbMembers) {
                 distribution.status = DistributionStatus.DONE;
-                //slither-disable-next-line reentrancy-events
+                 
                 emit Distributed(address(dao), token, amount, unitHolderAddr);
             }
 
@@ -360,16 +360,16 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
         // Distributes the funds to all unit holders of the DAO and ignores non-active members.
         // 将资金分配给 DAO 的所有单位持有人并忽略非活跃成员
         for (uint256 i = currentIndex; i < maxIndex; i++) {
-            //slither-disable-next-line calls-loop
+             
             address memberAddr = dao.getMemberAddress(i);
-            //slither-disable-next-line calls-loop
+             
             uint256 memberTokens = DaoHelper.priorMemberTokens(
                 bank,
                 memberAddr,
                 blockNumber
             );
             if (memberTokens > 0) {
-                //slither-disable-next-line calls-loop
+                 
                 uint256 amountToDistribute = FairShareHelper.calc(
                     amount,
                     memberTokens,
@@ -377,7 +377,7 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
                 );
 
                 if (amountToDistribute > 0) {
-                    //slither-disable-next-line calls-loop
+                     
                     bank.internalTransfer(
                         dao,
                         DaoHelper.ESCROW,

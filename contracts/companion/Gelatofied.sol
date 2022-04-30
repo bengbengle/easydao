@@ -9,20 +9,14 @@ abstract contract Gelatofied {
     address payable public immutable gelato;
 
     modifier gelatofy(DaoRegistry dao, uint256 _amount) {
-        require(
-            gelato == address(0x1) || msg.sender == gelato,
-            "Gelatofied: Only gelato"
-        );
 
-        BankExtension bank = BankExtension(
-            dao.getExtensionAddress(DaoHelper.BANK)
-        );
+        require(gelato == address(0x1) || msg.sender == gelato, "Gelatofied: Only gelato");
 
-        // slither-disable-next-line unused-return
-        try bank.supportsInterface(bank.withdrawTo.selector) returns (
-            // slither-disable-next-line uninitialized-local,variable-scope
-            bool supportsInterface
-        ) {
+        address ext = dao.getExtensionAddress(DaoHelper.BANK);
+        
+        BankExtension bank = BankExtension(ext);
+
+        try bank.supportsInterface(bank.withdrawTo.selector) returns (bool supportsInterface) {
             if (supportsInterface) {
                 bank.withdrawTo(
                     dao,

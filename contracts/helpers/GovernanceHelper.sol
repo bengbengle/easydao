@@ -94,11 +94,9 @@ library GovernanceHelper {
 
         // 外部令牌必须实现 getPriorAmount 函数， 否则此调用将失败并恢复投票过程。 
         // 实际的revert没有显示清楚的原因， 所以我们捕获了错误，并返回一个更好的错误消息。 
-        // slither-disable-next-line unused-return
         try
             ERC20Extension(governanceToken).getPriorAmount(voterAddr, snapshot)
         returns (
-            // slither-disable-next-line uninitialized-local,variable-scope
             uint256 votingWeight
         ) {
             return votingWeight;

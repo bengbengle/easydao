@@ -104,8 +104,8 @@ contract NFTExtension is IExtension, IERC721Receiver {
      * @param nftAddr The NFT contract address.
      * @param nftTokenId The NFT token id.
      */
-    // slither-disable-next-line reentrancy-benign
-    function collect(
+     
+        function collect(
         DaoRegistry _dao,
         address nftAddr,
         uint256 nftTokenId
@@ -117,14 +117,12 @@ contract NFTExtension is IExtension, IERC721Receiver {
         if (currentOwner == address(this)) {
             if (_ownership[getNFTId(nftAddr, nftTokenId)] == address(0x0)) {
                 _saveNft(nftAddr, nftTokenId, DaoHelper.GUILD);
-                // slither-disable-next-line reentrancy-events
                 emit CollectedNFT(nftAddr, nftTokenId);
             }
             //If the NFT is not in the NFTExtension, we try to transfer from the current owner of the NFT to the extension
         } else {
             _saveNft(nftAddr, nftTokenId, DaoHelper.GUILD);
             erc721.safeTransferFrom(currentOwner, address(this), nftTokenId);
-            // slither-disable-next-line reentrancy-events
             emit CollectedNFT(nftAddr, nftTokenId);
         }
     }
@@ -139,8 +137,8 @@ contract NFTExtension is IExtension, IERC721Receiver {
      * @param nftAddr The NFT address that must be in ERC721 standard.
      * @param nftTokenId The NFT token id.
      */
-    // slither-disable-next-line reentrancy-benign
-    function withdrawNFT(
+     
+        function withdrawNFT(
         DaoRegistry _dao,
         address newOwner,
         address nftAddr,
@@ -166,7 +164,7 @@ contract NFTExtension is IExtension, IERC721Receiver {
                 "erc721::can not remove nft"
             );
         }
-        //slither-disable-next-line reentrancy-events
+         
         emit WithdrawnNFT(nftAddr, nftTokenId, newOwner);
     }
 

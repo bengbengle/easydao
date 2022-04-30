@@ -122,11 +122,11 @@ library GuildKickHelper {
         if (unitsAndLootToBurn > 0) {
             // 将资金从内部公会账户转移到内部会员账户。
             for (uint256 i = 0; i < nbTokens; i++) {
-                //slither-disable-next-line calls-loop
+                 
                 address token = bank.getToken(i);
 
                 // 根据代币、单位和战利品计算公平的资金数额。创建踢球提案时考虑了历史公会余额。
-                //slither-disable-next-line calls-loop
+                 
                 uint256 amountToRagequit = FairShareHelper.calc(
                     bank.balanceOf(GUILD, token),
                     unitsAndLootToBurn,
@@ -137,7 +137,7 @@ library GuildKickHelper {
                 if (amountToRagequit > 0) {
                     // 气体优化以允许更高的最大令牌限制， 这里故意不使用安全数学来防止溢出阻止函数执行 
                     // 如果令牌溢出（这会打破狂暴）， 这是因为供应被人为地夸大到被遗忘，所以我们可能无论如何都不关心它
-                    //slither-disable-next-line calls-loop
+                     
                     bank.internalTransfer(
                         dao,
                         GUILD,

@@ -197,7 +197,6 @@ library DaoHelper {
      * 2. tx 的发送者是 DAO 成员（通常是 DAO 所有者），或者， 
      * 3. 发送方是适配器。
      */
-    // slither-disable-next-line calls-loop
     function isInCreationModeAndHasAccess(DaoRegistry dao)
         internal
         view

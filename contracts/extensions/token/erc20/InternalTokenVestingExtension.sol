@@ -156,13 +156,13 @@ contract InternalTokenVestingExtension is IExtension {
         uint64 endDate,
         uint88 amount
     ) public view returns (uint88) {
-        //slither-disable-next-line timestamp
+        //
         if (block.timestamp > endDate) {
             return 0;
         }
 
         uint88 period = endDate - startDate;
-        //slither-disable-next-line timestamp
+        //
         uint88 elapsedTime = uint88(block.timestamp) - startDate;
 
         uint88 vestedAmount = (amount * elapsedTime) / period;

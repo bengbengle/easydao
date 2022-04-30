@@ -152,13 +152,13 @@ contract ERC1155TokenExtension is IExtension, IERC1155Receiver {
         // It means the GUILD/Extension does not hold that token id anymore.
         if (ownerTokenIdBalance == 0) {
             delete _nftTracker[newOwner][nftAddr][nftTokenId];
-            //slither-disable-next-line unused-return
+             
             _ownership[getNFTId(nftAddr, nftTokenId)].remove(newOwner);
-            //slither-disable-next-line unused-return
+             
             _nfts[nftAddr].remove(nftTokenId);
             // If there are 0 tokenIds for the NFT address, remove the NFT from the collection
             if (_nfts[nftAddr].length() == 0) {
-                //slither-disable-next-line unused-return
+                 
                 _nftAddresses.remove(nftAddr);
                 delete _nfts[nftAddr];
             }
@@ -172,7 +172,7 @@ contract ERC1155TokenExtension is IExtension, IERC1155Receiver {
             amount,
             ""
         );
-        //slither-disable-next-line reentrancy-events
+         
         emit WithdrawnNFT(nftAddr, nftTokenId, amount, newOwner);
     }
 
@@ -221,7 +221,7 @@ contract ERC1155TokenExtension is IExtension, IERC1155Receiver {
                 nftTokenId,
                 tokenAmount - amount
             );
-            //slither-disable-next-line reentrancy-events
+             
             emit TransferredNFT(
                 fromOwner,
                 toOwner,
@@ -333,13 +333,13 @@ contract ERC1155TokenExtension is IExtension, IERC1155Receiver {
         uint256 amount
     ) private {
         // Save the asset address and tokenId
-        //slither-disable-next-line unused-return
+         
         _nfts[nftAddr].add(nftTokenId);
         // Track the owner by nftAddr+tokenId
-        //slither-disable-next-line unused-return
+         
         _ownership[getNFTId(nftAddr, nftTokenId)].add(owner);
         // Keep track of the collected assets addresses
-        //slither-disable-next-line unused-return
+         
         _nftAddresses.add(nftAddr);
         // Track the actual owner per Token Id and amount
         uint256 currentAmount = _nftTracker[owner][nftAddr][nftTokenId];

@@ -150,7 +150,7 @@ contract ExecutorExtension is IExtension {
      * function in the contract matches the call data.
      */
     // Only senders with the EXECUTE ACL Flag enabled is allowed to send eth.
-    //slither-disable-next-line locked-ether
+     
     fallback() external payable {
         _fallback();
     }
@@ -160,7 +160,7 @@ contract ExecutorExtension is IExtension {
      * is empty.
      */
     // Only senders with the EXECUTE ACL Flag enabled is allowed to send eth.
-    //slither-disable-next-line locked-ether
+     
     receive() external payable {
         _fallback();
     }

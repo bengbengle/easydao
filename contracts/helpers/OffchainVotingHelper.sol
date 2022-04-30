@@ -42,6 +42,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 contract OffchainVotingHelperContract {
+    
     uint256 private constant NB_CHOICES = 2;
     bytes32 public constant VotingPeriod = keccak256("offchainvoting.votingPeriod");
     bytes32 public constant GracePeriod = keccak256("offchainvoting.gracePeriod");
@@ -74,7 +75,7 @@ contract OffchainVotingHelperContract {
                 DaoHelper.MEMBER_COUNT,
                 blockNumber
             );
-        // slither-disable-next-line timestamp
+ 
         require(membersCount - 1 == resultIndex, "index:member_count mismatch");
     }
 
@@ -114,13 +115,12 @@ contract OffchainVotingHelperContract {
         OffchainVotingHashContract.VoteResultNode memory node
     ) public view returns (BadNodeError) {
         (address actionId, ) = dao.proposals(proposalId);
+
         require(resultRoot != bytes32(0), "no result available yet!");
+        
         bytes32 hashCurrent = _ovHash.nodeHash(dao, actionId, node);
-        //check that the step is indeed part of the result
-        require(
-            MerkleProof.verify(node.proof, resultRoot, hashCurrent),
-            "proof:bad"
-        );
+        require(MerkleProof.verify(node.proof, resultRoot, hashCurrent), "proof:bad");
+
         if (node.index >= nbMembers) {
             return BadNodeError.INDEX_OUT_OF_BOUND;
         }
@@ -145,10 +145,7 @@ contract OffchainVotingHelperContract {
             return BadNodeError.AFTER_VOTING_PERIOD;
         }
 
-        //bad signature
-        if (
-            node.sig.length > 0 && // a vote has happened
-            !_ovHash.hasVoted(
+        bool hasVoted = _ovHash.hasVoted(
                 dao,
                 actionId,
                 dao.getPriorDelegateKey(memberAddr, blockNumber),
@@ -156,24 +153,17 @@ contract OffchainVotingHelperContract {
                 node.proposalId,
                 node.choice,
                 node.sig
-            )
-        ) {
+            );
+
+        if (node.sig.length > 0 && !hasVoted) {
+
             return BadNodeError.BAD_SIGNATURE;
         }
 
-        // If the weight is 0, the member has no permission to vote
-        // always check the weight of the member, not the delegate， memberAddr
         // 如果权重 为 0，则该成员无权投票， 始终检查成员的权重，而不是代表的权重
-        if (
-            node.choice != 0 &&
-            GovernanceHelper.getVotingWeight(
-                dao,
-                memberAddr, 
-                node.proposalId,
-                blockNumber
-            ) ==
-            0
-        ) {
+        uint256 votingWeight = GovernanceHelper.getVotingWeight(dao, memberAddr, node.proposalId, blockNumber);
+
+        if (node.choice != 0 && votingWeight == 0) {
             return BadNodeError.VOTE_NOT_ALLOWED;
         }
 
@@ -246,7 +236,7 @@ contract OffchainVotingHelperContract {
             return true;
         }
 
-        // slither-disable-next-line timestamp
+ 
         return startingTime + votingPeriod <= blockTs;
     }
 
@@ -279,7 +269,7 @@ contract OffchainVotingHelperContract {
 
         // If the vote has started but the voting period has not passed yet, it's in progress
         // 如果投票已经开始， 但投票期尚未结束，则表示正在进行中
-        // slither-disable-next-line timestamp
+ 
         if (block.timestamp < startingTime + votingPeriod) {
             return IVoting.VotingState.IN_PROGRESS;
         }
@@ -287,7 +277,7 @@ contract OffchainVotingHelperContract {
         // If no result have been submitted but we are before grace + voting period,
         // 如果没有提交结果， 但我们在宽限期 + 投票期之前
         // then the proposal is GRACE_PERIOD
-        // slither-disable-next-line timestamp
+ 
         if (
             gracePeriodStartingTime == 0 &&
             block.timestamp < startingTime + gracePeriod + votingPeriod
@@ -297,7 +287,7 @@ contract OffchainVotingHelperContract {
 
         // If the vote has started but the voting period has not passed yet, it's in progress
         // 如果投票已经开始， 但投票期尚未结束，则表示正在进行中
-        // slither-disable-next-line timestamp
+ 
         if (block.timestamp < gracePeriodStartingTime + gracePeriod) {
             return IVoting.VotingState.GRACE_PERIOD;
         }

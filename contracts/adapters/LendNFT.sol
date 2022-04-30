@@ -51,14 +51,14 @@ contract LendNFTContract is
     struct ProposalDetails {
         // 提案编号
         bytes32 id;
+        // 申请人
+        address applicant;
         // 申请者地址（将接收 DAO 内部代币并成为成员； 此地址可能与作为贡品的 ERC-721 代币的实际所有者不同 ） 。    
         address nftAddr;
         // nft 令牌标识符
         uint256 nftTokenId;
         // 捐赠数额
         uint256 tributeAmount;
-        // 申请人
-        address applicant;
         // DAO 内部代币（UNITS）的请求数量
         uint88 requestAmount;
         uint64 lendingPeriod;
@@ -98,8 +98,8 @@ contract LendNFTContract is
      * @param requestAmount The amount requested of DAO internal tokens (UNITS).
      * @param data Additional information related to the tribute proposal.
      */
-    // slither-disable-next-line reentrancy-benign
-    function submitProposal(
+     
+        function submitProposal(
         DaoRegistry dao,
         bytes32 proposalId,
         address applicant,
@@ -202,7 +202,6 @@ contract LendNFTContract is
                         DaoHelper.INTERNAL_TOKEN_VESTING_EXT
                     )
                 );
-            //slither-disable-next-line timestamp
             proposal.lendingStart = uint64(block.timestamp);
             //add vesting here
             vesting.createNewVesting(
@@ -390,7 +389,6 @@ contract LendNFTContract is
         IERC721 erc721 = IERC721(msg.sender);
 
         // Strict matching is expect to ensure the vote has passed
-        // slither-disable-next-line incorrect-equality,timestamp
         if (voteResult == IVoting.VotingState.PASS) {
             NFTExtension nftExt = NFTExtension(
                 dao.getExtensionAddress(DaoHelper.NFT)

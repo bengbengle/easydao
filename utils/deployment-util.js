@@ -41,8 +41,7 @@ const { debug, info, error } = require("./log-util");
 const { ContractType } = require("../configs/contracts.config");
 
 /**
- * Deploys a contract based on the contract name defined in the config parameter.
- * If the contract is not found in the options object the deployment reverts with an error.
+ * 根据 config 参数中定义的合约名称部署合约， 如果在选项对象中找不到合约，则部署将返回并出现错误。
  */
 const deployContract = ({ config, options }) => {
   const contract = options[config.name];
@@ -63,11 +62,10 @@ const deployContract = ({ config, options }) => {
 };
 
 /**
- * Deploys all the contracts defined with Factory type.
- * The contracts must be enabled in the configs/networks/*.config.ts,
- * and should not be skipped in the auto deploy process.
- * The factory contract must be provided in the options object.
- * If the contract is not found in the options object the deployment reverts with an error.
+ * 部署使用 Factory 类型定义的所有合约。 
+ * 合约必须在 configs/networks/.config.ts 中启用， 并且不应在自动部署过程中跳过。 
+ * 工厂合约必须在 options 对象中提供。 
+ * 如果在 options 对象中找不到合约，则部署将返回并出现错误。
  */
 const createFactories = async ({ options }) => {
   const factories = {};
@@ -109,13 +107,7 @@ const createFactories = async ({ options }) => {
 };
 
 /**
- * Deploys all the contracts defined with Extension type.
- * The contracts must be enabled in the configs/networks/*.config.ts,
- * and should not be skipped in the auto deploy process.
- * The extension contract must be provided in the options object.
- * If the contract is not found in the options object the deployment reverts with an error.
- * In order to deploy the extension it uses the factory contract of each extension,
- * so the factories must be deployed first.
+ * 为了部署扩展，它使用每个扩展的工厂合约，所以必须首先部署工厂。
  */
 const createExtensions = async ({ dao, factories, options }) => {
   const extensions = {};

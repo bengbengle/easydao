@@ -49,15 +49,11 @@ contract ReimbursementContract is IReimbursement, AdapterGuard, GelatoRelay {
 
     mapping(address => ReimbursementData) private _data;
 
-    bytes32 internal constant GasPriceLimit =
-        keccak256("reimbursement.gasPriceLimit");
-    bytes32 internal constant SpendLimitPeriod =
-        keccak256("reimbursement.spendLimitPeriod");
-    bytes32 internal constant SpendLimitEth =
-        keccak256("reimbursement.spendLimitEth");
+    bytes32 internal constant GasPriceLimit = keccak256("reimbursement.gasPriceLimit");
+    bytes32 internal constant SpendLimitPeriod = keccak256("reimbursement.spendLimitPeriod");
+    bytes32 internal constant SpendLimitEth = keccak256("reimbursement.spendLimitEth");
     bytes32 internal constant EthUsed = keccak256("reimbursement.ethUsed");
-    bytes32 internal constant RateLimitStart =
-        keccak256("reimbursement.rateLimitStart");
+    bytes32 internal constant RateLimitStart = keccak256("reimbursement.rateLimitStart");
 
     /**
      * @param dao the dao to configure
@@ -115,11 +111,7 @@ contract ReimbursementContract is IReimbursement, AdapterGuard, GelatoRelay {
 
         uint256 payback = gasLeft * tx.gasprice;
 
-        if (
-            //slither-disable-next-line timestamp
-            block.timestamp - _data[address(dao)].rateLimitStart <
-            spendLimitPeriod
-        ) {
+        if (block.timestamp - _data[address(dao)].rateLimitStart < spendLimitPeriod) {
             if (spendLimitEth < _data[address(dao)].ethUsed + payback) {
                 return (false, 0);
             }
@@ -150,7 +142,7 @@ contract ReimbursementContract is IReimbursement, AdapterGuard, GelatoRelay {
         );
         uint256 payback = gasUsage * tx.gasprice;
         if (
-            //slither-disable-next-line timestamp
+            //
             block.timestamp - _data[address(dao)].rateLimitStart <
             spendLimitPeriod
         ) {
@@ -159,9 +151,7 @@ contract ReimbursementContract is IReimbursement, AdapterGuard, GelatoRelay {
             _data[address(dao)].rateLimitStart = block.timestamp;
             _data[address(dao)].ethUsed = payback;
         }
-        // slither-disable-next-line unused-return
         try bank.supportsInterface(bank.withdrawTo.selector) returns (
-            // slither-disable-next-line uninitialized-local,variable-scope
             bool supportsInterface
         ) {
             if (supportsInterface) {

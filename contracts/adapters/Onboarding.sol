@@ -133,8 +133,8 @@ contract OnboardingContract is IOnboarding, AdapterGuard, Reimbursable {
      * @param tokenAmount 要铸造的代币数量。 
      * @param data 附加提案信息。
      */
-    // slither-disable-next-line reentrancy-benign
-    function submitProposal(
+     
+        function submitProposal(
         DaoRegistry dao,
         bytes32 proposalId,
         address payable applicant,
@@ -173,8 +173,8 @@ contract OnboardingContract is IOnboarding, AdapterGuard, Reimbursable {
      *  一旦对提案的投票完成，就该处理它了。任何人都可以调用这个函数。 
      * @param proposalId 要处理的提案 ID。它需要存在于 DAO 注册表中。
      */
-    // slither-disable-next-line reentrancy-benign
-    function processProposal(DaoRegistry dao, bytes32 proposalId)
+     
+        function processProposal(DaoRegistry dao, bytes32 proposalId)
         external
         payable
         override
@@ -216,7 +216,7 @@ contract OnboardingContract is IOnboarding, AdapterGuard, Reimbursable {
 
             if (proposal.token == DaoHelper.ETH_TOKEN) {
                 // 此调用将 ETH 直接发送到 GUILD 银行，并且地址无法更改，因为它在 DaoHelper 中定义为常量。
-                //slither-disable-next-line arbitrary-send
+                 
                 bank.addToBalance{value: proposal.amount}(
                     dao,
                     DaoHelper.GUILD,
@@ -350,9 +350,9 @@ contract OnboardingContract is IOnboarding, AdapterGuard, Reimbursable {
     }
 
     /**
-     * @notice Builds the configuration key by encoding an address with a string key.
-     * @param tokenAddrToMint The address to encode.
-     * @param key The key to encode.
+     * @notice 通过使用字符串键对 地址进行编码来构建 配置键。 
+     * @param tokenAddrToMint 要编码的地址
+     * @param key 要编码的密钥
      */
     function _configKey(address tokenAddrToMint, bytes32 key)
         internal

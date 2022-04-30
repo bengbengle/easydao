@@ -233,7 +233,7 @@ contract KycOnboardingContract is
     // The function is protected against reentrancy with the reentrancyGuard(dao)
     // so it is fine to change some state after the reentrancyGuard(dao) external call
     // because it calls the dao contract to lock the session/transaction flow.
-    // slither-disable-next-line reentrancy-benign,reentrancy-events
+    
     function _onboard(
         DaoRegistry dao,
         address kycedMember,
@@ -271,7 +271,7 @@ contract KycOnboardingContract is
                 // The bank address is loaded from the DAO registry,
                 // hence even if we change that, it belongs to the DAO,
                 // so it is fine to send eth to it.
-                // slither-disable-next-line arbitrary-send
+                
                 bank.addToBalance{value: details.amount}(
                     dao,
                     DaoHelper.GUILD,
@@ -297,7 +297,7 @@ contract KycOnboardingContract is
                 // The _weth address is defined during the deployment of the contract
                 // There is no way to change it once it has been deployed,
                 // so it is fine to send eth to it.
-                // slither-disable-next-line arbitrary-send
+                
                 _weth.deposit{value: details.amount}();
                 _weth20.safeTransferFrom(
                     address(this),
@@ -391,9 +391,9 @@ contract KycOnboardingContract is
     }
 
     /**
-     * @notice Builds the configuration key by encoding an address with a string key.
-     * @param tokenAddrToMint The address to encode.
-     * @param key The key to encode.
+     * @notice 通过使用字符串键对 地址进行编码来构建 配置键。 
+     * @param tokenAddrToMint 要编码的地址
+     * @param key 要编码的密钥
      */
     function _configKey(address tokenAddrToMint, bytes32 key)
         internal

@@ -57,8 +57,8 @@ contract FinancingContract is IFinancing, AdapterGuard, Reimbursable {
      * @param amount The desired amount.
      * @param data Additional details about the financing proposal.
      */
-    // slither-disable-next-line reentrancy-benign
-    function submitProposal(
+     
+        function submitProposal(
         DaoRegistry dao,
         bytes32 proposalId,
         address applicant,
@@ -104,8 +104,8 @@ contract FinancingContract is IFinancing, AdapterGuard, Reimbursable {
      * @param dao The DAO Address.
      * @param proposalId The proposal id.
      */
-    // slither-disable-next-line reentrancy-benign
-    function processProposal(DaoRegistry dao, bytes32 proposalId)
+     
+        function processProposal(DaoRegistry dao, bytes32 proposalId)
         external
         override
         reimbursable(dao)

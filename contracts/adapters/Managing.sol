@@ -51,8 +51,8 @@ contract ManagingContract is IManaging, AdapterGuard, Reimbursable {
      * @param proposal 提案详情 
      * @param data 传递给投票合约并识别提交者的附加数据
      */
-    // slither-disable-next-line reentrancy-benign
-    function submitProposal(
+     
+        function submitProposal(
         DaoRegistry dao,
         bytes32 proposalId,
         ProposalDetails calldata proposal,
@@ -115,8 +115,8 @@ contract ManagingContract is IManaging, AdapterGuard, Reimbursable {
      * @param dao dao 地址。 
      * @param proposalId 提案 ID。
      */
-    // slither-disable-next-line reentrancy-benign
-    function processProposal(DaoRegistry dao, bytes32 proposalId)
+     
+        function processProposal(DaoRegistry dao, bytes32 proposalId)
         external
         override
         reimbursable(dao)
@@ -183,7 +183,6 @@ contract ManagingContract is IManaging, AdapterGuard, Reimbursable {
             // It is fine to execute the external call inside the loop
             // because it is calling the correct function in the dao contract
             // it won't be calling a fallback that always revert.
-            // slither-disable-next-line calls-loop
             dao.setAclToExtensionForAdapter(
                 // It needs to be registered as extension
                 proposal.extensionAddresses[i],
@@ -211,13 +210,11 @@ contract ManagingContract is IManaging, AdapterGuard, Reimbursable {
                 // It is fine to execute the external call inside the loop
                 // because it is calling the correct function in the dao contract
                 // it won't be calling a fallback that always revert.
-                // slither-disable-next-line calls-loop
                 dao.setConfiguration(config.key, config.numericValue);
             } else if (ConfigType.ADDRESS == config.configType) {
                 // It is fine to execute the external call inside the loop
                 // because it is calling the correct function in the dao contract
                 // it won't be calling a fallback that always revert.
-                // slither-disable-next-line calls-loop
                 dao.setAddressConfiguration(config.key, config.addressValue);
             }
         }

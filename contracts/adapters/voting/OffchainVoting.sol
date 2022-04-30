@@ -181,8 +181,8 @@ contract OffchainVotingContract is
             );
     }
 
-    // slither-disable-next-line reentrancy-benign
-    function adminFailProposal(DaoRegistry dao, bytes32 proposalId)
+     
+        function adminFailProposal(DaoRegistry dao, bytes32 proposalId)
         external
         onlyOwner
         reentrancyGuard(dao)
@@ -306,7 +306,6 @@ contract OffchainVotingContract is
      *   - is the new one heavier than the previous one?
      */
     // The function is protected against reentrancy with the reentrancyGuard
-    // slither-disable-next-line reentrancy-events,reentrancy-benign,reentrancy-no-eth
     function submitVoteResult(
         DaoRegistry dao,
         bytes32 proposalId,
@@ -316,7 +315,7 @@ contract OffchainVotingContract is
         bytes memory rootSig
     ) external reimbursable(dao) {
         Voting storage vote = votes[address(dao)][proposalId];
-        // slither-disable-next-line timestamp
+ 
         require(vote.snapshot > 0, "vote:not started");
 
         if (vote.resultRoot == bytes32(0) || vote.isChallenged) {
@@ -374,7 +373,7 @@ contract OffchainVotingContract is
 
         _verifyNode(dao, adapterAddress, result, resultRoot);
 
-        // slither-disable-next-line timestamp
+ 
         require(
             vote.nbYes + vote.nbNo < result.nbYes + result.nbNo,
             "result weight too low"
@@ -404,8 +403,8 @@ contract OffchainVotingContract is
         );
     }
 
-    // slither-disable-next-line reentrancy-benign
-    function requestStep(
+     
+        function requestStep(
         DaoRegistry dao,
         bytes32 proposalId,
         uint256 index
@@ -423,7 +422,7 @@ contract OffchainVotingContract is
             index % 256,
             true
         );
-        // slither-disable-next-line timestamp
+ 
         require(vote.stepRequested == 0, "other step already requested");
         require(voteResult(dao, proposalId) == VotingState.GRACE_PERIOD, "should be grace period");
 
@@ -435,7 +434,7 @@ contract OffchainVotingContract is
      * @notice This function marks the proposal as challenged if a step requested by a member never came.
      * @notice The rule is, if a step has been requested and we are after the grace period, then challenge it
      */
-    // slither-disable-next-line reentrancy-benign,reentrancy-events
+    
     function challengeMissingStep(DaoRegistry dao, bytes32 proposalId)
         external
         reimbursable(dao)
@@ -445,20 +444,20 @@ contract OffchainVotingContract is
         //if the vote has started but the voting period has not passed yet, it's in progress
         require(vote.stepRequested > 0, "no step request");
 
-        // slither-disable-next-line timestamp
+ 
         require(block.timestamp >= vote.gracePeriodStartingTime + gracePeriod, "grace period");
 
         _challengeResult(dao, proposalId);
     }
 
-    // slither-disable-next-line reentrancy-benign
-    function provideStep(
+     
+        function provideStep(
         DaoRegistry dao,
         address adapterAddress,
         OffchainVotingHashContract.VoteResultNode memory node
     ) external reimbursable(dao) {
         Voting storage vote = votes[address(dao)][node.proposalId];
-        // slither-disable-next-line timestamp
+ 
         require(vote.stepRequested == node.index, "wrong step provided");
 
         _verifyNode(dao, adapterAddress, node, vote.resultRoot);
@@ -467,8 +466,8 @@ contract OffchainVotingContract is
         vote.gracePeriodStartingTime = uint64(block.timestamp);
     }
 
-    // slither-disable-next-line reentrancy-benign
-    function startNewVotingForProposal(
+     
+        function startNewVotingForProposal(
         DaoRegistry dao,
         bytes32 proposalId,
         bytes memory data
@@ -505,7 +504,7 @@ contract OffchainVotingContract is
         );
     }
 
-    // slither-disable-next-line reentrancy-benign,reentrancy-events
+    
     function challengeBadFirstNode(
         DaoRegistry dao,
         bytes32 proposalId,
@@ -533,7 +532,7 @@ contract OffchainVotingContract is
         }
     }
 
-    // slither-disable-next-line reentrancy-benign,reentrancy-events
+    
     function challengeBadNode(
         DaoRegistry dao,
         bytes32 proposalId,
@@ -562,7 +561,7 @@ contract OffchainVotingContract is
         }
     }
 
-    // slither-disable-next-line reentrancy-benign,reentrancy-events
+    
     function challengeBadStep(
         DaoRegistry dao,
         bytes32 proposalId,
@@ -595,8 +594,8 @@ contract OffchainVotingContract is
         }
     }
 
-    // slither-disable-next-line reentrancy-benign
-    function requestFallback(DaoRegistry dao, bytes32 proposalId)
+     
+        function requestFallback(DaoRegistry dao, bytes32 proposalId)
         external
         reentrancyGuard(dao)
         onlyMember(dao)
@@ -610,7 +609,7 @@ contract OffchainVotingContract is
         );
 
         address memberAddr = dao.getAddressIfDelegated(msg.sender);
-        // slither-disable-next-line timestamp,incorrect-equality
+        // ,incorrect-equality
         require(
             votes[address(dao)][proposalId].fallbackVotes[memberAddr] == false,
             "fallback vote duplicate"
@@ -644,7 +643,6 @@ contract OffchainVotingContract is
         dao.processProposal(proposalId);
     }
 
-    // slither-disable-next-line reentrancy-events,reentrancy-benign
     function _challengeResult(DaoRegistry dao, bytes32 proposalId) internal {
         votes[address(dao)][proposalId].isChallenged = true;
         address challengedReporter = votes[address(dao)][proposalId].reporter;

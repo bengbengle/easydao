@@ -224,10 +224,9 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-     * @notice Sets a configuration value
-     * @dev Changes the value of a key in the configuration mapping
-     * @param key The configuration key for which the value will be set
-     * @param value The value to set the key
+     * @notice 设置配置值， 更改配置映射中键的值 
+     * @param key 将为其设置值的配置键 
+     * @param value 要设置键的值 
      */
     function setConfiguration(bytes32 key, uint256 value)
         external

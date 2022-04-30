@@ -62,7 +62,7 @@ contract KickBadReporterAdapter is MemberGuard {
         );
         // the person has been kicked out
         if (votingState == IVoting.VotingState.PASS) {
-            //slither-disable-next-line variable-scope
+             
             (, address challengeAddress) = votingContract.getChallengeDetails(
                 dao,
                 proposalId
@@ -72,7 +72,7 @@ contract KickBadReporterAdapter is MemberGuard {
             votingState == IVoting.VotingState.NOT_PASS ||
             votingState == IVoting.VotingState.TIE
         ) {
-            //slither-disable-next-line uninitialized-local,variable-scope
+             
             (, address challengeAddress) = votingContract.getChallengeDetails(
                 dao,
                 proposalId

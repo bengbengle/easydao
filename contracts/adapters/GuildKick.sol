@@ -56,8 +56,8 @@ contract GuildKickContract is IGuildKick, AdapterGuard, Reimbursable {
      * @param memberToKick The member address that should be kicked out of the DAO.
      * @param data Additional information related to the kick proposal.
      */
-    // slither-disable-next-line reentrancy-benign
-    function submitProposal(
+     
+        function submitProposal(
         DaoRegistry dao,
         bytes32 proposalId,
         address memberToKick,

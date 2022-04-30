@@ -106,7 +106,6 @@ contract RagequitContract is IRagequit, AdapterGuard {
      * @param tokens 资金应该发送到的 tokens 数组。 
      * @param bank 银行扩展名。
      */
-    // slither-disable-next-line reentrancy-events
     function _prepareRagequit(
         DaoRegistry dao,
         address memberAddr,
@@ -186,11 +185,11 @@ contract RagequitContract is IRagequit, AdapterGuard {
             }
 
             // 检查公会银行是否支持 此令牌 
-            //slither-disable-next-line calls-loop
+             
             require(bank.isTokenAllowed(currentToken), "token not allowed");
 
             // 根据 代币、单位 和 loot 计算公平的资金数额
-            //slither-disable-next-line calls-loop
+             
             uint256 amountToRagequit = FairShareHelper.calc(
                 bank.balanceOf(DaoHelper.GUILD, currentToken),
                 unitsAndLootToBurn,
@@ -203,7 +202,7 @@ contract RagequitContract is IRagequit, AdapterGuard {
                 // deliberately not using safemath here to keep overflows from preventing the function execution
                 // (which would break ragekicks) if a token overflows,
                 // it is because the supply was artificially inflated to oblivion, so we probably don"t care about it anyways
-                //slither-disable-next-line calls-loop
+                 
                 bank.internalTransfer(
                     dao,
                     DaoHelper.GUILD,
@@ -215,7 +214,7 @@ contract RagequitContract is IRagequit, AdapterGuard {
         }
 
         // 一旦 units 和 loot 被烧毁， 资金也转移完成， 发出一个事件以指示操作成功。
-        //slither-disable-next-line reentrancy-events
+         
         emit MemberRagequit(
             address(dao),
             memberAddr,

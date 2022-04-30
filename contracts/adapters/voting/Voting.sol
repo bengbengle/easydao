@@ -107,9 +107,7 @@ contract VotingContract is IVoting, MemberGuard, AdapterGuard, Reimbursable {
      * @param proposalId 该提案需要被赞助，而不是被处理。 
      * @param voteValue 只允许是 (1) 和否 (2) 投票。
      */
-    // The function is protected against reentrancy with the reimbursable modifier
     // 使用 reimbursable 修饰符保护该函数不被重入
-    //slither-disable-next-line reentrancy-no-eth,reentrancy-benign
     function submitVote(
         DaoRegistry dao,
         bytes32 proposalId,
@@ -131,12 +129,10 @@ contract VotingContract is IVoting, MemberGuard, AdapterGuard, Reimbursable {
         );
 
         Voting storage vote = votes[address(dao)][proposalId];
-        // slither-disable-next-line timestamp
         require(
             vote.startingTime > 0,
             "this proposalId has no vote going on at the moment"
         );
-        // slither-disable-next-line timestamp
         require(
             block.timestamp < vote.startingTime + dao.getConfiguration(VotingPeriod),
             "vote has already ended"
@@ -189,14 +185,12 @@ contract VotingContract is IVoting, MemberGuard, AdapterGuard, Reimbursable {
         }
 
         if (
-            // slither-disable-next-line timestamp
             block.timestamp < vote.startingTime + dao.getConfiguration(VotingPeriod)
         ) {
             return VotingState.IN_PROGRESS;
         }
 
         if (
-            // slither-disable-next-line timestamp
             block.timestamp < vote.startingTime + dao.getConfiguration(VotingPeriod) + dao.getConfiguration(GracePeriod)
         ) {
             return VotingState.GRACE_PERIOD;

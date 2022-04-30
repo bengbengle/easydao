@@ -9,10 +9,8 @@ import "./GelatoBytes.sol";
 contract GelatoRelay is Gelatofied {
     using GelatoBytes for bytes;
 
-    // solhint-disable-next-line no-empty-blocks
     constructor(address payable _gelato) Gelatofied(_gelato) {}
 
-    // solhint-disable-next-line no-empty-blocks
     receive() external payable {}
 
     function _getDao(bytes memory bys) internal pure returns (DaoRegistry dao) {

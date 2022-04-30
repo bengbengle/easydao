@@ -54,8 +54,8 @@ contract SignaturesContract is ISignatures, AdapterGuard, Reimbursable {
      * @param magicValue The value to return when a signature is valid
      * @param data Additional details about the signature proposal.
      */
-    // slither-disable-next-line reentrancy-benign
-    function submitProposal(
+     
+        function submitProposal(
         DaoRegistry dao,
         bytes32 proposalId,
         bytes32 permissionHash,

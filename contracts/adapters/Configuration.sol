@@ -44,7 +44,7 @@ contract ConfigurationContract is IConfiguration, AdapterGuard, Reimbursable {
      * @param configs The keys, type, numeric and address config values.
      * @param data Additional details about the financing proposal.
      */
-    // slither-disable-next-line reentrancy-benign
+     
     function submitProposal(
         DaoRegistry dao,
         bytes32 proposalId,
@@ -89,7 +89,6 @@ contract ConfigurationContract is IConfiguration, AdapterGuard, Reimbursable {
      * @param dao DAO 地址
      * @param proposalId The proposal id.
      */
-    // slither-disable-next-line reentrancy-benign
     function processProposal(DaoRegistry dao, bytes32 proposalId)
         external
         override
@@ -99,23 +98,20 @@ contract ConfigurationContract is IConfiguration, AdapterGuard, Reimbursable {
 
         IVoting votingContract = IVoting(dao.votingAdapter(proposalId));
         require(address(votingContract) != address(0), "adapter not found");
-        require(
-            votingContract.voteResult(dao, proposalId) ==
-                IVoting.VotingState.PASS,
-            "proposal did not pass"
-        );
+        require(votingContract.voteResult(dao, proposalId) == IVoting.VotingState.PASS, "proposal did not pass");
 
-        Configuration[] memory configs = _configurations[address(dao)][
-            proposalId
-        ];
+        Configuration[] memory configs = _configurations[address(dao)][proposalId];
+
         for (uint256 i = 0; i < configs.length; i++) {
             Configuration memory config = configs[i];
             if (ConfigType.NUMERIC == config.configType) {
-                //slither-disable-next-line calls-loop
+
                 dao.setConfiguration(config.key, config.numericValue);
+
             } else if (ConfigType.ADDRESS == config.configType) {
-                //slither-disable-next-line calls-loop
+
                 dao.setAddressConfiguration(config.key, config.addressValue);
+
             }
         }
     }

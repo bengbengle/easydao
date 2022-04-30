@@ -126,8 +126,8 @@ contract CouponOnboardingContract is Reimbursable, AdapterGuard, Signatures {
      * @param signature is message signature for verification
      */
     // function is protected against reentrancy attack with the reentrancyGuard(dao)
-    // slither-disable-next-line reentrancy-benign
-    function redeemCoupon(
+     
+        function redeemCoupon(
         DaoRegistry dao,
         address authorizedMember,
         uint256 amount,
@@ -181,7 +181,7 @@ contract CouponOnboardingContract is Reimbursable, AdapterGuard, Signatures {
         } else {
             erc20.safeTransferFrom(DaoHelper.GUILD, authorizedMember, amount);
         }
-        //slither-disable-next-line reentrancy-events
+         
         emit CouponRedeemed(address(dao), nonce, authorizedMember, amount);
     }
 }

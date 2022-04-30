@@ -131,7 +131,7 @@ contract BankExtension is IExtension, ERC165 {
         internalTokens.push(DaoHelper.MEMBER_COUNT);
         uint256 nbMembers = _dao.getNbMembers();
         for (uint256 i = 0; i < nbMembers; i++) {
-            //slither-disable-next-line calls-loop
+             
             addToBalance(
                 _dao,
                 _dao.getMemberAddress(i),
@@ -161,7 +161,7 @@ contract BankExtension is IExtension, ERC165 {
             IERC20(tokenAddr).safeTransfer(member, amount);
         }
 
-        //slither-disable-next-line reentrancy-events
+         
         emit Withdraw(member, tokenAddr, uint160(amount));
     }
 
@@ -183,7 +183,7 @@ contract BankExtension is IExtension, ERC165 {
             IERC20(tokenAddr).safeTransfer(memberTo, amount);
         }
 
-        //slither-disable-next-line reentrancy-events
+         
         emit WithdrawTo(memberFrom, memberTo, tokenAddr, uint160(amount));
     }
 
@@ -543,7 +543,7 @@ contract BankExtension is IExtension, ERC165 {
 
         // 当 block.number 与 fromBlock 值完全匹配时，允许数量更新， 否则 应该生成一个新的检查点
         if (
-            //slither-disable-next-line incorrect-equality
+             
             nCheckpoints > 0 && checkpoints[token][member][nCheckpoints - 1].fromBlock == block.number
         ) {
             checkpoints[token][member][nCheckpoints - 1].amount = newAmount;
@@ -551,7 +551,7 @@ contract BankExtension is IExtension, ERC165 {
             checkpoints[token][member][nCheckpoints] = Checkpoint(uint96(block.number), newAmount);
             numCheckpoints[token][member] = nCheckpoints + 1;
         }
-        //slither-disable-next-line reentrancy-events
+         
         emit NewBalance(member, token, newAmount);
     }
 }
