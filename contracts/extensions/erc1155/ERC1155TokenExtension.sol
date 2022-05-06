@@ -60,12 +60,8 @@ contract ERC1155TokenExtension is IExtension, IERC1155Receiver {
     modifier hasExtensionAccess(DaoRegistry _dao, AclFlag flag) {
         require(
             _dao == dao &&
-                (DaoHelper.isInCreationModeAndHasAccess(dao) ||
-                    dao.hasAdapterAccessToExtension(
-                        msg.sender,
-                        address(this),
-                        uint8(flag)
-                    )),
+                (DaoHelper.isInCreationModeAndHasAccess(dao) || 
+                dao.hasAdapterAccessToExtension(msg.sender, address(this), uint8(flag))),
             "erc1155Ext::accessDenied"
         );
         _;

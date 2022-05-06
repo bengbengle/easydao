@@ -111,14 +111,12 @@ contract OffchainVotingHashContract {
         uint32 choiceIdx,
         bytes memory sig
     ) public view returns (bool) {
-        bytes32 voteHash = snapshotContract.hashVote(
-            dao,
-            actionId,
-            SnapshotProposalContract.VoteMessage(
-                timestamp,
-                SnapshotProposalContract.VotePayload(choiceIdx, proposalId)
-            )
-        );
+
+        SnapshotProposalContract.VotePayload  votePayload = SnapshotProposalContract.VotePayload(choiceIdx, proposalId);
+
+        SnapshotProposalContract.VoteMessage voteMessage =  SnapshotProposalContract.VoteMessage(timestamp, votePayload);
+
+        bytes32 voteHash = snapshotContract.hashVote(dao, actionId, voteMessage);
 
         return SignatureChecker.isValidSignatureNow(voter, voteHash, sig);
     }

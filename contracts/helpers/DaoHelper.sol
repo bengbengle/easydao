@@ -49,6 +49,7 @@ library DaoHelper {
     address internal constant LOOT = address(0xB105F00D);
     address internal constant LOCKED_LOOT = address(0xBB105F00D);
     address internal constant ETH_TOKEN = address(0x0);
+    
     address internal constant MEMBER_COUNT = address(0xDECAFBAD);
 
     uint8 internal constant MAX_TOKENS_GUILD_BANK = 200;
@@ -58,7 +59,6 @@ library DaoHelper {
     }
 
     /**
-     * @notice calculates the total number of units.
      * @notice 计算总单位数
      */
     function priorTotalTokens(BankExtension bank, uint256 at)
@@ -91,16 +91,12 @@ library DaoHelper {
         address memberAddress = dao.getAddressIfDelegated(addr);
         address delegatedAddress = dao.getCurrentDelegateKey(addr);
 
-        require(
-            memberAddress == delegatedAddress || delegatedAddress == addr,
-            "call with your delegate key"
-        );
+        require(memberAddress == delegatedAddress || delegatedAddress == addr, "call with your delegate key");
 
         return memberAddress;
     }
 
     /**
-     * @notice calculates the total number of units.
      * @notice 计算单位总数
      */
     function priorMemberTokens(
@@ -117,7 +113,6 @@ library DaoHelper {
 
     //helper 16,8,4,2,1 --> 4,3,2,1,0 --> 16 / 2 ** 4 --> 16 / 2 ** 4  -> 7 , 15 
     // 0 --> 1
-    // 
     function getFlag(uint256 flags, uint256 flag) internal pure returns (bool) {
         return (flags >> uint8(flag)) % 2 == 1;
     }
@@ -147,7 +142,6 @@ library DaoHelper {
     }
 
     /**
-     * @notice Checks if a given address is zeroed.
      * @notice 检查给定地址是否是 零
      */
     function isNotZeroAddress(address addr) internal pure returns (bool) {
@@ -170,19 +164,20 @@ library DaoHelper {
 
     /**
      * DAO 处于创建模式是 DAO 的状态等于 CREATION 并且 
-     * 1. DAO 中的成员数量为零，或者， 
-     * 2. tx 的发送者是 DAO 成员（通常是 DAO 所有者），或者， 
-     * 3. 发送方是适配器。
+     * 1. DAO 中的成员数量为零，或者
+     * 2. tx 的发送者是 DAO 成员（通常是 DAO 所有者），或者
+     * 3. 发送方是适配器
      */
     function isInCreationModeAndHasAccess(DaoRegistry dao)
         internal
         view
         returns (bool)
     {
-        return
-            dao.state() == DaoRegistry.DaoState.CREATION &&
-            (dao.getNbMembers() == 0 ||
-                dao.isMember(msg.sender) ||
-                dao.isAdapter(msg.sender));
+        return dao.state() == DaoRegistry.DaoState.CREATION && 
+            (
+                dao.getNbMembers() == 0 || 
+                dao.isMember(msg.sender) || 
+                dao.isAdapter(msg.sender)
+            );
     }
 }

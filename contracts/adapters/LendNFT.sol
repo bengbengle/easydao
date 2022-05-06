@@ -103,10 +103,14 @@ contract LendNFTContract is
             msg.sender
         );
         dao.sponsorProposal(proposalId, sponsoredBy, address(votingContract));
+        
+        address ext = dao.getExtensionAddress(DaoHelper.BANK);
+        BankExtension bank = BankExtension(ext);
+
         DaoHelper.potentialNewMember(
             applicant,
             dao,
-            BankExtension(dao.getExtensionAddress(DaoHelper.BANK))
+            bank
         );
 
         votingContract.startNewVotingForProposal(dao, proposalId, data);
@@ -218,6 +222,7 @@ contract LendNFTContract is
 
         proposal.sentBack = true;
 
+        // 开始了多长时间
         uint256 elapsedTime = block.timestamp - proposal.lendingStart;
 
         if (elapsedTime < proposal.lendingPeriod) {
