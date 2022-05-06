@@ -48,7 +48,7 @@ contract LendNFTContract is
     mapping(address => mapping(bytes32 => ProposalDetails)) public proposals;
 
     /**
-     * @notice 为特定 DAO 配置适配器， 向 DAO 银行注册 DAO 内部令牌
+     * @notice 为特定 DAO 配置 adapter， 向 DAO bank 注册 DAO 内部令牌
      * @dev 只有注册到 DAO 的适配器才能执行函数调用（或者如果 DAO 处于创建模式）
      * @dev 必须存在 DAO 银行扩展，并为此适配器配置适当的访问权限
      * @param dao DAO 地址
@@ -58,25 +58,26 @@ contract LendNFTContract is
         external
         onlyAdapter(dao)
     {
-
-        BankExtension(dao.getExtensionAddress(DaoHelper.BANK))
-            .registerPotentialNewInternalToken(dao, token);
+        address ext = dao.getExtensionAddress(DaoHelper.BANK);
+        BankExtension bank = BankExtension(ext);
+        
+        bank.registerPotentialNewInternalToken(dao, token);
     }
 
     /**
-     * @notice Creates and sponsors a tribute proposal to start the voting process.
-     * @dev Applicant address must not be reserved.
-     * @dev Only members of the DAO can sponsor a tribute proposal.
-     * @param dao The DAO address.
-     * @param proposalId The proposal id (managed by the client).
-     * @param applicant The applicant address (who will receive the DAO internal tokens and become a member).
-     * @param nftAddr The address of the ERC-721 token that will be transferred to the DAO in exchange for DAO internal tokens.
-     * @param nftTokenId The NFT token id.
-     * @param requestAmount The amount requested of DAO internal tokens (UNITS).
-     * @param data Additional information related to the tribute proposal.
+     * @notice 创建并赞助一个 tribute 提案以启动投票过程。 
+     * @dev 申请人地址不得保留。 
+     * @dev 只有 DAO 的成员才能发起致敬提案。 
+     * @param dao DAO 地址。 
+     * @param proposalId 提案ID（由客户端管理）。 
+     * @param applicant 申请人地址（将收到 DAO 内部代币并成为会员）。 
+     * @param nftAddr 将转移到 DAO 以换取 DAO 内部代币的 ERC-721 代币的地址。 
+     * @param nftTokenId NFT 令牌 ID。 
+     * @param requestAmount DAO 内部代币（UNITS）的请求数量。 
+     * @param data 与致敬提案相关的附加信息。
      */
      
-        function submitProposal(
+    function submitProposal(
         DaoRegistry dao,
         bytes32 proposalId,
         address applicant,
@@ -86,15 +87,15 @@ contract LendNFTContract is
         uint64 lendingPeriod,
         bytes memory data
     ) external reimbursable(dao) {
-        require(
-            DaoHelper.isNotReservedAddress(applicant),
-            "applicant is reserved address"
-        );
+
+        require(DaoHelper.isNotReservedAddress(applicant), "applicant is reserved address");
 
         dao.submitProposal(proposalId);
+
         IVoting votingContract = IVoting(
             dao.getAdapterAddress(DaoHelper.VOTING)
         );
+        
         address sponsoredBy = votingContract.getSenderAddress(
             dao,
             address(this),
