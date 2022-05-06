@@ -25,21 +25,16 @@ abstract contract MemberGuard {
         require(isActiveMember(dao, _addr), "onlyMember");
     }
 
-    function isActiveMember(DaoRegistry dao, address _addr)
-        public
-        view
-        returns (bool)
+    function isActiveMember(DaoRegistry dao, address _addr) public view returns (bool)
     {
         address bankAddress = dao.extensions(DaoHelper.BANK);
+
         if (bankAddress != address(0x0)) {
+
             address memberAddr = DaoHelper.msgSender(dao, _addr);
-            return
-                dao.isMember(_addr) &&
-                BankExtension(bankAddress).balanceOf(
-                    memberAddr,
-                    DaoHelper.UNITS
-                ) >
-                0;
+            uint256 amount = BankExtension(bankAddress).balanceOf(memberAddr, DaoHelper.UNITS);
+
+            return dao.isMember(_addr) && amount > 0;
         }
 
         return dao.isMember(_addr);

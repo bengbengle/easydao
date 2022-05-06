@@ -50,10 +50,7 @@ library GovernanceHelper {
         );
 
         return bank.getPriorAmount(voterAddr, DaoHelper.UNITS, snapshot);
-
-        // return
-        //     BankExtension(dao.getExtensionAddress(DaoHelper.BANK))
-        //         .getPriorAmount(voterAddr, DaoHelper.UNITS, snapshot);
+        
     }
 
     function getVotingWeight(

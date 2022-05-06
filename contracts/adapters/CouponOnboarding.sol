@@ -113,11 +113,9 @@ contract CouponOnboardingContract is Reimbursable, AdapterGuard, Signatures {
     ) external reimbursable(dao) {
         {
             uint256 currentFlag = _flags[address(dao)][nonce / 256];
-            _flags[address(dao)][nonce / 256] = DaoHelper.setFlag(
-                currentFlag,
-                nonce % 256,
-                true
-            );
+            
+            _flags[address(dao)][nonce / 256] = DaoHelper.setFlag(currentFlag, nonce % 256, true);
+
             require(
                 DaoHelper.getFlag(currentFlag, nonce % 256) == false,
                 "coupon already redeemed"

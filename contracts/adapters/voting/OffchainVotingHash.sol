@@ -68,6 +68,22 @@ contract OffchainVotingHashContract {
             );
     }
 
+    
+    function nodeHash(
+        DaoRegistry dao,
+        address actionId,
+        VoteResultNode memory node
+    ) external view returns (bytes32) {
+        return
+            keccak256(
+                abi.encodePacked(
+                    "\x19\x01",
+                    snapshotContract.DOMAIN_SEPARATOR(dao, actionId),
+                    hashVotingResultNode(node)
+                )
+            );
+    }
+
     function hashVotingResultNode(VoteResultNode memory node)
         public
         pure
@@ -87,20 +103,6 @@ contract OffchainVotingHashContract {
             );
     }
 
-    function nodeHash(
-        DaoRegistry dao,
-        address actionId,
-        VoteResultNode memory node
-    ) external view returns (bytes32) {
-        return
-            keccak256(
-                abi.encodePacked(
-                    "\x19\x01",
-                    snapshotContract.DOMAIN_SEPARATOR(dao, actionId),
-                    hashVotingResultNode(node)
-                )
-            );
-    }
 
     function hasVoted(
         DaoRegistry dao,

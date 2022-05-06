@@ -44,9 +44,7 @@ contract NFTExtension is IExtension, IERC721Receiver {
 
     modifier hasExtensionAccess(DaoRegistry _dao, AclFlag flag) {
         require(
-            dao == _dao &&
-                (DaoHelper.isInCreationModeAndHasAccess(dao) ||
-                    dao.hasAdapterAccessToExtension(msg.sender, address(this), uint8(flag))),
+            dao == _dao && (DaoHelper.isInCreationModeAndHasAccess(dao) || dao.hasAdapterAccessToExtension(msg.sender, address(this), uint8(flag))),
             "erc721::accessDenied"
         );
         _;
@@ -56,10 +54,10 @@ contract NFTExtension is IExtension, IERC721Receiver {
     constructor() {}
 
     /**
-     * @notice Initializes the extension with the DAO address that it belongs to.
-     * @param _dao The address of the DAO that owns the extension.
-     * @param creator The owner of the DAO and Extension that is also a member of the DAO.
-     */
+    * @notice 用它所属的 DAO 地址初始化扩展
+    * @param _dao 拥有扩展的 DAO 的地址
+    * @param creator DAO 和 扩展的所有者，也是 DAO 的成员   
+    */
     function initialize(DaoRegistry _dao, address creator) external override {
         require(!initialized, "erc721::already initialized");
         require(_dao.isMember(creator), "erc721::not a member");
@@ -69,33 +67,30 @@ contract NFTExtension is IExtension, IERC721Receiver {
     }
 
     /**
-     * @notice Collects the NFT from the owner and moves it to the NFT extension.
-     * @notice It must be have been allowed to move this token by either {approve} or {setApprovalForAll}.
-     * @dev Reverts if the NFT is not in ERC721 standard.
-     * @param nftAddr The NFT contract address.
-     * @param nftTokenId The NFT token id.
-     */
+    * @notice 从所有者那里收集 NFT 并将其移动到 NFT 扩展
+    * @notice {approve} 或 {setApprovalForAll} 必须允许移动此令牌 
+    * @dev 如果 NFT 不在 ERC721 标准中，则恢复 
+    * @param nftAddr NFT 合约地址 
+    * @param nftTokenId NFT 令牌 ID
+    */
      
-        function collect(
+    function collect(
         DaoRegistry _dao,
         address nftAddr,
         uint256 nftTokenId
     ) external hasExtensionAccess(_dao, AclFlag.COLLECT_NFT) {
+
         IERC721 erc721 = IERC721(nftAddr);
-        // Move the NFT to the contract address
+
+        // 将 NFT 移动到合约地址
         address currentOwner = erc721.ownerOf(nftTokenId);
-        //If the NFT is already in the NFTExtension, update the ownership if not set already
-        if (currentOwner == address(this)) {
-            if (_ownership[getNFTId(nftAddr, nftTokenId)] == address(0x0)) {
-                _saveNft(nftAddr, nftTokenId, DaoHelper.GUILD);
-                emit CollectedNFT(nftAddr, nftTokenId);
-            }
-            //If the NFT is not in the NFTExtension, we try to transfer from the current owner of the NFT to the extension
-        } else {
-            _saveNft(nftAddr, nftTokenId, DaoHelper.GUILD);
+        if (currentOwner != address(this)) {
             erc721.safeTransferFrom(currentOwner, address(this), nftTokenId);
-            emit CollectedNFT(nftAddr, nftTokenId);
         }
+
+        _saveNft(nftAddr, nftTokenId, DaoHelper.GUILD);
+        emit CollectedNFT(nftAddr, nftTokenId);
+
     }
 
     /**
@@ -103,10 +98,10 @@ contract NFTExtension is IExtension, IERC721Receiver {
      * @notice 它还更新内部状态以跟踪扩展收集的所有 NFT
      * @notice 调用者必须有 ACL 标志： WITHDRAW_NFT
      * @notice TODO 需要从一个新的适配器 (RagequitNFT) 调用此函数，该适配器将管理银行余额，并将 NFT 返还给所有者
-     * @dev Reverts if the NFT is not in ERC721 standard.
-     * @param newOwner The address of the new owner.
-     * @param nftAddr The NFT address that must be in ERC721 standard.
-     * @param nftTokenId The NFT token id.
+     * @dev 如果 NFT 不在 ERC721 标准中，则恢复
+     * @param newOwner 新所有者的地址
+     * @param nftAddr 必须符合 ERC721 标准的 NFT 地址 
+     * @param nftTokenId NFT 令牌 ID
      */
     function withdrawNFT(
         DaoRegistry _dao,
@@ -119,6 +114,7 @@ contract NFTExtension is IExtension, IERC721Receiver {
         require(_nfts[nftAddr].remove(nftTokenId), "erc721::can not remove token id");
         
         IERC721 erc721 = IERC721(nftAddr);
+
         erc721.safeTransferFrom(address(this), newOwner, nftTokenId);
 
         // 从扩展中删除资产
@@ -126,7 +122,8 @@ contract NFTExtension is IExtension, IERC721Receiver {
 
         // 如果我们不再持有该地址的资产，我们可以将其移除
         if (_nfts[nftAddr].length() == 0) {
-            require(_nftAddresses.remove(nftAddr), "erc721::can not remove nft");
+            _nftAddresses.remove(nftAddr);
+            // require(_nftAddresses.remove(nftAddr), "erc721::can not remove nft");
         }
          
         emit WithdrawnNFT(nftAddr, nftTokenId, newOwner);
@@ -146,6 +143,7 @@ contract NFTExtension is IExtension, IERC721Receiver {
         uint256 nftTokenId,
         address newOwner
     ) external hasExtensionAccess(_dao, AclFlag.INTERNAL_TRANSFER) {
+        
         require(newOwner != address(0x0), "erc721::new owner is 0");
         address currentOwner = _ownership[getNFTId(nftAddr, nftTokenId)];
         require(currentOwner != address(0x0), "erc721::nft not found");
@@ -156,7 +154,8 @@ contract NFTExtension is IExtension, IERC721Receiver {
     }
 
     /**
-    * @notice 获取从 NFT 地址和令牌 ID 生成的 ID（内部用于映射所有权） * @param nftAddress NFT 地址 
+    * @notice 获取从 NFT 地址和令牌 ID 生成的 ID（内部用于映射所有权） 
+    * @param nftAddress NFT 地址 
     * @param tokenId NFT 代币 ID
     */
     function getNFTId(address nftAddress, uint256 tokenId)
@@ -204,7 +203,7 @@ contract NFTExtension is IExtension, IERC721Receiver {
     }
 
     /**
-    * @notice 返回已转移到扩展的 NFT 的所有者 
+    * @notice 获取 guild 中 NFT 的拥有者 
     * @param nftAddress NFT 地址 
     * @param tokenId NFT 代币 ID
      */
@@ -217,7 +216,7 @@ contract NFTExtension is IExtension, IERC721Receiver {
     }
 
     /**
-     * @notice IERC721 标准所需的功能，以便能够将资产接收到此合约地址
+     * @notice IERC721 标准所需的功能，以便能够将资产接收到此合约地址， 此处的 msg.sender 就是 nft 合约地址 nft addr
      */
     function onERC721Received(
         address,

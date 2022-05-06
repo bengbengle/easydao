@@ -19,9 +19,7 @@ const testContracts = [{
   type: ContractType.Adapter,
   acls: {
     dao: [],
-    extensions: {[extensionsIdsMap.ERC1155_EXT]: [
-      erc1155ExtensionAclFlagsMap.INTERNAL_TRANSFER,
-    ]},
+    extensions: {[extensionsIdsMap.ERC1155_EXT]: [erc1155ExtensionAclFlagsMap.INTERNAL_TRANSFER]},
   },
   deploymentArgs: [],
 }];

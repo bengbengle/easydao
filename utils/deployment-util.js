@@ -369,23 +369,11 @@ const deployDao = async (options) => {
 
   const factories = await createFactories({ options });
   const extensions = await createExtensions({ dao, factories, options });
-  const adapters = await createAdapters({
-    dao,
-    daoFactory,
-    extensions,
-    options,
-  });
+  const adapters = await createAdapters({ dao, daoFactory, extensions, options });
 
   await createGovernanceRoles({ options, dao, adapters });
 
-  await configureDao({
-    owner: options.owner,
-    dao,
-    daoFactory,
-    extensions,
-    adapters,
-    options,
-  });
+  await configureDao({owner: options.owner, dao, daoFactory, extensions, adapters, options });
 
   const votingHelpers = await configureOffchainVoting({
     ...options,
@@ -394,10 +382,9 @@ const deployDao = async (options) => {
     extensions,
   });
 
-  // If the offchain contract was created, set it to the adapters map using the alias
+  // 如果创建了链下合约， 则使用别名将其设置为 适配器 映射
   if (votingHelpers.offchainVoting) {
-    adapters[votingHelpers.offchainVoting.configs.alias] =
-      votingHelpers.offchainVoting;
+    adapters[votingHelpers.offchainVoting.configs.alias] = votingHelpers.offchainVoting;
   }
 
   // deploy utility contracts

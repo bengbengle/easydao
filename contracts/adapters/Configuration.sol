@@ -47,9 +47,8 @@ contract ConfigurationContract is IConfiguration, AdapterGuard, Reimbursable {
             );
         }
 
-        IVoting votingContract = IVoting(
-            dao.getAdapterAddress(DaoHelper.VOTING)
-        );
+        IVoting votingContract = IVoting(dao.getAdapterAddress(DaoHelper.VOTING));
+        
         address sponsoredBy = votingContract.getSenderAddress(
             dao,
             address(this),

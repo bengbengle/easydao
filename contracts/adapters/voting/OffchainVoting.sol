@@ -158,8 +158,7 @@ contract OffchainVotingContract is
             );
     }
 
-     
-        function adminFailProposal(DaoRegistry dao, bytes32 proposalId)
+    function adminFailProposal(DaoRegistry dao, bytes32 proposalId)
         external
         onlyOwner
         reentrancyGuard(dao)
@@ -202,7 +201,6 @@ contract OffchainVotingContract is
     }
 
     /*
-     * @notice Returns the voting result of a given proposal.
      * @notice 返回给定提案的投票结果
      * possible results:
      * 0: has not started
@@ -260,9 +258,6 @@ contract OffchainVotingContract is
     }
 
     /*
-     * Saves the vote result to the storage if resultNode (vote) is valid.
-     * A valid vote node must satisfy all the conditions in the function,
-     * so it can be stored.
      *  如果 resultNode (vote) 有效，则将投票结果保存到存储中。 
      * 一个有效的投票节点必须满足函数中的所有条件，所以它可以被存储。
      * 提交投票结果前需要检查的内容： 
@@ -272,17 +267,7 @@ contract OffchainVotingContract is
      * - 这是在投票期之后吗？ 
      * - 如果我们已经有一个被挑战的结果，就像还没有结果一样 
      * - 如果我们已经有一个未被质疑的结果， 新的比旧的重吗？
-     * What needs to be checked before submitting a vote result:
-     * - if the grace period has ended, do nothing
-     * - if it's the first result (vote), is this a right time to submit it?
-     * - is the diff between nbYes and nbNo +50% of the votes ?
-     * - is this after the voting period ?
-     * - if we already have a result that has been challenged
-     *   - same as if there were no result yet
-     * - if we already have a result that has not been challenged
-     *   - is the new one heavier than the previous one?
      */
-    // The function is protected against reentrancy with the reentrancyGuard
     function submitVoteResult(
         DaoRegistry dao,
         bytes32 proposalId,
@@ -291,6 +276,7 @@ contract OffchainVotingContract is
         OffchainVotingHashContract.VoteResultNode memory result,
         bytes memory rootSig
     ) external reimbursable(dao) {
+
         Voting storage vote = votes[address(dao)][proposalId];
  
         require(vote.snapshot > 0, "vote:not started");
@@ -312,10 +298,7 @@ contract OffchainVotingContract is
         }
 
         require(
-            vote.gracePeriodStartingTime == 0 ||
-                vote.gracePeriodStartingTime +
-                    dao.getConfiguration(VotingPeriod) <=
-                block.timestamp,
+            vote.gracePeriodStartingTime == 0 || vote.gracePeriodStartingTime + dao.getConfiguration(VotingPeriod) <= block.timestamp,
             "graceperiod finished!"
         );
 
@@ -339,30 +322,28 @@ contract OffchainVotingContract is
         );
 
         (address adapterAddress, ) = dao.proposals(proposalId);
-        require(
-            SignatureChecker.isValidSignatureNow(
-                reporter,
-                ovHash.hashResultRoot(dao, adapterAddress, resultRoot),
-                rootSig
-            ),
-            "invalid sig"
+
+        bool isvalid = SignatureChecker.isValidSignatureNow(
+            reporter,
+            ovHash.hashResultRoot(dao, adapterAddress, resultRoot),
+            rootSig
         );
 
-        _verifyNode(dao, adapterAddress, result, resultRoot);
+        require(isvalid, "invalid sig");
 
+        _verifyNode(dao, adapterAddress, result, resultRoot);
  
         require(
             vote.nbYes + vote.nbNo < result.nbYes + result.nbNo,
             "result weight too low"
         );
 
-        if (
-            vote.gracePeriodStartingTime == 0 ||
-            // check whether the new result changes the outcome
-            vote.nbNo > vote.nbYes != result.nbNo > result.nbYes
-        ) {
+        // 检查新结果是否改变结果
+        if (vote.gracePeriodStartingTime == 0 ||  vote.nbNo > vote.nbYes != result.nbNo > result.nbYes) {
+            
             vote.gracePeriodStartingTime = uint64(block.timestamp);
         }
+
         vote.nbNo = result.nbNo;
         vote.nbYes = result.nbYes;
         vote.resultRoot = resultRoot;
@@ -381,24 +362,19 @@ contract OffchainVotingContract is
     }
 
      
-        function requestStep(
+    function requestStep(
         DaoRegistry dao,
         bytes32 proposalId,
         uint256 index
     ) external reimbursable(dao) onlyMember(dao) {
         Voting storage vote = votes[address(dao)][proposalId];
         require(index < vote.nbMembers, "index out of bound");
+        
         uint256 currentFlag = retrievedStepsFlags[vote.resultRoot][index / 256];
-        require(
-            DaoHelper.getFlag(currentFlag, index % 256) == false,
-            "step already requested"
-        );
 
-        retrievedStepsFlags[vote.resultRoot][index / 256] = DaoHelper.setFlag(
-            currentFlag,
-            index % 256,
-            true
-        );
+        require(DaoHelper.getFlag(currentFlag, index % 256) == false, "step already requested");
+
+        retrievedStepsFlags[vote.resultRoot][index / 256] = DaoHelper.setFlag(currentFlag, index % 256, true);
  
         require(vote.stepRequested == 0, "other step already requested");
         require(voteResult(dao, proposalId) == VotingState.GRACE_PERIOD, "should be grace period");
@@ -408,8 +384,8 @@ contract OffchainVotingContract is
     }
 
     /*
-     * @notice This function marks the proposal as challenged if a step requested by a member never came.
-     * @notice The rule is, if a step has been requested and we are after the grace period, then challenge it
+     * @notice 如果 未出现 成员请求的步骤，此提案被标记为受到挑战
+     * @notice 如果请求了，也过了宽限期，就挑战
      */
     
     function challengeMissingStep(DaoRegistry dao, bytes32 proposalId)
@@ -418,17 +394,16 @@ contract OffchainVotingContract is
     {
         Voting storage vote = votes[address(dao)][proposalId];
         uint256 gracePeriod = dao.getConfiguration(GracePeriod);
-        //if the vote has started but the voting period has not passed yet, it's in progress
+        
+        // 如果投票已经开始 但投票期还没有过去，它正在进行中
         require(vote.stepRequested > 0, "no step request");
-
- 
         require(block.timestamp >= vote.gracePeriodStartingTime + gracePeriod, "grace period");
 
         _challengeResult(dao, proposalId);
     }
 
      
-        function provideStep(
+    function provideStep(
         DaoRegistry dao,
         address adapterAddress,
         OffchainVotingHashContract.VoteResultNode memory node
@@ -444,7 +419,7 @@ contract OffchainVotingContract is
     }
 
      
-        function startNewVotingForProposal(
+    function startNewVotingForProposal(
         DaoRegistry dao,
         bytes32 proposalId,
         bytes memory data
@@ -471,14 +446,13 @@ contract OffchainVotingContract is
             "noActiveMember"
         );
 
-        require(
-            SignatureChecker.isValidSignatureNow(
-                proposal.submitter,
-                _snapshotContract.hashMessage(dao, msg.sender, proposal),
-                proposal.sig
-            ),
-            "invalid sig"
+        bool isvalid = SignatureChecker.isValidSignatureNow(
+            proposal.submitter,
+            _snapshotContract.hashMessage(dao, msg.sender, proposal),
+            proposal.sig
         );
+
+        require(isvalid, "invalid sig");
     }
 
     
@@ -492,6 +466,7 @@ contract OffchainVotingContract is
         Voting storage vote = votes[address(dao)][proposalId];
         require(vote.resultRoot != bytes32(0), "no result available yet!");
         (address actionId, ) = dao.proposals(proposalId);
+
         _verifyNode(dao, actionId, node, vote.resultRoot);
 
         if (
@@ -572,7 +547,7 @@ contract OffchainVotingContract is
     }
 
      
-        function requestFallback(DaoRegistry dao, bytes32 proposalId)
+    function requestFallback(DaoRegistry dao, bytes32 proposalId)
         external
         reentrancyGuard(dao)
         onlyMember(dao)
@@ -655,11 +630,7 @@ contract OffchainVotingContract is
         bytes32 root
     ) internal view {
         require(
-            MerkleProof.verify(
-                node.proof,
-                root,
-                ovHash.nodeHash(dao, adapterAddress, node)
-            ),
+            MerkleProof.verify(node.proof, root, ovHash.nodeHash(dao, adapterAddress, node)),
             "proof:bad"
         );
     }

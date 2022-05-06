@@ -229,7 +229,9 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
 
         if (!is_exists) {
             require(memberAddressesByDelegatedKey[memberAddress] == address(0x0), "member address already taken as delegated key");
+            
             member.flags = DaoHelper.setFlag(member.flags, uint8(MemberFlag.EXISTS), true);
+
             memberAddressesByDelegatedKey[memberAddress] = memberAddress;
             _members.push(memberAddress);
         }
@@ -374,6 +376,7 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
         require(extensionId != bytes32(0), "extensionId must not be empty");
         address extensionAddress = extensions[extensionId];
         require(extensionAddress != address(0x0), "extensionId not registered");
+
         ExtensionEntry storage extEntry = inverseExtensions[extensionAddress];
         extEntry.deleted = true;
 

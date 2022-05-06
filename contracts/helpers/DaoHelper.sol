@@ -118,11 +118,7 @@ library DaoHelper {
     }
 
     // 权限 flag
-    function setFlag(
-        uint256 flags,
-        uint256 flag,
-        bool value
-    ) internal pure returns (uint256) {
+    function setFlag(uint256 flags, uint256 flag, bool value) internal pure returns (uint256) {
         if (getFlag(flags, flag) != value) {
             if (value) {
                 return flags + 2**flag;
