@@ -104,7 +104,7 @@ contract CouponOnboardingContract is Reimbursable, AdapterGuard, Signatures {
      */
     // function is protected against reentrancy attack with the reentrancyGuard(dao)
      
-        function redeemCoupon(
+    function redeemCoupon(
         DaoRegistry dao,
         address authorizedMember,
         uint256 amount,

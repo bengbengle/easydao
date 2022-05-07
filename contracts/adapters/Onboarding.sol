@@ -48,13 +48,13 @@ contract OnboardingContract is IOnboarding, AdapterGuard, Reimbursable {
     mapping(DaoRegistry => mapping(address => mapping(address => uint88))) public units;
 
     /**
-     * @notice 使用新配置更新 DAO 注册表。 
-     * @notice 使用新的潜在令牌更新银行扩展。 
-     * @param unitsToMint 如果提案通过，则需要铸造哪个代币。 
-     * @param chunkSize 每个购买的块需要铸造多少代币。 
-     * @param unitsPerChunk 每个块正在铸造多少个单位（来自 tokenAddr 的令牌）。 
-     * @param maximumChunks 最多可以购买多少块。这有助于强制代币持有者去中心化。 
-     * @param tokenAddr 应以哪种货币 (tokenAddr) 进行入职。
+     * @notice 使用新配置更新 DAO 注册表 
+     * @notice 使用新的潜在令牌更新银行扩展 
+     * @param unitsToMint 如果提案通过，则需要铸造哪个代币 
+     * @param chunkSize 每个购买的块需要铸造多少代币 
+     * @param unitsPerChunk 每个块正在铸造多少个单位（来自 tokenAddr 的令牌） 
+     * @param maximumChunks 最多可以购买多少块这有助于强制代币持有者去中心化 
+     * @param tokenAddr 应以哪种货币 (tokenAddr) 进行入职
      */
     function configureDao(
         DaoRegistry dao,
@@ -103,15 +103,15 @@ contract OnboardingContract is IOnboarding, AdapterGuard, Reimbursable {
     }
 
     /**
-     * @notice 提交并赞助提案。只有成员才能调用此函数。 
-     * @param proposalId 提交给 DAO Registry 的提案 ID。 
-     * @param applicant 申请人地址。 
-     * @param tokenToMint 提案通过时要铸造的代币。 
-     * @param tokenAmount 要铸造的代币数量。 
-     * @param data 附加提案信息。
+     * @notice 提交并赞助提案只有成员才能调用此函数 
+     * @param proposalId 提交给 DAO Registry 的提案 ID 
+     * @param applicant 申请人地址 
+     * @param tokenToMint 提案通过时要铸造的代币 
+     * @param tokenAmount 要铸造的代币数量 
+     * @param data 附加提案信息
      */
      
-        function submitProposal(
+    function submitProposal(
         DaoRegistry dao,
         bytes32 proposalId,
         address payable applicant,
@@ -147,11 +147,11 @@ contract OnboardingContract is IOnboarding, AdapterGuard, Reimbursable {
     }
 
     /**
-     *  一旦对提案的投票完成，就该处理它了。任何人都可以调用这个函数。 
-     * @param proposalId 要处理的提案 ID。它需要存在于 DAO 注册表中。
+     *  一旦对提案的投票完成，就该处理它了任何人都可以调用这个函数 
+     * @param proposalId 要处理的提案 ID它需要存在于 DAO 注册表中
      */
      
-        function processProposal(DaoRegistry dao, bytes32 proposalId)
+    function processProposal(DaoRegistry dao, bytes32 proposalId)
         external
         payable
         override
@@ -192,7 +192,7 @@ contract OnboardingContract is IOnboarding, AdapterGuard, Reimbursable {
             bank.addToBalance(dao, applicant, unitsToMint, unitsRequested);
 
             if (proposal.token == DaoHelper.ETH_TOKEN) {
-                // 此调用将 ETH 直接发送到 GUILD 银行，并且地址无法更改，因为它在 DaoHelper 中定义为常量。
+                // 此调用将 ETH 直接发送到 GUILD 银行，并且地址无法更改，因为它在 DaoHelper 中定义为常量
                  
                 bank.addToBalance{value: proposal.amount}(
                     dao,
@@ -234,8 +234,8 @@ contract OnboardingContract is IOnboarding, AdapterGuard, Reimbursable {
     }
 
     /**
-     * @notice 开始对加入新成员的提案进行投票。 
-     * @param proposalId 要处理的提案 ID。它需要存在于 DAO 注册表中。
+     * @notice 开始对加入新成员的提案进行投票 
+     * @param proposalId 要处理的提案 ID它需要存在于 DAO 注册表中
      */
     function _sponsorProposal(
         DaoRegistry dao,
@@ -287,14 +287,10 @@ contract OnboardingContract is IOnboarding, AdapterGuard, Reimbursable {
         require(details.unitsPerChunk > 0, "config unitsPerChunk missing");
         details.amount = details.numberOfChunks * details.chunkSize;
         details.unitsRequested = details.numberOfChunks * details.unitsPerChunk;
-
-        details.totalUnits =
-            _getUnits(dao, token, applicant) +
-            details.unitsRequested;
+        details.totalUnits = _getUnits(dao, token, applicant) + details.unitsRequested;
 
         require(
-            details.totalUnits / details.unitsPerChunk <
-                dao.getConfiguration(_configKey(tokenToMint, MaximumChunks)),
+            details.totalUnits / details.unitsPerChunk < dao.getConfiguration(_configKey(tokenToMint, MaximumChunks)),
             "total units for this member must be lower than the maximum"
         );
 
@@ -313,10 +309,10 @@ contract OnboardingContract is IOnboarding, AdapterGuard, Reimbursable {
     }
 
     /**
-     * @notice Gets the current number of units.
-     * @param dao The DAO that contains the units.
-     * @param token The Token Address in which the Unit were minted.
-     * @param applicant The Applicant Address which holds the units.
+     * @notice 获取当前的单位数
+     * @param dao 包含单元的 DAO 
+     * @param token 铸造单位的代币地址 
+     * @param applicant 持有单位的申请人地址
      */
     function _getUnits(
         DaoRegistry dao,
@@ -327,7 +323,7 @@ contract OnboardingContract is IOnboarding, AdapterGuard, Reimbursable {
     }
 
     /**
-     * @notice 通过使用字符串键对 地址进行编码来构建 配置键。 
+     * @notice 通过使用字符串键对 地址进行编码来构建 配置键 
      * @param tokenAddrToMint 要编码的地址
      * @param key 要编码的密钥
      */

@@ -93,8 +93,7 @@ contract FinancingContract is IFinancing, AdapterGuard, Reimbursable {
         require(address(votingContract) != address(0), "adapter not found");
 
         require(
-            votingContract.voteResult(dao, proposalId) ==
-                IVoting.VotingState.PASS,
+            votingContract.voteResult(dao, proposalId) == IVoting.VotingState.PASS,
             "proposal needs to pass"
         );
         dao.processProposal(proposalId);

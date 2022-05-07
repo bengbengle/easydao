@@ -79,7 +79,7 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
      *
      */
      
-        function submitProposal(
+    function submitProposal(
         DaoRegistry dao,
         bytes32 proposalId,
         address unitHolderAddr,
@@ -203,8 +203,7 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
                 distribution.amount
             );
         } else if (
-            voteResult == IVoting.VotingState.NOT_PASS ||
-            voteResult == IVoting.VotingState.TIE
+            voteResult == IVoting.VotingState.NOT_PASS || voteResult == IVoting.VotingState.TIE
         ) {
             distribution.status = DistributionStatus.FAILED;
         } else {
@@ -222,7 +221,7 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
      * @param toIndex The index to control the cached for-loop.
      */
      
-        function distribute(DaoRegistry dao, uint256 toIndex)
+    function distribute(DaoRegistry dao, uint256 toIndex)
         external
         override
         reimbursable(dao)
