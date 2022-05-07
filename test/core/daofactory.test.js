@@ -1,8 +1,6 @@
 // Whole-script strict mode syntax
 "use strict";
 
-
-
 const { toBN } = require("../../utils/contract-util");
 
 const { cloneDao } = require("../../utils/deployment-util");

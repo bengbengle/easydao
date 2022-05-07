@@ -21,9 +21,9 @@ import "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
 contract OffchainVotingHelperContract {
     
     uint256 private constant NB_CHOICES = 2;
-    bytes32 public constant VotingPeriod = keccak256("offchainvoting.votingPeriod");
-    bytes32 public constant GracePeriod = keccak256("offchainvoting.gracePeriod");
-    bytes32 public constant FallbackThreshold = keccak256("offchainvoting.fallbackThreshold");
+    bytes32 public constant VotingPeriod = keccak256("offchainvoting.votingPeriod"); // 投票期
+    bytes32 public constant GracePeriod = keccak256("offchainvoting.gracePeriod");  // 宽限期
+    bytes32 public constant FallbackThreshold = keccak256("offchainvoting.fallbackThreshold"); // 回退阈值
 
     enum BadNodeError {
         OK,
@@ -104,7 +104,7 @@ contract OffchainVotingHelperContract {
 
         address memberAddr = dao.getMemberAddress(node.index);
 
-        //invalid choice
+        // 无效的选择
         if (
             (node.sig.length == 0 && node.choice != 0) || // no vote
             (node.sig.length > 0 && !isValidChoice(node.choice))
@@ -112,20 +112,23 @@ contract OffchainVotingHelperContract {
             return BadNodeError.INVALID_CHOICE;
         }
 
-        //invalid proposal hash
+        //无效的提案哈希
         if (node.proposalId != proposalId) {
             return BadNodeError.WRONG_PROPOSAL_ID;
         }
 
-        //has voted outside of the voting time
+        // 过了投票期
         if (!submitNewVote && node.timestamp > gracePeriodStartingTime) {
             return BadNodeError.AFTER_VOTING_PERIOD;
         }
 
+        // 给定区块下，为多投票 地址
+        address voter = dao.getPriorDelegateKey(memberAddr, blockNumber);
+
         bool hasVoted = _ovHash.hasVoted(
                 dao,
                 actionId,
-                dao.getPriorDelegateKey(memberAddr, blockNumber),
+                voter,
                 node.timestamp,
                 node.proposalId,
                 node.choice,
@@ -178,10 +181,10 @@ contract OffchainVotingHelperContract {
         DaoRegistry dao,
         uint256 fallbackVotesCount
     ) external view returns (bool) {
-        return
-            fallbackVotesCount >
-            (dao.getNbMembers() * dao.getConfiguration(FallbackThreshold)) /
-                100;
+
+        uint256 count = dao.getNbMembers() * dao.getConfiguration(FallbackThreshold);
+        
+        return fallbackVotesCount > count / 100;
     }
 
     function isReadyToSubmitResult(

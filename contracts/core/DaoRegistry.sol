@@ -704,7 +704,7 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
      * @dev 区块编号必须是最终区块，否则此功能将恢复以防止错误信息。 
      * @param memberAddr 要检查的账户地址 
      * @param blockNumber 获得投票余额的区块号 
-     * @return 账户在给定区块中的投票数
+     * @return 给定区块中的 委托地址
      */
     function getPriorDelegateKey(address memberAddr, uint256 blockNumber)
         external
