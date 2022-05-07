@@ -26,12 +26,7 @@ const VotingState = {
 
 function getMessageERC712Hash(m, verifyingContract, actionId, chainId) {
   const message = prepareMessage(m);
-  const { domain, types } = getDomainDefinition(
-    m,
-    verifyingContract,
-    actionId,
-    chainId
-  );
+  const { domain, types } = getDomainDefinition(m, verifyingContract, actionId, chainId);
   const msgParams = {
     domain,
     message,
@@ -39,29 +34,6 @@ function getMessageERC712Hash(m, verifyingContract, actionId, chainId) {
     types,
   };
   return "0x" + sigUtil.TypedDataUtils.sign(msgParams).toString("hex");
-}
-
-function getDomainDefinition(message, verifyingContract, actionId, chainId) {
-  switch (message.type) {
-    case "vote":
-      return getVoteDomainDefinition(verifyingContract, actionId, chainId);
-    case "proposal":
-      return getProposalDomainDefinition(verifyingContract, actionId, chainId);
-    case "draft":
-      return getDraftDomainDefinition(verifyingContract, actionId, chainId);
-    case "result":
-      return getVoteResultRootDomainDefinition(
-        verifyingContract,
-        actionId,
-        chainId
-      );
-    case "coupon":
-      return getCouponDomainDefinition(verifyingContract, actionId, chainId);
-    case "coupon-kyc":
-      return getCouponKycDomainDefinition(verifyingContract, actionId, chainId);
-    default:
-      throw new Error("unknown type '" + message.type + "'");
-  }
 }
 
 function getCouponKycDomainDefinition(verifyingContract, actionId, chainId) {
@@ -73,16 +45,6 @@ function getCouponKycDomainDefinition(verifyingContract, actionId, chainId) {
   };
 
   return { domain, types };
-}
-
-function getMessageDomainType(chainId, verifyingContract, actionId) {
-  return {
-    name: "Snapshot Message",
-    version: "4",
-    chainId,
-    verifyingContract,
-    actionId,
-  };
 }
 
 function getVoteDomainDefinition(verifyingContract, actionId, chainId) {
@@ -166,11 +128,7 @@ function getDraftDomainDefinition(verifyingContract, actionId, chainId) {
   return { domain, types };
 }
 
-function getVoteResultRootDomainDefinition(
-  verifyingContract,
-  actionId,
-  chainId
-) {
+function getVoteResultRootDomainDefinition(verifyingContract, actionId, chainId) {
   const domain = getMessageDomainType(chainId, verifyingContract, actionId);
 
   const types = {
@@ -196,6 +154,16 @@ function getCouponDomainDefinition(verifyingContract, actionId, chainId) {
   return { domain, types };
 }
 
+function getMessageDomainType(chainId, verifyingContract, actionId) {
+  return {
+    name: "Snapshot Message",
+    version: "4",
+    chainId,
+    verifyingContract,
+    actionId,
+  };
+}
+
 function getDomainType() {
   return [
     { name: "name", type: "string" },
@@ -210,20 +178,9 @@ async function signMessage(signer, message, verifyingContract, chainId) {
   return signer(message, verifyingContract, chainId);
 }
 
-function validateMessage(
-  message,
-  address,
-  verifyingContract,
-  actionId,
-  chainId,
-  signature
-) {
-  const { domain, types } = getDomainDefinition(
-    message,
-    verifyingContract,
-    actionId,
-    chainId
-  );
+function validateMessage(message, address, verifyingContract, actionId, chainId, signature) {
+
+  const { domain, types } = getDomainDefinition(message, verifyingContract, actionId, chainId);
 
   const msgParams = {
     domain,
@@ -242,12 +199,7 @@ function validateMessage(
 function Web3JsSigner(web3, account) {
   return async function (m, verifyingContract, actionId, chainId) {
     const message = prepareMessage(m);
-    const { domain, types } = getDomainDefinition(
-      message,
-      verifyingContract,
-      actionId,
-      chainId
-    );
+    const { domain, types } = getDomainDefinition(message, verifyingContract, actionId, chainId);
     const msgParams = JSON.stringify({
       domain,
       message,
@@ -309,6 +261,25 @@ function SigUtilSigner(privateKeyStr) {
     };
     return sigUtil.signTypedData_v4(privateKey, { data: msgParams });
   };
+}
+
+function getDomainDefinition(message, verifyingContract, actionId, chainId) {
+  switch (message.type) {
+    case "vote":
+      return getVoteDomainDefinition(verifyingContract, actionId, chainId);
+    case "proposal":
+      return getProposalDomainDefinition(verifyingContract, actionId, chainId);
+    case "draft":
+      return getDraftDomainDefinition(verifyingContract, actionId, chainId);
+    case "result":
+      return getVoteResultRootDomainDefinition(verifyingContract, actionId, chainId);
+    case "coupon":
+      return getCouponDomainDefinition(verifyingContract, actionId, chainId);
+    case "coupon-kyc":
+      return getCouponKycDomainDefinition(verifyingContract, actionId, chainId);
+    default:
+      throw new Error("unknown type '" + message.type + "'");
+  }
 }
 
 function prepareMessage(message) {
@@ -409,17 +380,8 @@ async function createVote(proposalId, weight, voteYes) {
   return vote;
 }
 
-function buildVoteLeafHashForMerkleTree(
-  leaf,
-  verifyingContract,
-  actionId,
-  chainId
-) {
-  const { domain, types } = getVoteStepDomainDefinition(
-    verifyingContract,
-    actionId,
-    chainId
-  );
+function buildVoteLeafHashForMerkleTree(leaf, verifyingContract, actionId, chainId) {
+  const { domain, types } = getVoteStepDomainDefinition(verifyingContract, actionId, chainId);
   const msgParams = {
     domain,
     message: leaf,
@@ -430,6 +392,7 @@ function buildVoteLeafHashForMerkleTree(
 }
 
 async function prepareVoteResult(votes, dao, actionId, chainId) {
+
   votes.forEach((vote, idx) => {
     vote.choice = vote.choice || vote.payload.choice;
     vote.nbYes = vote.choice === 1 ? vote.payload.weight : toBNWeb3(0);
@@ -445,14 +408,10 @@ async function prepareVoteResult(votes, dao, actionId, chainId) {
   });
 
   const tree = new MerkleTree(
-    votes.map((vote) =>
-      buildVoteLeafHashForMerkleTree(vote, dao.address, actionId, chainId)
-    )
+    votes.map((vote) => buildVoteLeafHashForMerkleTree(vote, dao.address, actionId, chainId))
   );
 
-  const result = votes.map((vote) =>
-    toStepNode(vote, dao.address, actionId, chainId, tree)
-  );
+  const result = votes.map((vote) => toStepNode(vote, dao.address, actionId, chainId, tree));
 
   return { voteResultTree: tree, result };
 }

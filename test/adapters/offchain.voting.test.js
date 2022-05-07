@@ -314,7 +314,8 @@ describe("Adapter - Offchain Voting", () => {
     await revertChainSnapshot(this.snapshotId);
     this.snapshotId = await takeChainSnapshot();
   });
-
+  
+  // 对于 javascript 和 solidity 之间的提案，类型和哈希是否应该一致
   it("should type & hash be consistent for proposals between javascript and solidity", async () => {
     const dao = this.dao;
 
@@ -352,51 +353,35 @@ describe("Adapter - Offchain Voting", () => {
     const jsProposalMsg = TypedDataUtils.encodeType("Message", types);
     expect(jsProposalMsg).equal(solProposalMsg);
 
-    //Checking payload
-    const hashStructPayload =
-      "0x" +
-      TypedDataUtils.hashStruct(
-        "MessagePayload",
-        prepareProposalPayload(proposalPayload),
-        types,
-        true
-      ).toString("hex");
+    // Checking payload
+    const hashStructPayload = "0x" + TypedDataUtils.hashStruct("MessagePayload", prepareProposalPayload(proposalPayload), types, true).toString("hex");
+
     const solidityHashPayload = await snapshotContract.hashProposalPayload(
       proposalPayload
     );
     expect(solidityHashPayload).equal(hashStructPayload);
 
-    //Checking entire payload
-    const hashStruct =
-      "0x" +
-      TypedDataUtils.hashStruct(
-        "Message",
-        prepareProposalMessage(proposalData),
-        types
-      ).toString("hex");
-    const solidityHash = await snapshotContract.hashProposalMessage(
-      proposalData
-    );
+    // Checking entire payload
+    const hashStruct = "0x" + TypedDataUtils.hashStruct("Message", prepareProposalMessage(proposalData), types).toString("hex");
+
+    const solidityHash = await snapshotContract.hashProposalMessage(proposalData);
+
     expect(solidityHash).equal(hashStruct);
 
-    //Checking domain
+    // Checking domain
     const domainDef = await snapshotContract.EIP712_DOMAIN();
     const jsDomainDef = TypedDataUtils.encodeType("EIP712Domain", types);
     expect(domainDef).equal(jsDomainDef);
 
-    //Checking domain separator
-    const domainHash = await snapshotContract.DOMAIN_SEPARATOR(
-      dao.address,
-      daoOwner
-    );
-    const jsDomainHash =
-      "0x" +
-      TypedDataUtils.hashStruct("EIP712Domain", domain, types, true).toString(
-        "hex"
-      );
+    // Checking domain separator
+    const domainHash = await snapshotContract.DOMAIN_SEPARATOR(dao.address, daoOwner);
+
+    const jsDomainHash = "0x" + TypedDataUtils.hashStruct("EIP712Domain", domain, types, true).toString("hex");
+
     expect(domainHash).equal(jsDomainHash);
   });
 
+  // 对于 javascript 和 solidity 之间的投票，类型和哈希是否应该一致
   it("should type & hash be consistent for votes between javascript and solidity", async () => {
     const chainId = 1;
     const dao = this.dao;
