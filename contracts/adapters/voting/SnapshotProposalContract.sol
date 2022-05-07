@@ -88,15 +88,7 @@ contract SnapshotProposalContract {
         pure
         returns (bytes32)
     {
-        return
-            keccak256(
-                abi.encode(
-                    PROPOSAL_MESSAGE_TYPEHASH,
-                    message.timestamp,
-                    message.spaceHash,
-                    hashProposalPayload(message.payload)
-                )
-            );
+        return keccak256(abi.encode(PROPOSAL_MESSAGE_TYPEHASH, message.timestamp, message.spaceHash, hashProposalPayload(message.payload)));
     }
 
     function hashProposalPayload(ProposalPayload memory payload)

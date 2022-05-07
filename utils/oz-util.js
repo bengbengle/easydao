@@ -230,8 +230,7 @@ module.exports = (() => {
     const { WETH } = ozContracts;
     const weth = await WETH.new();
 
-    const { dao, adapters, extensions, testContracts, utilContracts } =
-      await deployDao({
+    const { dao, adapters, extensions, testContracts, utilContracts } = await deployDao({
         ...getDefaultOptions({ owner }),
         ...ozContracts,
         deployFunction,
@@ -240,7 +239,7 @@ module.exports = (() => {
         contractConfigs: allContractConfigs,
         weth: weth.address,
         wethContract: weth,
-      });
+    });
 
     await dao.finalizeDao({ from: owner });
 

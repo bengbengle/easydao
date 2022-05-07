@@ -73,8 +73,7 @@ contract TributeContract is Reimbursable, AdapterGuard {
      * @param tributeTokenOwner The owner of the ERC-20 tokens being provided as tribute.
      * @param data Additional information related to the tribute proposal.
      */
-     
-        function submitProposal(
+     function submitProposal(
         DaoRegistry dao,
         bytes32 proposalId,
         address applicant,

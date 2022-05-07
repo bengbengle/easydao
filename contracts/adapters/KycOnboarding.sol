@@ -39,17 +39,13 @@ contract KycOnboardingContract is
     bytes32 public constant COUPON_MESSAGE_TYPEHASH =
         keccak256(abi.encodePacked(COUPON_MESSAGE_TYPE));
 
-    bytes32 constant SignerAddressConfig =
-        keccak256("kyc-onboarding.signerAddress");
-
+    bytes32 constant SignerAddressConfig = keccak256("kyc-onboarding.signerAddress");
     bytes32 constant ChunkSize = keccak256("kyc-onboarding.chunkSize");
     bytes32 constant UnitsPerChunk = keccak256("kyc-onboarding.unitsPerChunk");
     bytes32 constant MaximumChunks = keccak256("kyc-onboarding.maximumChunks");
-    bytes32 constant MaximumUnits =
-        keccak256("kyc-onboarding.maximumTotalUnits");
+    bytes32 constant MaximumUnits = keccak256("kyc-onboarding.maximumTotalUnits");
     bytes32 constant MaxMembers = keccak256("kyc-onboarding.maxMembers");
-    bytes32 constant FundTargetAddress =
-        keccak256("kyc-onboarding.fundTargetAddress");
+    bytes32 constant FundTargetAddress = keccak256("kyc-onboarding.fundTargetAddress");
     bytes32 constant TokensToMint = keccak256("kyc-onboarding.tokensToMint");
 
     WETH private _weth;

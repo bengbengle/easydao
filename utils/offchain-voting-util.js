@@ -457,16 +457,6 @@ async function prepareVoteResult(votes, dao, actionId, chainId) {
   return { voteResultTree: tree, result };
 }
 
-/**
- * 
- struct ProposalMessage {
-        uint256 timestamp;
-        bytes32 spaceHash;
-        address submitter;
-        ProposalPayload payload;
-        bytes sig;
-    }
- */
 function prepareVoteProposalData(data, web3) {
   return web3.eth.abi.encodeParameter(
     {

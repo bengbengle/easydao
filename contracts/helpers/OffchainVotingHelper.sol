@@ -46,12 +46,10 @@ contract OffchainVotingHelperContract {
         uint256 resultIndex,
         uint256 blockNumber
     ) external view returns (uint256 membersCount) {
-        membersCount = BankExtension(dao.getExtensionAddress(DaoHelper.BANK))
-            .getPriorAmount(
-                DaoHelper.TOTAL,
-                DaoHelper.MEMBER_COUNT,
-                blockNumber
-            );
+        
+        BankExtension bank = BankExtension(dao.getExtensionAddress(DaoHelper.BANK));
+
+        membersCount = bank.getPriorAmount(DaoHelper.TOTAL, DaoHelper.MEMBER_COUNT, blockNumber);
  
         require(membersCount - 1 == resultIndex, "index:member_count mismatch");
     }
@@ -208,9 +206,9 @@ contract OffchainVotingHelperContract {
             diff = nbNo - nbYes;
         }
 
-        uint256 totalWeight = BankExtension(
-            dao.getExtensionAddress(DaoHelper.BANK)
-        ).getPriorAmount(DaoHelper.TOTAL, DaoHelper.UNITS, snapshot);
+        BankExtension bank = BankExtension(dao.getExtensionAddress(DaoHelper.BANK));
+        uint256 totalWeight = bank.getPriorAmount(DaoHelper.TOTAL, DaoHelper.UNITS, snapshot);
+
         uint256 unvotedWeights = totalWeight - nbYes - nbNo;
         if (diff > unvotedWeights) {
             return true;
@@ -220,6 +218,7 @@ contract OffchainVotingHelperContract {
         return startingTime + votingPeriod <= blockTs;
     }
 
+    // 获取投票状态结果
     function getVoteResult(
         uint256 startingTime,
         bool forceFailed,
@@ -247,27 +246,18 @@ contract OffchainVotingHelperContract {
             return IVoting.VotingState.IN_PROGRESS;
         }
 
-        // If the vote has started but the voting period has not passed yet, it's in progress
-        // 如果投票已经开始， 但投票期尚未结束，则表示正在进行中
- 
+        // proposal is in progress
         if (block.timestamp < startingTime + votingPeriod) {
             return IVoting.VotingState.IN_PROGRESS;
         }
 
-        // If no result have been submitted but we are before grace + voting period,
-        // 如果没有提交结果， 但我们在宽限期 + 投票期之前
-        // then the proposal is GRACE_PERIOD
- 
-        if (
-            gracePeriodStartingTime == 0 &&
-            block.timestamp < startingTime + gracePeriod + votingPeriod
-        ) {
+        // proposal is GRACE_PERIOD
+        if (gracePeriodStartingTime == 0 && block.timestamp < startingTime + gracePeriod + votingPeriod) {
             return IVoting.VotingState.GRACE_PERIOD;
         }
 
         // If the vote has started but the voting period has not passed yet, it's in progress
         // 如果投票已经开始， 但投票期尚未结束，则表示正在进行中
- 
         if (block.timestamp < gracePeriodStartingTime + gracePeriod) {
             return IVoting.VotingState.GRACE_PERIOD;
         }

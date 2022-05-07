@@ -35,11 +35,7 @@ abstract contract AdapterGuard {
     }
     
     modifier hasAccess(DaoRegistry dao, DaoRegistry.AclFlag flag) {
-        require(
-            DaoHelper.isInCreationModeAndHasAccess(dao) ||
-                dao.hasAdapterAccess(msg.sender, flag),
-            "accessDenied"
-        );
+        require(DaoHelper.isInCreationModeAndHasAccess(dao) || dao.hasAdapterAccess(msg.sender, flag), "access Denied");
         _;
     }
 }

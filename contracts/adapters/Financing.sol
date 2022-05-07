@@ -18,7 +18,7 @@ contract FinancingContract is IFinancing, AdapterGuard, Reimbursable {
         address token; // the token address in which the funding must be sent to
     }
 
-    // keeps track of all financing proposals handled by each dao
+    // 跟踪每个 dao 处理的所有融资提案
     mapping(address => mapping(bytes32 => ProposalDetails)) public proposals;
 
     /**
@@ -35,7 +35,7 @@ contract FinancingContract is IFinancing, AdapterGuard, Reimbursable {
      * @param data Additional details about the financing proposal.
      */
      
-        function submitProposal(
+    function submitProposal(
         DaoRegistry dao,
         bytes32 proposalId,
         address applicant,
@@ -82,7 +82,7 @@ contract FinancingContract is IFinancing, AdapterGuard, Reimbursable {
      * @param proposalId The proposal id.
      */
      
-        function processProposal(DaoRegistry dao, bytes32 proposalId)
+    function processProposal(DaoRegistry dao, bytes32 proposalId)
         external
         override
         reimbursable(dao)
@@ -93,8 +93,7 @@ contract FinancingContract is IFinancing, AdapterGuard, Reimbursable {
         require(address(votingContract) != address(0), "adapter not found");
 
         require(
-            votingContract.voteResult(dao, proposalId) ==
-                IVoting.VotingState.PASS,
+            votingContract.voteResult(dao, proposalId) == IVoting.VotingState.PASS,
             "proposal needs to pass"
         );
         dao.processProposal(proposalId);

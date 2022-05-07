@@ -47,15 +47,9 @@ contract ConfigurationContract is IConfiguration, AdapterGuard, Reimbursable {
             );
         }
 
-        IVoting votingContract = IVoting(
-            dao.getAdapterAddress(DaoHelper.VOTING)
-        );
-        address sponsoredBy = votingContract.getSenderAddress(
-            dao,
-            address(this),
-            data,
-            msg.sender
-        );
+        IVoting votingContract = IVoting(dao.getAdapterAddress(DaoHelper.VOTING));
+
+        address sponsoredBy = votingContract.getSenderAddress(dao, address(this), data, msg.sender);
 
         dao.sponsorProposal(proposalId, sponsoredBy, address(votingContract));
         votingContract.startNewVotingForProposal(dao, proposalId, data);
@@ -75,7 +69,10 @@ contract ConfigurationContract is IConfiguration, AdapterGuard, Reimbursable {
 
         IVoting votingContract = IVoting(dao.votingAdapter(proposalId));
         require(address(votingContract) != address(0), "adapter not found");
-        require(votingContract.voteResult(dao, proposalId) == IVoting.VotingState.PASS, "proposal did not pass");
+        require(
+            votingContract.voteResult(dao, proposalId) == IVoting.VotingState.PASS, 
+            "proposal did not pass"
+        );
 
         Configuration[] memory configs = _configurations[address(dao)][proposalId];
 

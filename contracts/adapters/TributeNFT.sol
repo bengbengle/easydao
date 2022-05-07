@@ -79,8 +79,7 @@ contract TributeNFTContract is
      * @param requestAmount The amount requested of DAO internal tokens (UNITS).
      * @param data Additional information related to the tribute proposal.
      */
-     
-        function submitProposal(
+     function submitProposal(
         DaoRegistry dao,
         bytes32 proposalId,
         address applicant,
@@ -163,8 +162,7 @@ contract TributeNFTContract is
 
             return (proposal, voteResult);
         } else if (
-            voteResult == IVoting.VotingState.NOT_PASS ||
-            voteResult == IVoting.VotingState.TIE
+            voteResult == IVoting.VotingState.NOT_PASS || voteResult == IVoting.VotingState.TIE
         ) {
             return (proposal, voteResult);
         } else {
@@ -196,18 +194,11 @@ contract TributeNFTContract is
         require(proposal.nftAddr == msg.sender, "wrong NFT addr");
 
         if (voteResult == IVoting.VotingState.PASS) {
-            address erc1155ExtAddr = ppS.dao.getExtensionAddress(
-                DaoHelper.ERC1155_EXT
-            );
+            address erc1155ExtAddr = ppS.dao.getExtensionAddress(DaoHelper.ERC1155_EXT);
 
             IERC1155 erc1155 = IERC1155(msg.sender);
-            erc1155.safeTransferFrom(
-                address(this),
-                erc1155ExtAddr,
-                id,
-                value,
-                ""
-            );
+            erc1155.safeTransferFrom(address(this), erc1155ExtAddr, id, value, "");
+
         } else {
             IERC1155 erc1155 = IERC1155(msg.sender);
             erc1155.safeTransferFrom(address(this), from, id, value, "");

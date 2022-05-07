@@ -68,6 +68,22 @@ contract OffchainVotingHashContract {
             );
     }
 
+    
+    function nodeHash(
+        DaoRegistry dao,
+        address actionId,
+        VoteResultNode memory node
+    ) external view returns (bytes32) {
+        return
+            keccak256(
+                abi.encodePacked(
+                    "\x19\x01",
+                    snapshotContract.DOMAIN_SEPARATOR(dao, actionId),
+                    hashVotingResultNode(node)
+                )
+            );
+    }
+
     function hashVotingResultNode(VoteResultNode memory node)
         public
         pure
@@ -87,20 +103,6 @@ contract OffchainVotingHashContract {
             );
     }
 
-    function nodeHash(
-        DaoRegistry dao,
-        address actionId,
-        VoteResultNode memory node
-    ) external view returns (bytes32) {
-        return
-            keccak256(
-                abi.encodePacked(
-                    "\x19\x01",
-                    snapshotContract.DOMAIN_SEPARATOR(dao, actionId),
-                    hashVotingResultNode(node)
-                )
-            );
-    }
 
     function hasVoted(
         DaoRegistry dao,
@@ -111,14 +113,12 @@ contract OffchainVotingHashContract {
         uint32 choiceIdx,
         bytes memory sig
     ) public view returns (bool) {
-        bytes32 voteHash = snapshotContract.hashVote(
-            dao,
-            actionId,
-            SnapshotProposalContract.VoteMessage(
-                timestamp,
-                SnapshotProposalContract.VotePayload(choiceIdx, proposalId)
-            )
-        );
+
+        SnapshotProposalContract.VotePayload  votePayload = SnapshotProposalContract.VotePayload(choiceIdx, proposalId);
+
+        SnapshotProposalContract.VoteMessage voteMessage =  SnapshotProposalContract.VoteMessage(timestamp, votePayload);
+
+        bytes32 voteHash = snapshotContract.hashVote(dao, actionId, voteMessage);
 
         return SignatureChecker.isValidSignatureNow(voter, voteHash, sig);
     }

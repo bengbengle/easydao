@@ -29,7 +29,7 @@ contract ManagingContract is IManaging, AdapterGuard, Reimbursable {
      * @param data 传递给投票合约并识别提交者的附加数据
      */
      
-        function submitProposal(
+    function submitProposal(
         DaoRegistry dao,
         bytes32 proposalId,
         ProposalDetails calldata proposal,
@@ -93,7 +93,7 @@ contract ManagingContract is IManaging, AdapterGuard, Reimbursable {
      * @param proposalId 提案 ID。
      */
      
-        function processProposal(DaoRegistry dao, bytes32 proposalId)
+    function processProposal(DaoRegistry dao, bytes32 proposalId)
         external
         override
         reimbursable(dao)
@@ -104,8 +104,7 @@ contract ManagingContract is IManaging, AdapterGuard, Reimbursable {
         require(address(votingContract) != address(0), "adapter not found");
 
         require(
-            votingContract.voteResult(dao, proposalId) ==
-                IVoting.VotingState.PASS,
+            votingContract.voteResult(dao, proposalId) == IVoting.VotingState.PASS,
             "proposal did not pass"
         );
 

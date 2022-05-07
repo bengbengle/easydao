@@ -34,7 +34,7 @@ contract GuildKickContract is IGuildKick, AdapterGuard, Reimbursable {
      * @param data Additional information related to the kick proposal.
      */
      
-        function submitProposal(
+    function submitProposal(
         DaoRegistry dao,
         bytes32 proposalId,
         address memberToKick,

@@ -50,10 +50,10 @@ contract VotingContract is IVoting, MemberGuard, AdapterGuard, Reimbursable {
     }
 
     /**
-     * @notice Stats a new voting proposal considering the block time and number.
-     * @notice This function is called from an Adapter to compute the voting starting period for a proposal.
-     * @param proposalId The proposal id that is being started.
-     */
+    * @notice 统计一个新的投票提案，考虑区块时间和数量 
+    * @notice 从适配器调用此函数来计算提案的投票开始时间 
+    * @param proposalId 正在启动的提案 ID
+    */
     function startNewVotingForProposal(
         DaoRegistry dao,
         bytes32 proposalId,
@@ -84,7 +84,6 @@ contract VotingContract is IVoting, MemberGuard, AdapterGuard, Reimbursable {
      * @param proposalId 该提案需要被赞助，而不是被处理。 
      * @param voteValue 只允许是 (1) 和否 (2) 投票。
      */
-    // 使用 reimbursable 修饰符保护该函数不被重入
     function submitVote(
         DaoRegistry dao,
         bytes32 proposalId,
@@ -142,7 +141,6 @@ contract VotingContract is IVoting, MemberGuard, AdapterGuard, Reimbursable {
      * @param dao DAO 地址。 
      * @param proposalId 需要计算投票的提案。 
      * @return state 状态
-     
      * The possible results are:
      * 0: has not started
      * 1: tie

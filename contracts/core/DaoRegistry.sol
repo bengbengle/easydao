@@ -118,17 +118,18 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     mapping(address => Member) public members;
     address[] private _members;
 
-    // delegate key => member address mapping
+    // delegate key => member address
     mapping(address => address) public memberAddressesByDelegatedKey;
 
     // memberAddress => checkpointNum => DelegateCheckpoint
     mapping(address => mapping(uint32 => DelegateCheckpoint)) checkpoints;
+
     // memberAddress => numDelegateCheckpoints
     mapping(address => uint32) numCheckpoints;
 
     DaoState public state;
 
-    /// @notice 跟踪所有提交给 DAO 的提案的地图，dao --> 提案
+    /// @notice 跟踪所有提交给 DAO 的提案 ，dao --> 提案
     mapping(bytes32 => Proposal) public proposals;
 
     /// @notice 跟踪每个proposalId的投票适配器地址的映射，proposalId --> VotingAdapter
@@ -181,8 +182,7 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-     * @notice Contract lock strategy to lock only the caller is an adapter or extension.
-     * @notice 合约锁定策略只锁定 调用者是 adapter 或 ext
+     * @notice lock 策略 锁定 调用者是 adapter 或 ext
      */
     function lockSession() external {
         if (isAdapter(msg.sender) || isExtension(msg.sender)) {
@@ -191,8 +191,7 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-     * @notice Contract lock strategy to release the lock only the caller is an adapter or extension.
-     * @notice 合约锁策略释放锁的只有调用者是适配器或扩展。
+     * @notice lock 策略 释放 只有调用者是适配器或扩展
      */
     function unlockSession() external {
         if (isAdapter(msg.sender) || isExtension(msg.sender)) {
@@ -216,7 +215,7 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
 
     /**
      * @notice 如果成员地址未注册或无效，则在 DAO 中注册成员地址。 
-     * @notice 潜在会员是不持有股份的会员，其注册仍需投票。
+     * @notice 潜在会员是 不持有股份 的会员，其 注册 仍需投票。
      */
     function potentialNewMember(address memberAddress)
         public
@@ -230,25 +229,20 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
 
         if (!is_exists) {
             require(memberAddressesByDelegatedKey[memberAddress] == address(0x0), "member address already taken as delegated key");
-            member.flags = DaoHelper.setFlag(
-                member.flags,
-                uint8(MemberFlag.EXISTS),
-                true
-            );
+            
+            member.flags = DaoHelper.setFlag(member.flags, uint8(MemberFlag.EXISTS), true);
+
             memberAddressesByDelegatedKey[memberAddress] = memberAddress;
             _members.push(memberAddress);
         }
 
         address bankAddress = extensions[DaoHelper.BANK];
         if (bankAddress != address(0x0)) {
+            
             BankExtension bank = BankExtension(bankAddress);
+
             if (bank.balanceOf(memberAddress, DaoHelper.MEMBER_COUNT) == 0) {
-                bank.addToBalance(
-                    this,
-                    memberAddress,
-                    DaoHelper.MEMBER_COUNT,
-                    1
-                );
+                bank.addToBalance(this, memberAddress, DaoHelper.MEMBER_COUNT, 1);
             }
         }
     }
@@ -276,8 +270,8 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-     * @return The configuration value of a particular key
-     * @param key The key to look up in the configuration mapping
+     * @return 特定键的配置值 
+     * @param key 在配置映射中查找的key   
      */
     function getAddressConfiguration(bytes32 key)
         external
@@ -288,8 +282,7 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-     * @notice It sets the ACL flags to an Adapter to make it possible to access specific functions of an Extension.
-     * @notice 为适配器添加 ACL 标志，以使可以访问扩展的功能
+     * @notice 为适配器添加 ACL 标志，以使可以访问扩展的功能, setAdapterAccessToExtension  Access Control Layer
      */
     function setAclToExtensionForAdapter(
         address extensionAddress,
@@ -298,11 +291,12 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     ) external hasAccess(this, AclFlag.ADD_EXTENSION) {
         require(isAdapter(adapterAddress), "not an adapter");
         require(isExtension(extensionAddress), "not an extension");
+
         inverseExtensions[extensionAddress].acl[adapterAddress] = acl;
     }
 
     /**
-     * @notice 更改注册表中的适配器, 它处理适配器的添加和删除作为特殊情况
+     * @notice 更改注册表中的适配器, 它处理适配器的 添加和删除 作为特殊情况
      * @notice 如果 adapterId 映射到现有适配器地址，则删除当前适配器
      * @dev 如果 adapterAddress 参数不为零，它会添加一个适配器
      * @param adapterId 适配器的唯一标识符
@@ -359,10 +353,13 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
         require(extensionId != bytes32(0), "extension id must not be empty");
         require(extensions[extensionId] == address(0x0), "extension Id already in use");
         require(!inverseExtensions[address(extension)].deleted, "extension can not be re-added");
-       
+        
         extensions[extensionId] = address(extension);
+
         inverseExtensions[address(extension)].id = extensionId;
+
         extension.initialize(this, creator);
+
         emit ExtensionAdded(extensionId, address(extension));
     }
 
@@ -379,6 +376,7 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
         require(extensionId != bytes32(0), "extensionId must not be empty");
         address extensionAddress = extensions[extensionId];
         require(extensionAddress != address(0x0), "extensionId not registered");
+
         ExtensionEntry storage extEntry = inverseExtensions[extensionAddress];
         extEntry.deleted = true;
 
@@ -486,30 +484,29 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
      * @notice 提交给 DAO 注册中心的提案， 将 SPONSORED 添加到提案标志 
      * @param proposalId 提案的 ID 
      * @param sponsoringMember 提案的成员
+     * @param votingAdapterAddr voting adapter 地址
      */
     function sponsorProposal(
         bytes32 proposalId,
         address sponsoringMember,
         address votingAdapterAddr
     ) external onlyMember2(this, sponsoringMember) {
-        // 检查标志是否已经设置 also checks if the flag was already set
-        Proposal storage proposal = _setProposalFlag(
-            proposalId,
-            ProposalFlag.SPONSORED
-        );
+        
+        // 检查 flag 是否 设置过
+        Proposal storage proposal = _setProposalFlag(proposalId, ProposalFlag.SPONSORED);
 
         uint256 flags = proposal.flags;
 
-        require(
-            proposal.adapterAddress == msg.sender,
-            "only the adapter that submitted the proposal can process it"
-        );
+        bool isProcessed = DaoHelper.getFlag(flags, uint8(ProposalFlag.PROCESSED);
 
-        require(
-            !DaoHelper.getFlag(flags, uint8(ProposalFlag.PROCESSED)),
-            "proposal already processed"
-        );
+        // 只有提交提案的适配器才能处理它
+        require(proposal.adapterAddress == msg.sender, "only the adapter that submitted the proposal can process it");
+        
+        // 提案 必须未被处理
+        require(!isProcessed), "proposal already processed");
+
         votingAdapter[proposalId] = votingAdapterAddr;
+
         emit SponsoredProposal(proposalId, flags, votingAdapterAddr);
     }
 
@@ -541,19 +538,15 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
         Proposal storage proposal = proposals[proposalId];
 
         uint256 flags = proposal.flags;
-        require(
-            DaoHelper.getFlag(flags, uint8(ProposalFlag.EXISTS)),
-            "proposal does not exist for this dao"
-        );
 
-        require(
-            proposal.adapterAddress == msg.sender,
-            "invalid adapter try to set flag"
-        );
+        require(DaoHelper.getFlag(flags, uint8(ProposalFlag.EXISTS)), "proposal does not exist for this dao");
+
+        require(proposal.adapterAddress == msg.sender, "invalid adapter try to set flag");
 
         require(!DaoHelper.getFlag(flags, uint8(flag)), "flag already set");
 
         flags = DaoHelper.setFlag(flags, uint8(flag), true);
+
         proposals[proposalId].flags = flags;
 
         return proposals[proposalId];
@@ -606,40 +599,33 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
         return _members.length;
     }
 
+    // 成员地址
     function getMemberAddress(uint256 index) external view returns (address) {
         return _members[index];
     }
 
     /**
-     * @notice Updates the delegate key of a member
-     * @param memberAddr The member doing the delegation
-     * @param newDelegateKey The member who is being delegated to
-     */
+    * @notice 更新成员的委托密钥 
+    * @param memberAddr 进行委托的成员 
+    * @param newDelegateKey 被委托的成员    
+    */
     function updateDelegateKey(address memberAddr, address newDelegateKey)
         external
         hasAccess(this, AclFlag.UPDATE_DELEGATE_KEY)
     {
         require(newDelegateKey != address(0x0), "newDelegateKey cannot be 0");
 
-        // skip checks if member is setting the delegate key to their member address
+        // 检查成员是否将 委托地址 设置为 其成员地址
         if (newDelegateKey != memberAddr) {
-            require(
-                // newDelegate must not be delegated to
-                memberAddressesByDelegatedKey[newDelegateKey] == address(0x0),
-                "cannot overwrite existing delegated keys"
-            );
+            require(memberAddressesByDelegatedKey[newDelegateKey] == address(0x0), "cannot overwrite existing delegated keys");
         } else {
-            require(
-                memberAddressesByDelegatedKey[memberAddr] == address(0x0),
-                "address already taken as delegated key"
-            );
+            require(memberAddressesByDelegatedKey[memberAddr] == address(0x0), "address already taken as delegated key");
         }
 
         Member storage member = members[memberAddr];
-        require(
-            DaoHelper.getFlag(member.flags, uint8(MemberFlag.EXISTS)),
-            "member does not exist"
-        );
+
+        bool isExist = DaoHelper.getFlag(member.flags, uint8(MemberFlag.EXISTS));
+        require(isExist, "member does not exist");
 
         // 重置当前的委托
         memberAddressesByDelegatedKey[getCurrentDelegateKey(memberAddr)] = address(0x0);
@@ -759,16 +745,10 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
         // 我们应该允许 deletegaKey 升级的唯一条件 
         // 当 block.number 与 fromBlock 值完全匹配时。 
         // 任何与此不同的东西都应该生成一个新的检查点。
-        if (
-            nCheckpoints > 0 &&
-            checkpoints[member][nCheckpoints - 1].fromBlock == block.number
-        ) {
+        if (nCheckpoints > 0 && checkpoints[member][nCheckpoints - 1].fromBlock == block.number) {
             checkpoints[member][nCheckpoints - 1].delegateKey = newDelegateKey;
         } else {
-            checkpoints[member][nCheckpoints] = DelegateCheckpoint(
-                uint96(block.number),
-                newDelegateKey
-            );
+            checkpoints[member][nCheckpoints] = DelegateCheckpoint(uint96(block.number), newDelegateKey);
             numCheckpoints[member] = nCheckpoints + 1;
         }
     }

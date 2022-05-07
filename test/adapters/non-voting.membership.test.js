@@ -27,20 +27,20 @@ function getProposalCounter() {
 }
 
 describe("Adapter - Non Voting Onboarding", () => {
+  // 质押原始 ETH 的同时请求 Loot 作为成员加入 DAO
   it("should be possible to join a DAO as a member without any voting power by requesting Loot while staking raw ETH", async () => {
     const advisorAccount = accounts[2];
 
-    const { dao, adapters, extensions } = await deployDefaultDao({
-      owner: daoOwner,
-    });
+    const { dao, adapters, extensions } = await deployDefaultDao({owner: daoOwner});
     const bank = extensions.bankExt;
     const onboarding = adapters.onboarding;
     const voting = adapters.voting;
 
-    // Total of ETH to be sent to the DAO in order to get the Loot units
+    // 为了获得 loot 发送给 DAO 的 ETH 总量
     let ethAmount = unitPrice.mul(toBN(3)).add(remaining);
     let proposalId = "0x1";
-    // Request to join the DAO as an Advisor (non-voting power), Send a tx with RAW ETH only and specify the nonVotingOnboarding
+
+    // 请求以顾问身份加入 DAO（无投票权），仅发送带有 RAW ETH 的 tx 并指定 nonVotingOnboarding
     await onboarding.submitProposal(
       dao.address,
       proposalId,
@@ -54,11 +54,8 @@ describe("Adapter - Non Voting Onboarding", () => {
       }
     );
 
-    // Vote on the new proposal to accept the new Advisor
-    await voting.submitVote(dao.address, proposalId, 1, {
-      from: daoOwner,
-      gasPrice: toBN("0"),
-    });
+    // 对接受新顾问的新提案进行投票
+    await voting.submitVote(dao.address, proposalId, 1, {from: daoOwner, gasPrice: toBN("0")});
 
     // Process the new proposal
     await advanceTime(10000);
@@ -80,6 +77,7 @@ describe("Adapter - Non Voting Onboarding", () => {
     expect(guildBalance.toString()).equal("360000000000000000");
   });
 
+  // 质押 ERC20 代币的同时请求 Loot 作为成员加入 DAO
   it("should be possible to join a DAO as a member without any voting power by requesting Loot while staking ERC20 token", async () => {
     const advisorAccount = accounts[2];
 
@@ -100,38 +98,36 @@ describe("Adapter - Non Voting Onboarding", () => {
     const onboarding = adapters.onboarding;
     const voting = adapters.voting;
 
-    // Transfer 1000 OLTs to the Advisor account
+    // 将 1000 OLT 转入顾问账户 Transfer 1000 OLTs to the Advisor account
     await oltContract.transfer(advisorAccount, 100);
-    const advisorTokenBalance = await oltContract.balanceOf.call(
-      advisorAccount
-    );
+    
+    const advisorTokenBalance = await oltContract.balanceOf.call(advisorAccount);
+
     expect(advisorTokenBalance.toString()).equal("100");
 
-    // Total of OLT to be sent to the DAO in order to get the Loot units
+    // 发送到 DAO 的 OLT 总数
     const tokenAmount = 10;
 
-    // Send a request to join the DAO as an Advisor (non-voting power),
-    // the tx passes the OLT ERC20 token, the amount and the nonVotingOnboarding adapter that handles the proposal
+    // tx 传递 OLT ERC20 代币、金额和处理提案的 nonVotingOnboarding 适配器
     const proposalId = getProposalCounter();
-    await expectRevert.unspecified(
-      onboarding.submitProposal(
-        dao.address,
-        proposalId,
-        advisorAccount,
-        LOOT,
-        tokenAmount,
-        [],
-        {
-          from: advisorAccount,
-          gasPrice: toBN("0"),
-        }
-      )
-    );
+    // await expectRevert.unspecified(
+    //   onboarding.submitProposal(
+    //     dao.address,
+    //     proposalId,
+    //     advisorAccount,
+    //     LOOT,
+    //     tokenAmount,
+    //     [],
+    //     {
+    //       from: advisorAccount,
+    //       gasPrice: toBN("0"),
+    //     }
+    //   )
+    // );
 
     // Pre-approve spender (onboarding adapter) to transfer proposer tokens
-    await oltContract.approve(onboarding.address, tokenAmount, {
-      from: advisorAccount,
-    });
+    // 预先批准 spender（入职适配器）以转移令牌
+    await oltContract.approve(onboarding.address, tokenAmount, {from: advisorAccount});
 
     await onboarding.submitProposal(
       dao.address,
@@ -146,24 +142,18 @@ describe("Adapter - Non Voting Onboarding", () => {
       }
     );
 
-    // Vote on the new proposal to accept the new Advisor
-    await voting.submitVote(dao.address, proposalId, 1, {
-      from: daoOwner,
-      gasPrice: toBN("0"),
-    });
+    // 对接受新顾问的新提案进行投票
+    await voting.submitVote(dao.address, proposalId, 1, {from: daoOwner, gasPrice: toBN("0")});
 
-    // Process the new proposal
+    // 处理新提案
     await advanceTime(10000);
-    await onboarding.processProposal(dao.address, proposalId, {
-      from: advisorAccount,
-      gasPrice: toBN("0"),
-    });
 
-    // Check the number of Loot (non-voting units) issued to the new Avisor
+    await onboarding.processProposal(dao.address, proposalId, {from: advisorAccount, gasPrice: toBN("0")});
+
+    // 检查发给新 Avisor 的 Loot （无投票权单位）的数量
     const advisorAccountLoot = await bank.balanceOf(advisorAccount, LOOT);
     expect(advisorAccountLoot.toString()).equal("100000000");
 
-    // Guild balance must not change when Loot units are issued
     const guildBalance = await bank.balanceOf(GUILD, oltContract.address);
     expect(guildBalance.toString()).equal("10");
   });

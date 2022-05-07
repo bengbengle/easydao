@@ -19,8 +19,7 @@ abstract contract Reimbursable {
     }
 
     /**
-     * @dev Only registered adapters are allowed to execute the function call.
-     * @dev 只允许注册的适配器执行函数调用
+     * @dev 只允许注册过的适配器 执行函数调用
      */
     modifier reimbursable(DaoRegistry dao) {
         ReimbursementData memory data = ReimbursableLib.beforeExecution(dao);
