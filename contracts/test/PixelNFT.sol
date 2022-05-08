@@ -7,7 +7,6 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
-
 contract PixelNFT is ERC721 {
     using Counters for Counters.Counter;
     using Strings for uint32;

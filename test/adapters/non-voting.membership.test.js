@@ -31,7 +31,9 @@ describe("Adapter - Non Voting Onboarding", () => {
   it("should be possible to join a DAO as a member without any voting power by requesting Loot while staking raw ETH", async () => {
     const advisorAccount = accounts[2];
 
-    const { dao, adapters, extensions } = await deployDefaultDao({owner: daoOwner});
+    const { dao, adapters, extensions } = await deployDefaultDao({
+      owner: daoOwner,
+    });
     const bank = extensions.bankExt;
     const onboarding = adapters.onboarding;
     const voting = adapters.voting;
@@ -55,7 +57,10 @@ describe("Adapter - Non Voting Onboarding", () => {
     );
 
     // 对接受新顾问的新提案进行投票
-    await voting.submitVote(dao.address, proposalId, 1, {from: daoOwner, gasPrice: toBN("0")});
+    await voting.submitVote(dao.address, proposalId, 1, {
+      from: daoOwner,
+      gasPrice: toBN("0"),
+    });
 
     // Process the new proposal
     await advanceTime(10000);
@@ -100,8 +105,10 @@ describe("Adapter - Non Voting Onboarding", () => {
 
     // 将 1000 OLT 转入顾问账户 Transfer 1000 OLTs to the Advisor account
     await oltContract.transfer(advisorAccount, 100);
-    
-    const advisorTokenBalance = await oltContract.balanceOf.call(advisorAccount);
+
+    const advisorTokenBalance = await oltContract.balanceOf.call(
+      advisorAccount
+    );
 
     expect(advisorTokenBalance.toString()).equal("100");
 
@@ -127,7 +134,9 @@ describe("Adapter - Non Voting Onboarding", () => {
 
     // Pre-approve spender (onboarding adapter) to transfer proposer tokens
     // 预先批准 spender（入职适配器）以转移令牌
-    await oltContract.approve(onboarding.address, tokenAmount, {from: advisorAccount});
+    await oltContract.approve(onboarding.address, tokenAmount, {
+      from: advisorAccount,
+    });
 
     await onboarding.submitProposal(
       dao.address,
@@ -143,12 +152,18 @@ describe("Adapter - Non Voting Onboarding", () => {
     );
 
     // 对接受新顾问的新提案进行投票
-    await voting.submitVote(dao.address, proposalId, 1, {from: daoOwner, gasPrice: toBN("0")});
+    await voting.submitVote(dao.address, proposalId, 1, {
+      from: daoOwner,
+      gasPrice: toBN("0"),
+    });
 
     // 处理新提案
     await advanceTime(10000);
 
-    await onboarding.processProposal(dao.address, proposalId, {from: advisorAccount, gasPrice: toBN("0")});
+    await onboarding.processProposal(dao.address, proposalId, {
+      from: advisorAccount,
+      gasPrice: toBN("0"),
+    });
 
     // 检查发给新 Avisor 的 Loot （无投票权单位）的数量
     const advisorAccountLoot = await bank.balanceOf(advisorAccount, LOOT);

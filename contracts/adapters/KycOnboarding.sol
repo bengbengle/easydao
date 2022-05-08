@@ -11,7 +11,6 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./modifiers/Reimbursable.sol";
 
-
 contract KycOnboardingContract is
     AdapterGuard,
     MemberGuard,
@@ -39,13 +38,16 @@ contract KycOnboardingContract is
     bytes32 public constant COUPON_MESSAGE_TYPEHASH =
         keccak256(abi.encodePacked(COUPON_MESSAGE_TYPE));
 
-    bytes32 constant SignerAddressConfig = keccak256("kyc-onboarding.signerAddress");
+    bytes32 constant SignerAddressConfig =
+        keccak256("kyc-onboarding.signerAddress");
     bytes32 constant ChunkSize = keccak256("kyc-onboarding.chunkSize");
     bytes32 constant UnitsPerChunk = keccak256("kyc-onboarding.unitsPerChunk");
     bytes32 constant MaximumChunks = keccak256("kyc-onboarding.maximumChunks");
-    bytes32 constant MaximumUnits = keccak256("kyc-onboarding.maximumTotalUnits");
+    bytes32 constant MaximumUnits =
+        keccak256("kyc-onboarding.maximumTotalUnits");
     bytes32 constant MaxMembers = keccak256("kyc-onboarding.maxMembers");
-    bytes32 constant FundTargetAddress = keccak256("kyc-onboarding.fundTargetAddress");
+    bytes32 constant FundTargetAddress =
+        keccak256("kyc-onboarding.fundTargetAddress");
     bytes32 constant TokensToMint = keccak256("kyc-onboarding.tokensToMint");
 
     WETH private _weth;
@@ -206,7 +208,7 @@ contract KycOnboardingContract is
     // The function is protected against reentrancy with the reentrancyGuard(dao)
     // so it is fine to change some state after the reentrancyGuard(dao) external call
     // because it calls the dao contract to lock the session/transaction flow.
-    
+
     function _onboard(
         DaoRegistry dao,
         address kycedMember,
@@ -244,7 +246,7 @@ contract KycOnboardingContract is
                 // The bank address is loaded from the DAO registry,
                 // hence even if we change that, it belongs to the DAO,
                 // so it is fine to send eth to it.
-                
+
                 bank.addToBalance{value: details.amount}(
                     dao,
                     DaoHelper.GUILD,
@@ -270,7 +272,7 @@ contract KycOnboardingContract is
                 // The _weth address is defined during the deployment of the contract
                 // There is no way to change it once it has been deployed,
                 // so it is fine to send eth to it.
-                
+
                 _weth.deposit{value: details.amount}();
                 _weth20.safeTransferFrom(
                     address(this),
@@ -364,7 +366,7 @@ contract KycOnboardingContract is
     }
 
     /**
-     * @notice 通过使用字符串键对 地址进行编码来构建 配置键。 
+     * @notice 通过使用字符串键对 地址进行编码来构建 配置键。
      * @param tokenAddrToMint 要编码的地址
      * @param key 要编码的密钥
      */

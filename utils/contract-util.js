@@ -1,7 +1,6 @@
 // Whole-script strict mode syntax
 "use strict";
 
-
 // Web3.js Utils
 const Web3Utils = require("web3-utils");
 const sha3 = Web3Utils.sha3;

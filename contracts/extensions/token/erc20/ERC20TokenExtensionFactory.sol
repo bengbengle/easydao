@@ -7,7 +7,6 @@ import "../../IFactory.sol";
 import "./ERC20TokenExtension.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-
 contract ERC20TokenExtensionFactory is IFactory, CloneFactory, ReentrancyGuard {
     address public identityAddress;
 

@@ -19,7 +19,6 @@ import "../../helpers/DaoHelper.sol";
 import "../../helpers/GuildKickHelper.sol";
 import "../../helpers/OffchainVotingHelper.sol";
 
-
 contract OffchainVotingContract is
     IVoting,
     MemberGuard,
@@ -44,7 +43,6 @@ contract OffchainVotingContract is
         uint256 stepRequested;
         bool forceFailed;
         uint256 fallbackVotesCount;
-
         mapping(address => bool) fallbackVotes;
         uint256 nbMembers;
     }
@@ -77,9 +75,12 @@ contract OffchainVotingContract is
         bytes32 resultRoot
     );
 
-    bytes32 public constant VotingPeriod = keccak256("offchainvoting.votingPeriod");
-    bytes32 public constant GracePeriod = keccak256("offchainvoting.gracePeriod");
-    bytes32 public constant FallbackThreshold = keccak256("offchainvoting.fallbackThreshold");
+    bytes32 public constant VotingPeriod =
+        keccak256("offchainvoting.votingPeriod");
+    bytes32 public constant GracePeriod =
+        keccak256("offchainvoting.gracePeriod");
+    bytes32 public constant FallbackThreshold =
+        keccak256("offchainvoting.fallbackThreshold");
 
     SnapshotProposalContract private _snapshotContract;
     OffchainVotingHashContract public ovHash;
@@ -258,14 +259,14 @@ contract OffchainVotingContract is
     }
 
     /*
-     *  如果 resultNode (vote) 有效，则将投票结果保存到存储中。 
+     *  如果 resultNode (vote) 有效，则将投票结果保存到存储中。
      * 一个有效的投票节点必须满足函数中的所有条件，所以它可以被存储。
-     * 提交投票结果前需要检查的内容： 
-     * - 如果宽限期结束，什么也不做 
-     * - 如果是第一个结果（投票），现在是提交它的合适时间吗？ 
-     * - nbYes 和 nbNo 之间的差异是 +50% 的选票吗？ 
-     * - 这是在投票期之后吗？ 
-     * - 如果我们已经有一个被挑战的结果，就像还没有结果一样 
+     * 提交投票结果前需要检查的内容：
+     * - 如果宽限期结束，什么也不做
+     * - 如果是第一个结果（投票），现在是提交它的合适时间吗？
+     * - nbYes 和 nbNo 之间的差异是 +50% 的选票吗？
+     * - 这是在投票期之后吗？
+     * - 如果我们已经有一个被挑战的结果，就像还没有结果一样
      * - 如果我们已经有一个未被质疑的结果， 新的比旧的重吗？
      */
     function submitVoteResult(
@@ -276,9 +277,8 @@ contract OffchainVotingContract is
         OffchainVotingHashContract.VoteResultNode memory result,
         bytes memory rootSig
     ) external reimbursable(dao) {
-
         Voting storage vote = votes[address(dao)][proposalId];
- 
+
         require(vote.snapshot > 0, "vote:not started");
 
         if (vote.resultRoot == bytes32(0) || vote.isChallenged) {
@@ -298,7 +298,10 @@ contract OffchainVotingContract is
         }
 
         require(
-            vote.gracePeriodStartingTime == 0 || vote.gracePeriodStartingTime + dao.getConfiguration(VotingPeriod) <= block.timestamp,
+            vote.gracePeriodStartingTime == 0 ||
+                vote.gracePeriodStartingTime +
+                    dao.getConfiguration(VotingPeriod) <=
+                block.timestamp,
             "graceperiod finished!"
         );
 
@@ -332,15 +335,17 @@ contract OffchainVotingContract is
         require(isvalid, "invalid sig");
 
         _verifyNode(dao, adapterAddress, result, resultRoot);
- 
+
         require(
             vote.nbYes + vote.nbNo < result.nbYes + result.nbNo,
             "result weight too low"
         );
 
         // 检查新结果是否改变结果
-        if (vote.gracePeriodStartingTime == 0 ||  vote.nbNo > vote.nbYes != result.nbNo > result.nbYes) {
-            
+        if (
+            vote.gracePeriodStartingTime == 0 ||
+            vote.nbNo > vote.nbYes != result.nbNo > result.nbYes
+        ) {
             vote.gracePeriodStartingTime = uint64(block.timestamp);
         }
 
@@ -361,7 +366,6 @@ contract OffchainVotingContract is
         );
     }
 
-     
     function requestStep(
         DaoRegistry dao,
         bytes32 proposalId,
@@ -369,15 +373,25 @@ contract OffchainVotingContract is
     ) external reimbursable(dao) onlyMember(dao) {
         Voting storage vote = votes[address(dao)][proposalId];
         require(index < vote.nbMembers, "index out of bound");
-        
+
         uint256 currentFlag = retrievedStepsFlags[vote.resultRoot][index / 256];
 
-        require(DaoHelper.getFlag(currentFlag, index % 256) == false, "step already requested");
+        require(
+            DaoHelper.getFlag(currentFlag, index % 256) == false,
+            "step already requested"
+        );
 
-        retrievedStepsFlags[vote.resultRoot][index / 256] = DaoHelper.setFlag(currentFlag, index % 256, true);
- 
+        retrievedStepsFlags[vote.resultRoot][index / 256] = DaoHelper.setFlag(
+            currentFlag,
+            index % 256,
+            true
+        );
+
         require(vote.stepRequested == 0, "other step already requested");
-        require(voteResult(dao, proposalId) == VotingState.GRACE_PERIOD, "should be grace period");
+        require(
+            voteResult(dao, proposalId) == VotingState.GRACE_PERIOD,
+            "should be grace period"
+        );
 
         vote.stepRequested = index;
         vote.gracePeriodStartingTime = uint64(block.timestamp);
@@ -387,29 +401,31 @@ contract OffchainVotingContract is
      * @notice 如果 未出现 成员请求的步骤，此提案被标记为受到挑战
      * @notice 如果请求了，也过了宽限期，就挑战
      */
-    
+
     function challengeMissingStep(DaoRegistry dao, bytes32 proposalId)
         external
         reimbursable(dao)
     {
         Voting storage vote = votes[address(dao)][proposalId];
         uint256 gracePeriod = dao.getConfiguration(GracePeriod);
-        
+
         // 如果投票已经开始 但投票期还没有过去，它正在进行中
         require(vote.stepRequested > 0, "no step request");
-        require(block.timestamp >= vote.gracePeriodStartingTime + gracePeriod, "grace period");
+        require(
+            block.timestamp >= vote.gracePeriodStartingTime + gracePeriod,
+            "grace period"
+        );
 
         _challengeResult(dao, proposalId);
     }
 
-     
     function provideStep(
         DaoRegistry dao,
         address adapterAddress,
         OffchainVotingHashContract.VoteResultNode memory node
     ) external reimbursable(dao) {
         Voting storage vote = votes[address(dao)][node.proposalId];
- 
+
         require(vote.stepRequested == node.index, "wrong step provided");
 
         _verifyNode(dao, adapterAddress, node, vote.resultRoot);
@@ -418,7 +434,6 @@ contract OffchainVotingContract is
         vote.gracePeriodStartingTime = uint64(block.timestamp);
     }
 
-     
     function startNewVotingForProposal(
         DaoRegistry dao,
         bytes32 proposalId,
@@ -455,7 +470,6 @@ contract OffchainVotingContract is
         require(isvalid, "invalid sig");
     }
 
-    
     function challengeBadFirstNode(
         DaoRegistry dao,
         bytes32 proposalId,
@@ -484,7 +498,6 @@ contract OffchainVotingContract is
         }
     }
 
-    
     function challengeBadNode(
         DaoRegistry dao,
         bytes32 proposalId,
@@ -513,7 +526,6 @@ contract OffchainVotingContract is
         }
     }
 
-    
     function challengeBadStep(
         DaoRegistry dao,
         bytes32 proposalId,
@@ -546,7 +558,6 @@ contract OffchainVotingContract is
         }
     }
 
-     
     function requestFallback(DaoRegistry dao, bytes32 proposalId)
         external
         reentrancyGuard(dao)
@@ -630,7 +641,11 @@ contract OffchainVotingContract is
         bytes32 root
     ) internal view {
         require(
-            MerkleProof.verify(node.proof, root, ovHash.nodeHash(dao, adapterAddress, node)),
+            MerkleProof.verify(
+                node.proof,
+                root,
+                ovHash.nodeHash(dao, adapterAddress, node)
+            ),
             "proof:bad"
         );
     }

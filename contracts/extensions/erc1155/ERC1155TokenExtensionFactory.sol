@@ -6,7 +6,6 @@ import "../IFactory.sol";
 import "./ERC1155TokenExtension.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-
 contract ERC1155TokenCollectionFactory is
     IFactory,
     CloneFactory,

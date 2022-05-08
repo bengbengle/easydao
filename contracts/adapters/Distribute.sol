@@ -11,11 +11,10 @@ import "../helpers/FairShareHelper.sol";
 import "../helpers/DaoHelper.sol";
 import "../extensions/bank/Bank.sol";
 
-
 contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
     // Event to indicate the distribution process has been completed
     // if the unitHolder address is 0x0, then the amount were distributed to all members of the DAO.
-    // 表示分发过程已经完成的事件 
+    // 表示分发过程已经完成的事件
     // 如果 unitHolder 地址为 0x0，则金额分配给 DAO 的所有成员。
     event Distributed(
         address daoAddress,
@@ -78,7 +77,7 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
      * @param token 成员应收到资金的分配代币。必须得到 DAO 的支持
      *
      */
-     
+
     function submitProposal(
         DaoRegistry dao,
         bytes32 proposalId,
@@ -140,18 +139,18 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
      * @dev Only proposals that passed the voting can be set to In Progress status.
      * @param dao The dao address.
      * @param proposalId The distribution proposal id.
-     * @notice 处理分配方案，根据单位持有量计算分配给会员的公平金额。 
-     * @dev 分发提案提案必须正在进行中。 
-     * @dev 每个 DAO 一次只能执行一个提案。 
-     * @dev 只有活跃会员才能收到资金。 
-     * @dev 只有通过投票的提案才能设置为进行中状态。 
-     * @param dao dao 地址。 
+     * @notice 处理分配方案，根据单位持有量计算分配给会员的公平金额。
+     * @dev 分发提案提案必须正在进行中。
+     * @dev 每个 DAO 一次只能执行一个提案。
+     * @dev 只有活跃会员才能收到资金。
+     * @dev 只有通过投票的提案才能设置为进行中状态。
+     * @param dao dao 地址。
      * @param proposalId 分发提案 ID。
      */
     // The function is protected against reentrancy with the reentrancyGuard
     // Which prevents concurrent modifications in the DAO registry.
     // 使用 reentrancyGuard 防止函数重入，这可以防止 DAO 注册表中的并发修改。
-     
+
     function processProposal(DaoRegistry dao, bytes32 proposalId)
         external
         override
@@ -203,7 +202,8 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
                 distribution.amount
             );
         } else if (
-            voteResult == IVoting.VotingState.NOT_PASS || voteResult == IVoting.VotingState.TIE
+            voteResult == IVoting.VotingState.NOT_PASS ||
+            voteResult == IVoting.VotingState.TIE
         ) {
             distribution.status = DistributionStatus.FAILED;
         } else {
@@ -220,7 +220,7 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
      * @param dao The dao address.
      * @param toIndex The index to control the cached for-loop.
      */
-     
+
     function distribute(DaoRegistry dao, uint256 toIndex)
         external
         override
@@ -260,7 +260,7 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
                 token,
                 amount
             );
-             
+
             emit Distributed(address(dao), token, amount, unitHolderAddr);
         } else {
             // Set the max index supported which is based on the number of members
@@ -273,7 +273,7 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
             distribution.currentIndex = maxIndex;
             if (maxIndex == nbMembers) {
                 distribution.status = DistributionStatus.DONE;
-                 
+
                 emit Distributed(address(dao), token, amount, unitHolderAddr);
             }
 
@@ -320,7 +320,7 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
     /**
      * @notice Updates all the holder accounts with the amount based on the token parameter.
      * @notice It is an internal transfer only that happens in the Bank extension.
-     * @notice 使用基于 token 参数的金额更新所有持有人账户。 
+     * @notice 使用基于 token 参数的金额更新所有持有人账户。
      * @notice 这是仅在银行分机中发生的内部转账。
      */
     function _distributeAll(
@@ -336,16 +336,14 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
         // Distributes the funds to all unit holders of the DAO and ignores non-active members.
         // 将资金分配给 DAO 的所有单位持有人并忽略非活跃成员
         for (uint256 i = currentIndex; i < maxIndex; i++) {
-             
             address memberAddr = dao.getMemberAddress(i);
-             
+
             uint256 memberTokens = DaoHelper.priorMemberTokens(
                 bank,
                 memberAddr,
                 blockNumber
             );
             if (memberTokens > 0) {
-                 
                 uint256 amountToDistribute = FairShareHelper.calc(
                     amount,
                     memberTokens,
@@ -353,7 +351,6 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
                 );
 
                 if (amountToDistribute > 0) {
-                     
                     bank.internalTransfer(
                         dao,
                         DaoHelper.ESCROW,

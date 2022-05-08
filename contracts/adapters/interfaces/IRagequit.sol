@@ -4,7 +4,6 @@ pragma solidity ^0.8.0;
 
 import "../../core/DaoRegistry.sol";
 
-
 interface IRagequit {
     function ragequit(
         DaoRegistry dao,

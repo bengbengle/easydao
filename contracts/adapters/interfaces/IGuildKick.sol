@@ -4,7 +4,6 @@ pragma solidity ^0.8.0;
 
 import "../../core/DaoRegistry.sol";
 
-
 interface IGuildKick {
     function submitProposal(
         DaoRegistry dao,

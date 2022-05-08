@@ -9,7 +9,6 @@ import "./interfaces/IConfiguration.sol";
 import "../adapters/interfaces/IVoting.sol";
 import "../helpers/DaoHelper.sol";
 
-
 contract ConfigurationContract is IConfiguration, AdapterGuard, Reimbursable {
     mapping(address => mapping(bytes32 => Configuration[]))
         private _configurations;
@@ -21,7 +20,7 @@ contract ConfigurationContract is IConfiguration, AdapterGuard, Reimbursable {
      * @param configs The keys, type, numeric and address config values.
      * @param data Additional details about the financing proposal.
      */
-     
+
     function submitProposal(
         DaoRegistry dao,
         bytes32 proposalId,
@@ -47,9 +46,16 @@ contract ConfigurationContract is IConfiguration, AdapterGuard, Reimbursable {
             );
         }
 
-        IVoting votingContract = IVoting(dao.getAdapterAddress(DaoHelper.VOTING));
+        IVoting votingContract = IVoting(
+            dao.getAdapterAddress(DaoHelper.VOTING)
+        );
 
-        address sponsoredBy = votingContract.getSenderAddress(dao, address(this), data, msg.sender);
+        address sponsoredBy = votingContract.getSenderAddress(
+            dao,
+            address(this),
+            data,
+            msg.sender
+        );
 
         dao.sponsorProposal(proposalId, sponsoredBy, address(votingContract));
         votingContract.startNewVotingForProposal(dao, proposalId, data);
@@ -70,22 +76,21 @@ contract ConfigurationContract is IConfiguration, AdapterGuard, Reimbursable {
         IVoting votingContract = IVoting(dao.votingAdapter(proposalId));
         require(address(votingContract) != address(0), "adapter not found");
         require(
-            votingContract.voteResult(dao, proposalId) == IVoting.VotingState.PASS, 
+            votingContract.voteResult(dao, proposalId) ==
+                IVoting.VotingState.PASS,
             "proposal did not pass"
         );
 
-        Configuration[] memory configs = _configurations[address(dao)][proposalId];
+        Configuration[] memory configs = _configurations[address(dao)][
+            proposalId
+        ];
 
         for (uint256 i = 0; i < configs.length; i++) {
             Configuration memory config = configs[i];
             if (ConfigType.NUMERIC == config.configType) {
-
                 dao.setConfiguration(config.key, config.numericValue);
-
             } else if (ConfigType.ADDRESS == config.configType) {
-
                 dao.setAddressConfiguration(config.key, config.addressValue);
-
             }
         }
     }

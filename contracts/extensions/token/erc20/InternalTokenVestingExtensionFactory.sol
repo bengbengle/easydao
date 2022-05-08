@@ -8,7 +8,6 @@ import "./InternalTokenVestingExtension.sol";
 
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-
 contract InternalTokenVestingExtensionFactory is
     IFactory,
     CloneFactory,

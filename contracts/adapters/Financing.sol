@@ -10,7 +10,6 @@ import "../guards/AdapterGuard.sol";
 import "./modifiers/Reimbursable.sol";
 import "../helpers/DaoHelper.sol";
 
-
 contract FinancingContract is IFinancing, AdapterGuard, Reimbursable {
     struct ProposalDetails {
         address applicant; // the proposal applicant address, can not be a reserved address
@@ -34,7 +33,7 @@ contract FinancingContract is IFinancing, AdapterGuard, Reimbursable {
      * @param amount The desired amount.
      * @param data Additional details about the financing proposal.
      */
-     
+
     function submitProposal(
         DaoRegistry dao,
         bytes32 proposalId,
@@ -81,7 +80,7 @@ contract FinancingContract is IFinancing, AdapterGuard, Reimbursable {
      * @param dao The DAO Address.
      * @param proposalId The proposal id.
      */
-     
+
     function processProposal(DaoRegistry dao, bytes32 proposalId)
         external
         override
@@ -93,7 +92,8 @@ contract FinancingContract is IFinancing, AdapterGuard, Reimbursable {
         require(address(votingContract) != address(0), "adapter not found");
 
         require(
-            votingContract.voteResult(dao, proposalId) == IVoting.VotingState.PASS,
+            votingContract.voteResult(dao, proposalId) ==
+                IVoting.VotingState.PASS,
             "proposal needs to pass"
         );
         dao.processProposal(proposalId);

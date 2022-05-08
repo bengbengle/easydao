@@ -9,14 +9,13 @@ import "../adapters/interfaces/IVoting.sol";
 import "../helpers/DaoHelper.sol";
 import "./modifiers/Reimbursable.sol";
 
-
 contract BankAdapterContract is AdapterGuard, Reimbursable {
     /**
-     * @notice 允许 DAO 的成员/顾问从其内部银行账户中提取资金。 
-     * @notice 只有未预留的账户才能提取资金。 
-     * @notice 如果用户账户中没有可用余额，则交易被撤销。 
-     * @param dao DAO 地址。 
-     * @param account 接收资金的账户。 
+     * @notice 允许 DAO 的成员/顾问从其内部银行账户中提取资金。
+     * @notice 只有未预留的账户才能提取资金。
+     * @notice 如果用户账户中没有可用余额，则交易被撤销。
+     * @param dao DAO 地址。
+     * @param account 接收资金的账户。
      * @param token 接收资金的代币地址。
      */
     function withdraw(
@@ -41,9 +40,9 @@ contract BankAdapterContract is AdapterGuard, Reimbursable {
     }
 
     /**
-     * @notice 允许任何人更新银行扩展中的代币余额 
-     * @notice 如果用户账户中没有可用余额，则交易被撤销。 
-     * @param dao DAO 地址。 
+     * @notice 允许任何人更新银行扩展中的代币余额
+     * @notice 如果用户账户中没有可用余额，则交易被撤销。
+     * @param dao DAO 地址。
      * @param token 要更新的令牌地址。
      */
     function updateToken(DaoRegistry dao, address token)
@@ -51,26 +50,29 @@ contract BankAdapterContract is AdapterGuard, Reimbursable {
         reentrancyGuard(dao)
     {
         // 我们不需要检查 token 是否被银行支持， 因为如果不是，余额将永远为零。
-        BankExtension bank = BankExtension(dao.getExtensionAddress(DaoHelper.BANK));
-        
-        bank.updateToken(
-            dao,
-            token
+        BankExtension bank = BankExtension(
+            dao.getExtensionAddress(DaoHelper.BANK)
         );
+
+        bank.updateToken(dao, token);
     }
 
     /*
-     * @notice 允许任何人将 eth 发送到银行分机 
+     * @notice 允许任何人将 eth 发送到银行分机
      * @param dao DAO 的地址
      */
     function sendEth(DaoRegistry dao) external payable reimbursable(dao) {
         require(msg.value > 0, "no eth sent!");
 
-        BankExtension bank = BankExtension(dao.getExtensionAddress(DaoHelper.BANK));
-        
-        bank.addToBalance{
-            value: msg.value
-        }(dao, DaoHelper.GUILD, DaoHelper.ETH_TOKEN, msg.value);
-        
+        BankExtension bank = BankExtension(
+            dao.getExtensionAddress(DaoHelper.BANK)
+        );
+
+        bank.addToBalance{value: msg.value}(
+            dao,
+            DaoHelper.GUILD,
+            DaoHelper.ETH_TOKEN,
+            msg.value
+        );
     }
 }

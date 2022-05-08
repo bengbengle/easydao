@@ -16,16 +16,19 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
 
-
 contract OffchainVotingHashContract {
-    string public constant VOTE_RESULT_NODE_TYPE = "Message(uint64 timestamp,uint88 nbYes,uint88 nbNo,uint32 index,uint32 choice,bytes32 proposalId)";
+    string public constant VOTE_RESULT_NODE_TYPE =
+        "Message(uint64 timestamp,uint88 nbYes,uint88 nbNo,uint32 index,uint32 choice,bytes32 proposalId)";
     string public constant VOTE_RESULT_ROOT_TYPE = "Message(bytes32 root)";
-    bytes32 public constant VOTE_RESULT_NODE_TYPEHASH = keccak256(abi.encodePacked(VOTE_RESULT_NODE_TYPE));
-    bytes32 public constant VOTE_RESULT_ROOT_TYPEHASH = keccak256(abi.encodePacked(VOTE_RESULT_ROOT_TYPE));
+    bytes32 public constant VOTE_RESULT_NODE_TYPEHASH =
+        keccak256(abi.encodePacked(VOTE_RESULT_NODE_TYPE));
+    bytes32 public constant VOTE_RESULT_ROOT_TYPEHASH =
+        keccak256(abi.encodePacked(VOTE_RESULT_ROOT_TYPE));
 
     bytes32 constant VotingPeriod = keccak256("offchainvoting.votingPeriod");
     bytes32 constant GracePeriod = keccak256("offchainvoting.gracePeriod");
-    bytes32 constant FallbackThreshold = keccak256("offchainvoting.fallbackThreshold");
+    bytes32 constant FallbackThreshold =
+        keccak256("offchainvoting.fallbackThreshold");
 
     mapping(address => mapping(bytes32 => mapping(uint256 => uint256))) flags;
 
@@ -68,7 +71,6 @@ contract OffchainVotingHashContract {
             );
     }
 
-    
     function nodeHash(
         DaoRegistry dao,
         address actionId,
@@ -103,7 +105,6 @@ contract OffchainVotingHashContract {
             );
     }
 
-
     function hasVoted(
         DaoRegistry dao,
         address actionId,
@@ -113,12 +114,20 @@ contract OffchainVotingHashContract {
         uint32 choiceIdx,
         bytes memory sig
     ) public view returns (bool) {
+        // SnapshotProposalContract.VotePayload memory votePayload = SnapshotProposalContract.VotePayload(choiceIdx, proposalId);
+        // SnapshotProposalContract.VoteMessage memory voteMessage = SnapshotProposalContract.VoteMessage(
+        //     timestamp,
+        //     SnapshotProposalContract.VotePayload(choiceIdx, proposalId)
+        // );
 
-        SnapshotProposalContract.VotePayload  votePayload = SnapshotProposalContract.VotePayload(choiceIdx, proposalId);
-
-        SnapshotProposalContract.VoteMessage voteMessage =  SnapshotProposalContract.VoteMessage(timestamp, votePayload);
-
-        bytes32 voteHash = snapshotContract.hashVote(dao, actionId, voteMessage);
+        bytes32 voteHash = snapshotContract.hashVote(
+            dao,
+            actionId,
+            SnapshotProposalContract.VoteMessage(
+                timestamp,
+                SnapshotProposalContract.VotePayload(choiceIdx, proposalId)
+            )
+        );
 
         return SignatureChecker.isValidSignatureNow(voter, voteHash, sig);
     }

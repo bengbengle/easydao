@@ -1,7 +1,6 @@
 // Whole-script strict mode syntax
 "use strict";
 
-
 const { UNITS, toBN } = require("../../utils/contract-util");
 
 const { toNumber } = require("web3-utils");

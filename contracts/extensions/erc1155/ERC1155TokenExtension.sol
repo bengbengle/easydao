@@ -9,7 +9,6 @@ import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
-
 contract ERC1155TokenExtension is IExtension, IERC1155Receiver {
     using Address for address payable;
     //LIBRARIES
@@ -60,8 +59,12 @@ contract ERC1155TokenExtension is IExtension, IERC1155Receiver {
     modifier hasExtensionAccess(DaoRegistry _dao, AclFlag flag) {
         require(
             _dao == dao &&
-                (DaoHelper.isInCreationModeAndHasAccess(dao) || 
-                dao.hasAdapterAccessToExtension(msg.sender, address(this), uint8(flag))),
+                (DaoHelper.isInCreationModeAndHasAccess(dao) ||
+                    dao.hasAdapterAccessToExtension(
+                        msg.sender,
+                        address(this),
+                        uint8(flag)
+                    )),
             "erc1155Ext::accessDenied"
         );
         _;
@@ -125,13 +128,12 @@ contract ERC1155TokenExtension is IExtension, IERC1155Receiver {
         // It means the GUILD/Extension does not hold that token id anymore.
         if (ownerTokenIdBalance == 0) {
             delete _nftTracker[newOwner][nftAddr][nftTokenId];
-             
+
             _ownership[getNFTId(nftAddr, nftTokenId)].remove(newOwner);
-             
+
             _nfts[nftAddr].remove(nftTokenId);
             // If there are 0 tokenIds for the NFT address, remove the NFT from the collection
             if (_nfts[nftAddr].length() == 0) {
-                 
                 _nftAddresses.remove(nftAddr);
                 delete _nfts[nftAddr];
             }
@@ -145,7 +147,7 @@ contract ERC1155TokenExtension is IExtension, IERC1155Receiver {
             amount,
             ""
         );
-         
+
         emit WithdrawnNFT(nftAddr, nftTokenId, amount, newOwner);
     }
 
@@ -194,7 +196,7 @@ contract ERC1155TokenExtension is IExtension, IERC1155Receiver {
                 nftTokenId,
                 tokenAmount - amount
             );
-             
+
             emit TransferredNFT(
                 fromOwner,
                 toOwner,
@@ -306,13 +308,13 @@ contract ERC1155TokenExtension is IExtension, IERC1155Receiver {
         uint256 amount
     ) private {
         // Save the asset address and tokenId
-         
+
         _nfts[nftAddr].add(nftTokenId);
         // Track the owner by nftAddr+tokenId
-         
+
         _ownership[getNFTId(nftAddr, nftTokenId)].add(owner);
         // Keep track of the collected assets addresses
-         
+
         _nftAddresses.add(nftAddr);
         // Track the actual owner per Token Id and amount
         uint256 currentAmount = _nftTracker[owner][nftAddr][nftTokenId];

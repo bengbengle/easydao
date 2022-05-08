@@ -4,7 +4,6 @@ pragma solidity ^0.8.0;
 
 import "../../core/DaoRegistry.sol";
 
-
 interface IManaging {
     // 未知， 适配器， 扩展
     enum UpdateType {

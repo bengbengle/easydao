@@ -8,7 +8,6 @@ import "../guards/MemberGuard.sol";
 import "../guards/AdapterGuard.sol";
 import "../adapters/interfaces/IVoting.sol";
 
-
 contract DaoRegistryAdapterContract is MemberGuard, AdapterGuard {
     /**
      * @notice Allows the member/advisor to update their delegate key

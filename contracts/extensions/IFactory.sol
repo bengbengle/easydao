@@ -3,7 +3,6 @@ import "../core/DaoRegistry.sol";
 
 // SPDX-License-Identifier: MIT
 
-
 interface IFactory {
     function getExtensionAddress(address dao) external view returns (address);
 }

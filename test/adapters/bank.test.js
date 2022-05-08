@@ -147,12 +147,7 @@ describe("Adapter - Bank", () => {
     );
     //Check the applicant token balance to make sure the funds are available in the bank for the applicant account
     // 检查申请者代币余额，确保申请者账户的资金在银行可用
-    await checkBalance(
-      bank, 
-      applicant, 
-      ETH_TOKEN, 
-      requestedAmount
-    );
+    await checkBalance(bank, applicant, ETH_TOKEN, requestedAmount);
 
     const ethBalance = await getBalance(applicant);
     // Withdraw the funds from the bank
@@ -171,7 +166,7 @@ describe("Adapter - Bank", () => {
   it("should possible to send eth to the dao bank", async () => {
     const bank = this.extensions.bankExt;
     const bankAdapter = this.adapters.bankAdapter;
-    
+
     await checkBalance(bank, GUILD, ETH_TOKEN, "0");
 
     await bankAdapter.sendEth(this.dao.address, { value: toWei("5") });

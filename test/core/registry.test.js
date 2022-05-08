@@ -1,8 +1,6 @@
 // Whole-script strict mode syntax
 "use strict";
 
-
-
 const {
   toWei,
   toBN,

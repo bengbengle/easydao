@@ -22,14 +22,17 @@ contract InternalTokenVestingExtension is IExtension {
     }
 
     modifier hasExtensionAccess(DaoRegistry dao, AclFlag flag) {
-        
         bool isInCreation = DaoHelper.isInCreationModeAndHasAccess(_dao);
-        
-        bool hasAdapterAccess = _dao.hasAdapterAccessToExtension(msg.sender, address(this), uint8(flag));
-        
+
+        bool hasAdapterAccess = _dao.hasAdapterAccessToExtension(
+            msg.sender,
+            address(this),
+            uint8(flag)
+        );
+
         bool hasAccess = isInCreation || hasAdapterAccess;
 
-        require( dao == _dao && hasAccess, "vestingExt::accessDenied");
+        require(dao == _dao && hasAccess, "vestingExt::accessDenied");
 
         _;
     }

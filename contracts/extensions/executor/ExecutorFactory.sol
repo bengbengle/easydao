@@ -8,7 +8,6 @@ import "../IFactory.sol";
 import "./Executor.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-
 contract ExecutorExtensionFactory is IFactory, CloneFactory, ReentrancyGuard {
     address public identityAddress;
 

@@ -11,7 +11,6 @@ import "../adapters/interfaces/IConfiguration.sol";
 import "./ProxToken.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 
-
 contract ERC20MinterContract is AdapterGuard {
     using Address for address payable;
 

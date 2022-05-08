@@ -8,7 +8,6 @@ import "../IFactory.sol";
 import "./Bank.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-
 contract BankFactory is IFactory, CloneFactory, ReentrancyGuard {
     address public identityAddress;
 

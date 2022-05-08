@@ -1,7 +1,6 @@
 // Whole-script strict mode syntax
 "use strict";
 
-
 const { entryDao, entryBank } = require("./access-control-util");
 const { adaptersIdsMap, extensionsIdsMap } = require("./dao-ids-util");
 const {
@@ -39,9 +38,9 @@ const deployContract = ({ config, options }) => {
 };
 
 /**
- * 部署使用 Factory 类型定义的所有合约。 
- * 合约必须在 configs/networks/.config.ts 中启用， 并且不应在自动部署过程中跳过。 
- * 工厂合约必须在 options 对象中提供。 
+ * 部署使用 Factory 类型定义的所有合约。
+ * 合约必须在 configs/networks/.config.ts 中启用， 并且不应在自动部署过程中跳过。
+ * 工厂合约必须在 options 对象中提供。
  * 如果在 options 对象中找不到合约，则部署将返回并出现错误。
  */
 const createFactories = async ({ options }) => {
@@ -341,13 +340,13 @@ const validateContractConfigs = (contractConfigs) => {
 };
 
 /**
- * 部署 configs/contracts.config.ts 中定义的所有合约。 
- * 合约必须在 configs/networks/.config.ts 中启用， 并且不应在自动部署过程中跳过。 
- * 每一份合约都必须在 options 对象中提供。 
+ * 部署 configs/contracts.config.ts 中定义的所有合约。
+ * 合约必须在 configs/networks/.config.ts 中启用， 并且不应在自动部署过程中跳过。
+ * 每一份合约都必须在 options 对象中提供。
  * 如果在 options 对象中找不到合约，则部署将返回并出现错误。
  * 它还为 DAO 配置正确的访问权限，并为所有适配器和扩展配置参数。
  *
- *   
+ *
  * 仅当通过 options.offchainVoting 参数需要时才部署链下投票。
  *
  * 所有已部署的合约都将在映射中返回，其中别名在 ​​ configs/networks/.config.ts 中定义。
@@ -369,11 +368,23 @@ const deployDao = async (options) => {
 
   const factories = await createFactories({ options });
   const extensions = await createExtensions({ dao, factories, options });
-  const adapters = await createAdapters({ dao, daoFactory, extensions, options });
+  const adapters = await createAdapters({
+    dao,
+    daoFactory,
+    extensions,
+    options,
+  });
 
   await createGovernanceRoles({ options, dao, adapters });
 
-  await configureDao({owner: options.owner, dao, daoFactory, extensions, adapters, options });
+  await configureDao({
+    owner: options.owner,
+    dao,
+    daoFactory,
+    extensions,
+    adapters,
+    options,
+  });
 
   const votingHelpers = await configureOffchainVoting({
     ...options,
@@ -384,7 +395,8 @@ const deployDao = async (options) => {
 
   // 如果创建了链下合约， 则使用别名将其设置为 适配器 映射
   if (votingHelpers.offchainVoting) {
-    adapters[votingHelpers.offchainVoting.configs.alias] = votingHelpers.offchainVoting;
+    adapters[votingHelpers.offchainVoting.configs.alias] =
+      votingHelpers.offchainVoting;
   }
 
   // deploy utility contracts

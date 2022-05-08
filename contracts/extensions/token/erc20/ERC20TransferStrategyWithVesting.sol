@@ -7,7 +7,6 @@ import "../../bank/Bank.sol";
 import "./IERC20TransferStrategy.sol";
 import "./InternalTokenVestingExtension.sol";
 
-
 /**
  *
  * The ERC20Extension is a contract to give erc20 functionality

@@ -9,7 +9,6 @@ import "../helpers/FairShareHelper.sol";
 import "../helpers/DaoHelper.sol";
 import "../guards/AdapterGuard.sol";
 
-
 contract RagequitContract is IRagequit, AdapterGuard {
     /**
      * @notice Event emitted when a member of the DAO executes a ragequit with all or parts of the member's units/loot.
@@ -76,11 +75,11 @@ contract RagequitContract is IRagequit, AdapterGuard {
     }
 
     /**
-     * @notice 从内部成员的账户中减去 成比例的 units 或 loot 
-     * @param memberAddr 想要烧掉 units 或 loot 的成员地址 
-     * @param unitsToBurn 必须转换为资金的成员 units 数量 
+     * @notice 从内部成员的账户中减去 成比例的 units 或 loot
+     * @param memberAddr 想要烧掉 units 或 loot 的成员地址
+     * @param unitsToBurn 必须转换为资金的成员 units 数量
      * @param lootToBurn 必须转换为资金的成员 loot 数量
-     * @param tokens 资金应该发送到的 tokens 数组。 
+     * @param tokens 资金应该发送到的 tokens 数组。
      * @param bank 银行扩展名。
      */
     function _prepareRagequit(
@@ -91,7 +90,7 @@ contract RagequitContract is IRagequit, AdapterGuard {
         address[] memory tokens,
         BankExtension bank
     ) internal {
-        // 在任何内部转账 之前计算总的 units、loot 和 locked loot 
+        // 在任何内部转账 之前计算总的 units、loot 和 locked loot
         // 它认为 locked 的 loot 能够计算公平的 ragequit 数量， 但是 locked loot 是不能被烧毁的
         uint256 totalTokens = DaoHelper.totalTokens(bank);
 
@@ -126,13 +125,13 @@ contract RagequitContract is IRagequit, AdapterGuard {
     }
 
     /**
-     * @notice 从银行账户中减去相应比例的 loot / units 
+     * @notice 从银行账户中减去相应比例的 loot / units
      * @notice 并根据提供的代币将资金转入会员的内部账户
      * @param memberAddr 想要烧毁单位和/或战利品的 账户地址
      * @param unitsToBurn 必须转换为资金的成员 units 数量
-     * @param lootToBurn 必须转换为资金的成员 loot 数量 
-     * @param initialTotalUnitsAndLoot 内部转移前的 units 和 loot 总和 
-     * @param tokens 资金应发送到的令牌数组 
+     * @param lootToBurn 必须转换为资金的成员 loot 数量
+     * @param initialTotalUnitsAndLoot 内部转移前的 units 和 loot 总和
+     * @param tokens 资金应发送到的令牌数组
      * @param bank The bank extension.
      */
     function _burnUnits(
@@ -150,7 +149,7 @@ contract RagequitContract is IRagequit, AdapterGuard {
 
         // Transfers the funds from the internal Guild account to the internal member's account based on each token provided by the member.
         // The provided token must be supported/allowed by the Guild Bank, otherwise it reverts the entire transaction.
-        // 根据会员提供的每个代币，将资金从内部公会账户转移到内部会员账户。 
+        // 根据会员提供的每个代币，将资金从内部公会账户转移到内部会员账户。
         // 所提供的代币必须得到公会银行的支持/允许，否则会恢复整个交易。
         uint256 length = tokens.length;
         for (uint256 i = 0; i < length; i++) {
@@ -161,12 +160,12 @@ contract RagequitContract is IRagequit, AdapterGuard {
                 require(currentToken < tokens[j], "duplicate token");
             }
 
-            // 检查公会银行是否支持 此令牌 
-             
+            // 检查公会银行是否支持 此令牌
+
             require(bank.isTokenAllowed(currentToken), "token not allowed");
 
             // 根据 代币、单位 和 loot 计算公平的资金数额
-             
+
             uint256 amountToRagequit = FairShareHelper.calc(
                 bank.balanceOf(DaoHelper.GUILD, currentToken),
                 unitsAndLootToBurn,
@@ -179,7 +178,7 @@ contract RagequitContract is IRagequit, AdapterGuard {
                 // deliberately not using safemath here to keep overflows from preventing the function execution
                 // (which would break ragekicks) if a token overflows,
                 // it is because the supply was artificially inflated to oblivion, so we probably don"t care about it anyways
-                 
+
                 bank.internalTransfer(
                     dao,
                     DaoHelper.GUILD,
@@ -191,7 +190,7 @@ contract RagequitContract is IRagequit, AdapterGuard {
         }
 
         // 一旦 units 和 loot 被烧毁， 资金也转移完成， 发出一个事件以指示操作成功。
-         
+
         emit MemberRagequit(
             address(dao),
             memberAddr,

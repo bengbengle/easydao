@@ -11,7 +11,6 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 
-
 contract BankExtension is IExtension, ERC165 {
     using Address for address payable;
     using SafeERC20 for IERC20;
@@ -64,7 +63,8 @@ contract BankExtension is IExtension, ERC165 {
     mapping(address => bool) public availableTokens;
     mapping(address => bool) public availableInternalTokens;
     // tokenAddress => memberAddress => checkpointNum => Checkpoint
-    mapping(address => mapping(address => mapping(uint32 => Checkpoint))) public checkpoints;
+    mapping(address => mapping(address => mapping(uint32 => Checkpoint)))
+        public checkpoints;
     // tokenAddress => memberAddress => numCheckpoints
     mapping(address => mapping(address => uint32)) public numCheckpoints;
 
@@ -73,20 +73,22 @@ contract BankExtension is IExtension, ERC165 {
     modifier hasExtensionAccess(DaoRegistry _dao, AclFlag flag) {
         require(
             dao == _dao &&
-                (
-                    address(this) == msg.sender ||
+                (address(this) == msg.sender ||
                     address(dao) == msg.sender ||
                     DaoHelper.isInCreationModeAndHasAccess(dao) ||
-                    dao.hasAdapterAccessToExtension(msg.sender, address(this), uint8(flag))
-                ),
+                    dao.hasAdapterAccessToExtension(
+                        msg.sender,
+                        address(this),
+                        uint8(flag)
+                    )),
             "bank::accessDenied:"
         );
         _;
     }
 
     /**
-     * @notice 初始化 DAO 
-     * @dev 涉及初始化可用令牌、检查点和创建者的成员资格 ，只能调用一次 
+     * @notice 初始化 DAO
+     * @dev 涉及初始化可用令牌、检查点和创建者的成员资格 ，只能调用一次
      * @param creator DAO 的创建者，他将成为初始成员
      */
     function initialize(DaoRegistry _dao, address creator) external override {
@@ -103,8 +105,12 @@ contract BankExtension is IExtension, ERC165 {
 
         uint256 nbMembers = _dao.getNbMembers();
         for (uint256 i = 0; i < nbMembers; i++) {
-             
-            addToBalance(_dao, _dao.getMemberAddress(i), DaoHelper.MEMBER_COUNT, 1);
+            addToBalance(
+                _dao,
+                _dao.getMemberAddress(i),
+                DaoHelper.MEMBER_COUNT,
+                1
+            );
         }
 
         _createNewAmountCheckpoint(creator, DaoHelper.UNITS, 1);
@@ -128,7 +134,6 @@ contract BankExtension is IExtension, ERC165 {
             IERC20(tokenAddr).safeTransfer(member, amount);
         }
 
-         
         emit Withdraw(member, tokenAddr, uint160(amount));
     }
 
@@ -150,12 +155,11 @@ contract BankExtension is IExtension, ERC165 {
             IERC20(tokenAddr).safeTransfer(memberTo, amount);
         }
 
-         
         emit WithdrawTo(memberFrom, memberTo, tokenAddr, uint160(amount));
     }
 
     /**
-     * @return 给定的令牌是否是有效的 内部令牌 
+     * @return 给定的令牌是否是有效的 内部令牌
      * @param token 要查找的令牌地址
      */
     function isInternalToken(address token) external view returns (bool) {
@@ -163,7 +167,7 @@ contract BankExtension is IExtension, ERC165 {
     }
 
     /**
-     * @return 给定的令牌 是否是有效的 令牌 
+     * @return 给定的令牌 是否是有效的 令牌
      * @param token 要查找的令牌地址
      */
     function isTokenAllowed(address token) public view returns (bool) {
@@ -171,7 +175,7 @@ contract BankExtension is IExtension, ERC165 {
     }
 
     /**
-     * @notice 设置银行允许的最大 external 代币数量 
+     * @notice 设置银行允许的最大 external 代币数量
      * @param maxTokens 允许的最大令牌数量
      */
     function setMaxExternalTokens(uint8 maxTokens) external {
@@ -188,8 +192,8 @@ contract BankExtension is IExtension, ERC165 {
      */
 
     /**
-     * @notice 在银行注册一个潜在的新代币 
-     * @dev 不能是保留令牌或可用的内部令牌 
+     * @notice 在银行注册一个潜在的新代币
+     * @dev 不能是保留令牌或可用的内部令牌
      * @param token 代币地址
      */
     function registerPotentialNewToken(DaoRegistry _dao, address token)
@@ -198,7 +202,10 @@ contract BankExtension is IExtension, ERC165 {
     {
         require(DaoHelper.isNotReservedAddress(token), "reservedToken");
         require(!availableInternalTokens[token], "internalToken");
-        require(tokens.length <= maxExternalTokens, "exceeds the maximum tokens allowed");
+        require(
+            tokens.length <= maxExternalTokens,
+            "exceeds the maximum tokens allowed"
+        );
 
         if (!availableTokens[token]) {
             availableTokens[token] = true;
@@ -207,8 +214,8 @@ contract BankExtension is IExtension, ERC165 {
     }
 
     /**
-     * @notice 在银行注册一个潜在的 新 内部代币 
-     * @dev 不能是保留令牌或可用令牌 
+     * @notice 在银行注册一个潜在的 新 内部代币
+     * @dev 不能是保留令牌或可用令牌
      * @param token 代币地址
      */
     function registerPotentialNewInternalToken(DaoRegistry _dao, address token)
@@ -277,7 +284,7 @@ contract BankExtension is IExtension, ERC165 {
      */
 
     /**
-     * @return 来自给定索引的银行的代币 
+     * @return 来自给定索引的银行的代币
      * @param index 要在银行代币中查找的索引
      */
     function getToken(uint256 index) external view returns (address) {
@@ -299,7 +306,7 @@ contract BankExtension is IExtension, ERC165 {
     }
 
     /**
-     * @return 给定索引处的内部令牌 
+     * @return 给定索引处的内部令牌
      * @param index 要在银行内部令牌数组中查找的索引
      */
     function getInternalToken(uint256 index) external view returns (address) {
@@ -314,9 +321,9 @@ contract BankExtension is IExtension, ERC165 {
     }
 
     /**
-     * @notice 添加给定令牌的成员余额 
-     * @param member 余额将被更新的成员 
-     * @param token 要更新的令牌 
+     * @notice 添加给定令牌的成员余额
+     * @param member 余额将被更新的成员
+     * @param token 要更新的令牌
      * @param amount 新余额
      */
     function addToBalance(
@@ -325,8 +332,10 @@ contract BankExtension is IExtension, ERC165 {
         address token,
         uint256 amount
     ) public payable hasExtensionAccess(_dao, AclFlag.ADD_TO_BALANCE) {
-        
-        require(availableTokens[token] || availableInternalTokens[token], "unknown token address");
+        require(
+            availableTokens[token] || availableInternalTokens[token],
+            "unknown token address"
+        );
 
         uint256 newAmount = balanceOf(member, token) + amount;
         uint256 newTotalAmount = balanceOf(DaoHelper.TOTAL, token) + amount;
@@ -340,9 +349,9 @@ contract BankExtension is IExtension, ERC165 {
      * @param member The member whose balance will be updated
      * @param token The token to update
      * @param amount The new balance
-     * @notice 从给定令牌的成员余额中删除 
-     * @param member 余额将被更新的成员 
-     * @param token 要更新的令牌 
+     * @notice 从给定令牌的成员余额中删除
+     * @param member 余额将被更新的成员
+     * @param token 要更新的令牌
      * @param amount 新余额
      */
     function subtractFromBalance(
@@ -359,9 +368,9 @@ contract BankExtension is IExtension, ERC165 {
     }
 
     /**
-     * @notice 进行内部代币转移 
-     * @param from 发送代币的成员 
-     * @param to 接收代币的成员 
+     * @notice 进行内部代币转移
+     * @param from 发送代币的成员
+     * @param to 接收代币的成员
      * @param amount 新的转账金额
      */
     function internalTransfer(
@@ -379,9 +388,9 @@ contract BankExtension is IExtension, ERC165 {
     }
 
     /**
-     * @notice 返回给定代币的 余额 
-     * @param member 要查找的地址 
-     * @param tokenAddr token 地址 
+     * @notice 返回给定代币的 余额
+     * @param member 要查找的地址
+     * @param tokenAddr token 地址
      * @return 账户的 tokenAddr 余额中的金额
      */
     function balanceOf(address member, address tokenAddr)
@@ -390,13 +399,16 @@ contract BankExtension is IExtension, ERC165 {
         returns (uint160)
     {
         uint32 nCheckpoints = numCheckpoints[tokenAddr][member];
-        return nCheckpoints > 0 ? checkpoints[tokenAddr][member][nCheckpoints - 1].amount : 0;
+        return
+            nCheckpoints > 0
+                ? checkpoints[tokenAddr][member][nCheckpoints - 1].amount
+                : 0;
     }
 
     /**
-     * @notice 确定一个账户在某区块号之前的投票数， 区块编号必须是最终区块，否则此功能将恢复以防止错误信息。 
-     * @param account 要检查的账户地址 
-     * @param blockNumber 获得投票余额的区块号 
+     * @notice 确定一个账户在某区块号之前的投票数， 区块编号必须是最终区块，否则此功能将恢复以防止错误信息。
+     * @param account 要检查的账户地址
+     * @param blockNumber 获得投票余额的区块号
      * @return 账户在给定区块中的投票数
      */
     function getPriorAmount(
@@ -473,10 +485,10 @@ contract BankExtension is IExtension, ERC165 {
     }
 
     /**
-     * @notice 为某个成员的代币创建一个新的金额检查点 
-     * @dev 如果数量大于 2**64-1，则还原 
-     * @param member 将添加检查点的成员 
-     * @param token 需要更改余额的token 
+     * @notice 为某个成员的代币创建一个新的金额检查点
+     * @dev 如果数量大于 2**64-1，则还原
+     * @param member 将添加检查点的成员
+     * @param token 需要更改余额的token
      * @param amount 要写入新检查点的金额
      */
     function _createNewAmountCheckpoint(
@@ -486,17 +498,20 @@ contract BankExtension is IExtension, ERC165 {
     ) internal {
         bool isValidToken = false;
         if (availableInternalTokens[token]) {
-            
             // 代币数量超过内部代币的最大限额
-            require(amount < type(uint88).max, "token amount exceeds the maximum limit for internal tokens");
+            require(
+                amount < type(uint88).max,
+                "token amount exceeds the maximum limit for internal tokens"
+            );
 
             isValidToken = true;
-
         } else if (availableTokens[token]) {
-            
             //代币数量超过外部代币的最大限制
-            require(amount < type(uint160).max, "token amount exceeds the maximum limit for external tokens");
-            
+            require(
+                amount < type(uint160).max,
+                "token amount exceeds the maximum limit for external tokens"
+            );
+
             isValidToken = true;
         }
         require(isValidToken, "token not registered");
@@ -507,13 +522,20 @@ contract BankExtension is IExtension, ERC165 {
 
         // 当 block.number 与 fromBlock 值完全匹配时，允许数量更新， 否则 应该生成一个新的检查点
         // checkpoints[token][member][nCheckpoints - 1].fromBlock, 最后检查点对应的区块号
-        if (nCheckpoints > 0 && checkpoints[token][member][nCheckpoints - 1].fromBlock == block.number) {
+        if (
+            nCheckpoints > 0 &&
+            checkpoints[token][member][nCheckpoints - 1].fromBlock ==
+            block.number
+        ) {
             checkpoints[token][member][nCheckpoints - 1].amount = newAmount;
         } else {
-            checkpoints[token][member][nCheckpoints] = Checkpoint(uint96(block.number), newAmount);
+            checkpoints[token][member][nCheckpoints] = Checkpoint(
+                uint96(block.number),
+                newAmount
+            );
             numCheckpoints[token][member] = nCheckpoints + 1;
         }
-         
+
         emit NewBalance(member, token, newAmount);
     }
 }

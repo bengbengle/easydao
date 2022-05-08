@@ -18,7 +18,7 @@ abstract contract AdapterGuard {
         );
         _;
     }
-    
+
     // 同一区块内不能调用两次
     modifier reentrancyGuard(DaoRegistry dao) {
         require(dao.lockedAt() != block.number, "reentrancy guard");
@@ -28,14 +28,20 @@ abstract contract AdapterGuard {
     }
 
     modifier executorFunc(DaoRegistry dao) {
-        address executorAddr = dao.getExtensionAddress(keccak256("executor-ext"));
-        
+        address executorAddr = dao.getExtensionAddress(
+            keccak256("executor-ext")
+        );
+
         require(address(this) == executorAddr, "only callable by the executor");
         _;
     }
-    
+
     modifier hasAccess(DaoRegistry dao, DaoRegistry.AclFlag flag) {
-        require(DaoHelper.isInCreationModeAndHasAccess(dao) || dao.hasAdapterAccess(msg.sender, flag), "access Denied");
+        require(
+            DaoHelper.isInCreationModeAndHasAccess(dao) ||
+                dao.hasAdapterAccess(msg.sender, flag),
+            "access Denied"
+        );
         _;
     }
 }

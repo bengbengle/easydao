@@ -19,11 +19,13 @@ import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
 
 contract OffchainVotingHelperContract {
-    
     uint256 private constant NB_CHOICES = 2;
-    bytes32 public constant VotingPeriod = keccak256("offchainvoting.votingPeriod"); // 投票期
-    bytes32 public constant GracePeriod = keccak256("offchainvoting.gracePeriod");  // 宽限期
-    bytes32 public constant FallbackThreshold = keccak256("offchainvoting.fallbackThreshold"); // 回退阈值
+    bytes32 public constant VotingPeriod =
+        keccak256("offchainvoting.votingPeriod"); // 投票期
+    bytes32 public constant GracePeriod =
+        keccak256("offchainvoting.gracePeriod"); // 宽限期
+    bytes32 public constant FallbackThreshold =
+        keccak256("offchainvoting.fallbackThreshold"); // 回退阈值
 
     enum BadNodeError {
         OK,
@@ -46,11 +48,16 @@ contract OffchainVotingHelperContract {
         uint256 resultIndex,
         uint256 blockNumber
     ) external view returns (uint256 membersCount) {
-        
-        BankExtension bank = BankExtension(dao.getExtensionAddress(DaoHelper.BANK));
+        BankExtension bank = BankExtension(
+            dao.getExtensionAddress(DaoHelper.BANK)
+        );
 
-        membersCount = bank.getPriorAmount(DaoHelper.TOTAL, DaoHelper.MEMBER_COUNT, blockNumber);
- 
+        membersCount = bank.getPriorAmount(
+            DaoHelper.TOTAL,
+            DaoHelper.MEMBER_COUNT,
+            blockNumber
+        );
+
         require(membersCount - 1 == resultIndex, "index:member_count mismatch");
     }
 
@@ -92,9 +99,12 @@ contract OffchainVotingHelperContract {
         (address actionId, ) = dao.proposals(proposalId);
 
         require(resultRoot != bytes32(0), "no result available yet!");
-        
+
         bytes32 hashCurrent = _ovHash.nodeHash(dao, actionId, node);
-        require(MerkleProof.verify(node.proof, resultRoot, hashCurrent), "proof:bad");
+        require(
+            MerkleProof.verify(node.proof, resultRoot, hashCurrent),
+            "proof:bad"
+        );
 
         if (node.index >= nbMembers) {
             return BadNodeError.INDEX_OUT_OF_BOUND;
@@ -124,22 +134,26 @@ contract OffchainVotingHelperContract {
         address voter = dao.getPriorDelegateKey(memberAddr, blockNumber);
 
         bool hasVoted = _ovHash.hasVoted(
-                dao,
-                actionId,
-                voter,
-                node.timestamp,
-                node.proposalId,
-                node.choice,
-                node.sig
-            );
+            dao,
+            actionId,
+            voter,
+            node.timestamp,
+            node.proposalId,
+            node.choice,
+            node.sig
+        );
 
         if (node.sig.length > 0 && !hasVoted) {
-
             return BadNodeError.BAD_SIGNATURE;
         }
 
         // 如果权重 为 0，则该成员无权投票， 始终检查成员的权重，而不是代表的权重
-        uint256 votingWeight = GovernanceHelper.getVotingWeight(dao, memberAddr, node.proposalId, blockNumber);
+        uint256 votingWeight = GovernanceHelper.getVotingWeight(
+            dao,
+            memberAddr,
+            node.proposalId,
+            blockNumber
+        );
 
         if (node.choice != 0 && votingWeight == 0) {
             return BadNodeError.VOTE_NOT_ALLOWED;
@@ -179,9 +193,9 @@ contract OffchainVotingHelperContract {
         DaoRegistry dao,
         uint256 fallbackVotesCount
     ) external view returns (bool) {
+        uint256 count = dao.getNbMembers() *
+            dao.getConfiguration(FallbackThreshold);
 
-        uint256 count = dao.getNbMembers() * dao.getConfiguration(FallbackThreshold);
-        
         return fallbackVotesCount > count / 100;
     }
 
@@ -206,15 +220,20 @@ contract OffchainVotingHelperContract {
             diff = nbNo - nbYes;
         }
 
-        BankExtension bank = BankExtension(dao.getExtensionAddress(DaoHelper.BANK));
-        uint256 totalWeight = bank.getPriorAmount(DaoHelper.TOTAL, DaoHelper.UNITS, snapshot);
+        BankExtension bank = BankExtension(
+            dao.getExtensionAddress(DaoHelper.BANK)
+        );
+        uint256 totalWeight = bank.getPriorAmount(
+            DaoHelper.TOTAL,
+            DaoHelper.UNITS,
+            snapshot
+        );
 
         uint256 unvotedWeights = totalWeight - nbYes - nbNo;
         if (diff > unvotedWeights) {
             return true;
         }
 
- 
         return startingTime + votingPeriod <= blockTs;
     }
 
@@ -252,7 +271,10 @@ contract OffchainVotingHelperContract {
         }
 
         // proposal is GRACE_PERIOD
-        if (gracePeriodStartingTime == 0 && block.timestamp < startingTime + gracePeriod + votingPeriod) {
+        if (
+            gracePeriodStartingTime == 0 &&
+            block.timestamp < startingTime + gracePeriod + votingPeriod
+        ) {
             return IVoting.VotingState.GRACE_PERIOD;
         }
 

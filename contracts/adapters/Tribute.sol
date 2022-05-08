@@ -11,7 +11,6 @@ import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-
 contract TributeContract is Reimbursable, AdapterGuard {
     using Address for address;
     using SafeERC20 for IERC20;
@@ -55,7 +54,9 @@ contract TributeContract is Reimbursable, AdapterGuard {
         external
         onlyAdapter(dao)
     {
-        BankExtension bank = BankExtension(dao.getExtensionAddress(DaoHelper.BANK));
+        BankExtension bank = BankExtension(
+            dao.getExtensionAddress(DaoHelper.BANK)
+        );
         bank.registerPotentialNewInternalToken(dao, tokenAddrToMint);
     }
 
@@ -73,7 +74,7 @@ contract TributeContract is Reimbursable, AdapterGuard {
      * @param tributeTokenOwner The owner of the ERC-20 tokens being provided as tribute.
      * @param data Additional information related to the tribute proposal.
      */
-     function submitProposal(
+    function submitProposal(
         DaoRegistry dao,
         bytes32 proposalId,
         address applicant,
@@ -90,8 +91,10 @@ contract TributeContract is Reimbursable, AdapterGuard {
         );
 
         dao.submitProposal(proposalId);
-        
-        IVoting votingContract = IVoting(dao.getAdapterAddress(DaoHelper.VOTING));
+
+        IVoting votingContract = IVoting(
+            dao.getAdapterAddress(DaoHelper.VOTING)
+        );
 
         address sponsoredBy = votingContract.getSenderAddress(
             dao,

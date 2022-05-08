@@ -10,7 +10,6 @@ import "./IERC20TransferStrategy.sol";
 import "../../../guards/AdapterGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-
 /**
  *
  * The ERC20Extension is a contract to give erc20 functionality
@@ -162,9 +161,9 @@ contract ERC20Extension is AdapterGuard, IExtension, IERC20 {
     }
 
     /**
-    * @dev 返回 `spender` 将被允许通过 {transferFrom} 代表 `owner`  花费的剩余代币数量。 这是默认情况下为零 
-    * 当调用 {approve} 或 {transferFrom} 时，此值会发生变化
-    */
+     * @dev 返回 `spender` 将被允许通过 {transferFrom} 代表 `owner`  花费的剩余代币数量。 这是默认情况下为零
+     * 当调用 {approve} 或 {transferFrom} 时，此值会发生变化
+     */
     function allowance(address owner, address spender)
         public
         view
@@ -192,11 +191,20 @@ contract ERC20Extension is AdapterGuard, IExtension, IERC20 {
 
         require(dao.isMember(senderAddr), "sender is not a member");
 
-        require(DaoHelper.isNotZeroAddress(senderAddr), "ERC20: approve from the zero address");
+        require(
+            DaoHelper.isNotZeroAddress(senderAddr),
+            "ERC20: approve from the zero address"
+        );
 
-        require(DaoHelper.isNotZeroAddress(spender), "ERC20: approve to the zero address");
-        
-        require(DaoHelper.isNotReservedAddress(spender), "spender can not be a reserved address");
+        require(
+            DaoHelper.isNotZeroAddress(spender),
+            "ERC20: approve to the zero address"
+        );
+
+        require(
+            DaoHelper.isNotReservedAddress(spender),
+            "spender can not be a reserved address"
+        );
 
         _allowances[senderAddr][spender] = amount;
 
@@ -220,8 +228,8 @@ contract ERC20Extension is AdapterGuard, IExtension, IERC20 {
         override
         returns (bool)
     {
-        address senderAddr = dao.getAddressIfDelegated(msg.sender); 
-        
+        address senderAddr = dao.getAddressIfDelegated(msg.sender);
+
         return transferFrom(senderAddr, recipient, amount);
     }
 
@@ -231,11 +239,9 @@ contract ERC20Extension is AdapterGuard, IExtension, IERC20 {
         uint256 amount,
         BankExtension bank
     ) internal {
-        
         DaoHelper.potentialNewMember(recipient, dao, bank);
 
         bank.internalTransfer(dao, senderAddr, recipient, tokenAddress, amount);
-    
     }
 
     /**
@@ -256,8 +262,10 @@ contract ERC20Extension is AdapterGuard, IExtension, IERC20 {
         address recipient,
         uint256 amount
     ) public override returns (bool) {
-        
-        require(DaoHelper.isNotZeroAddress(recipient), "ERC20: transfer to the zero address");
+        require(
+            DaoHelper.isNotZeroAddress(recipient),
+            "ERC20: transfer to the zero address"
+        );
 
         address adapter = dao.getAdapterAddress(DaoHelper.TRANSFER_STRATEGY);
 
@@ -274,14 +282,14 @@ contract ERC20Extension is AdapterGuard, IExtension, IERC20 {
                 amount,
                 msg.sender
             );
-            
+
         address ext = dao.getExtensionAddress(DaoHelper.BANK);
         BankExtension bank = BankExtension(ext);
 
         if (approvalType == IERC20TransferStrategy.ApprovalType.NONE) {
             revert("transfer not allowed");
         }
-        
+
         if (approvalType == IERC20TransferStrategy.ApprovalType.SPECIAL) {
             _transferInternal(sender, recipient, amount, bank);
 
@@ -292,7 +300,10 @@ contract ERC20Extension is AdapterGuard, IExtension, IERC20 {
         if (sender != msg.sender) {
             uint256 currentAllowance = _allowances[sender][msg.sender];
 
-            require(currentAllowance >= amount, "ERC20: transfer amount exceeds allowance");
+            require(
+                currentAllowance >= amount,
+                "ERC20: transfer amount exceeds allowance"
+            );
 
             if (allowedAmount >= amount) {
                 _allowances[sender][msg.sender] = currentAllowance - amount;

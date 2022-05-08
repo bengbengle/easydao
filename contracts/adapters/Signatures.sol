@@ -10,7 +10,6 @@ import "../guards/AdapterGuard.sol";
 import "./modifiers/Reimbursable.sol";
 import "../helpers/DaoHelper.sol";
 
-
 contract SignaturesContract is ISignatures, AdapterGuard, Reimbursable {
     struct ProposalDetails {
         bytes32 permissionHash;
@@ -31,7 +30,7 @@ contract SignaturesContract is ISignatures, AdapterGuard, Reimbursable {
      * @param magicValue The value to return when a signature is valid
      * @param data Additional details about the signature proposal.
      */
-     function submitProposal(
+    function submitProposal(
         DaoRegistry dao,
         bytes32 proposalId,
         bytes32 permissionHash,
@@ -79,7 +78,8 @@ contract SignaturesContract is ISignatures, AdapterGuard, Reimbursable {
         require(address(votingContract) != address(0), "adapter not found");
 
         require(
-            votingContract.voteResult(dao, proposalId) == IVoting.VotingState.PASS,
+            votingContract.voteResult(dao, proposalId) ==
+                IVoting.VotingState.PASS,
             "proposal needs to pass"
         );
         dao.processProposal(proposalId);

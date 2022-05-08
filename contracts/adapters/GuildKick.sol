@@ -11,7 +11,6 @@ import "../adapters/interfaces/IVoting.sol";
 import "../helpers/FairShareHelper.sol";
 import "../extensions/bank/Bank.sol";
 
-
 contract GuildKickContract is IGuildKick, AdapterGuard, Reimbursable {
     // / 公会踢提案的状态 State of the guild kick proposal
     struct GuildKick {
@@ -33,7 +32,7 @@ contract GuildKickContract is IGuildKick, AdapterGuard, Reimbursable {
      * @param memberToKick The member address that should be kicked out of the DAO.
      * @param data Additional information related to the kick proposal.
      */
-     
+
     function submitProposal(
         DaoRegistry dao,
         bytes32 proposalId,
@@ -65,7 +64,7 @@ contract GuildKickContract is IGuildKick, AdapterGuard, Reimbursable {
         // Gets the number of loot of the member
         uint256 lootToBurn = bank.balanceOf(memberToKick, DaoHelper.LOOT);
 
-        // 检查成员是否有足够的单位转换为战利品， 不可能溢出，因为每个 var 的最大值是 2^64 
+        // 检查成员是否有足够的单位转换为战利品， 不可能溢出，因为每个 var 的最大值是 2^64
         // 参见 bank._createNewAmountCheckpoint 函数
         require(unitsToBurn + lootToBurn > 0, "no units or loot");
 

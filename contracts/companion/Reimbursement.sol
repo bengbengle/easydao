@@ -12,7 +12,6 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "../helpers/DaoHelper.sol";
 import "./GelatoRelay.sol";
 
-
 contract ReimbursementContract is IReimbursement, AdapterGuard, GelatoRelay {
     using Address for address payable;
     using SafeERC20 for IERC20;
@@ -26,11 +25,15 @@ contract ReimbursementContract is IReimbursement, AdapterGuard, GelatoRelay {
 
     mapping(address => ReimbursementData) private _data;
 
-    bytes32 internal constant GasPriceLimit = keccak256("reimbursement.gasPriceLimit");
-    bytes32 internal constant SpendLimitPeriod = keccak256("reimbursement.spendLimitPeriod");
-    bytes32 internal constant SpendLimitEth = keccak256("reimbursement.spendLimitEth");
+    bytes32 internal constant GasPriceLimit =
+        keccak256("reimbursement.gasPriceLimit");
+    bytes32 internal constant SpendLimitPeriod =
+        keccak256("reimbursement.spendLimitPeriod");
+    bytes32 internal constant SpendLimitEth =
+        keccak256("reimbursement.spendLimitEth");
     bytes32 internal constant EthUsed = keccak256("reimbursement.ethUsed");
-    bytes32 internal constant RateLimitStart = keccak256("reimbursement.rateLimitStart");
+    bytes32 internal constant RateLimitStart =
+        keccak256("reimbursement.rateLimitStart");
 
     /**
      * @param dao the dao to configure
@@ -88,7 +91,10 @@ contract ReimbursementContract is IReimbursement, AdapterGuard, GelatoRelay {
 
         uint256 payback = gasLeft * tx.gasprice;
 
-        if (block.timestamp - _data[address(dao)].rateLimitStart < spendLimitPeriod) {
+        if (
+            block.timestamp - _data[address(dao)].rateLimitStart <
+            spendLimitPeriod
+        ) {
             if (spendLimitEth < _data[address(dao)].ethUsed + payback) {
                 return (false, 0);
             }

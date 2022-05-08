@@ -8,7 +8,6 @@ import "../IFactory.sol";
 import "./NFT.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-
 contract NFTCollectionFactory is IFactory, CloneFactory, ReentrancyGuard {
     address public identityAddress;
 
@@ -22,7 +21,7 @@ contract NFTCollectionFactory is IFactory, CloneFactory, ReentrancyGuard {
     }
 
     /**
-     * @notice 创建 并 初始化 基于 ERC712 的新标准 NFT 扩展 
+     * @notice 创建 并 初始化 基于 ERC712 的新标准 NFT 扩展
      */
     function create(address dao) external nonReentrant {
         require(dao != address(0x0), "invalid dao addr");

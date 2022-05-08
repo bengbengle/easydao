@@ -11,7 +11,6 @@ import "../interfaces/IVoting.sol";
 import "./OffchainVoting.sol";
 import "../../utils/Signatures.sol";
 
-
 contract KickBadReporterAdapter is MemberGuard {
     function sponsorProposal(
         DaoRegistry dao,
@@ -39,7 +38,6 @@ contract KickBadReporterAdapter is MemberGuard {
         );
         // the person has been kicked out
         if (votingState == IVoting.VotingState.PASS) {
-             
             (, address challengeAddress) = votingContract.getChallengeDetails(
                 dao,
                 proposalId
@@ -49,7 +47,6 @@ contract KickBadReporterAdapter is MemberGuard {
             votingState == IVoting.VotingState.NOT_PASS ||
             votingState == IVoting.VotingState.TIE
         ) {
-             
             (, address challengeAddress) = votingContract.getChallengeDetails(
                 dao,
                 proposalId

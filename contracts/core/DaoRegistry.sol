@@ -7,15 +7,14 @@ import "../guards/MemberGuard.sol";
 import "../extensions/IExtension.sol";
 import "../helpers/DaoHelper.sol";
 
-
 contract DaoRegistry is MemberGuard, AdapterGuard {
     bool public initialized = false; // internally tracks deployment under eip-1167 proxy pattern
 
     // CREATION，刚创建 ，未设置，不能使用
     // READY 这个 DAO 已经设置好
     enum DaoState {
-        CREATION,   
-        READY       
+        CREATION,
+        READY
     }
 
     /*
@@ -55,19 +54,19 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
         PROCESSED
     }
 
-    // 替换适配器 
-    // 提交提案 
+    // 替换适配器
+    // 提交提案
     // 更新委托者地址
     // 设置配置
     // 添加 EXTENSION
     // 移除 EXTENSION
     // 添加 Dao 成员
     enum AclFlag {
-        REPLACE_ADAPTER, 
-        SUBMIT_PROPOSAL, 
+        REPLACE_ADAPTER,
+        SUBMIT_PROPOSAL,
         UPDATE_DELEGATE_KEY,
-        SET_CONFIGURATION, 
-        ADD_EXTENSION,   
+        SET_CONFIGURATION,
+        ADD_EXTENSION,
         REMOVE_EXTENSION,
         NEW_MEMBER
     }
@@ -76,9 +75,8 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
      * STRUCTURES
      */
     struct Proposal {
-        // 跟踪 DAO 中所有提案的结构， 调用函数以更改 DAO 状态的适配器地址 
+        // 跟踪 DAO 中所有提案的结构， 调用函数以更改 DAO 状态的适配器地址
         address adapterAddress;
-        
         // 跟踪提案状态的标志：存在、赞助、处理、取消等
         uint256 flags;
     }
@@ -158,10 +156,10 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     constructor() {}
 
     /**
-     * @notice 初始化 DAO 
-     * @dev 涉及初始化可用令牌、检查点和创建者的成员资格 
-     * @dev 只能调用一次 
-     * @param creator DAO 的创建者，他将成为初始成员 
+     * @notice 初始化 DAO
+     * @dev 涉及初始化可用令牌、检查点和创建者的成员资格
+     * @dev 只能调用一次
+     * @param creator DAO 的创建者，他将成为初始成员
      * @param payer 为创建 DAO 的交易支付的账户，他将成为初始成员
      */
     function initialize(address creator, address payer) external {
@@ -177,7 +175,10 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
      * @dev 将 dao 的状态设置为 READY
      */
     function finalizeDao() external {
-        require(isActiveMember(this, msg.sender) || isAdapter(msg.sender), "not allowed to finalize");
+        require(
+            isActiveMember(this, msg.sender) || isAdapter(msg.sender),
+            "not allowed to finalize"
+        );
         state = DaoState.READY;
     }
 
@@ -200,9 +201,9 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-     * @notice 设置配置值， 更改配置映射中键的值 
-     * @param key 将为其设置值的配置键 
-     * @param value 要设置键的值 
+     * @notice 设置配置值， 更改配置映射中键的值
+     * @param key 将为其设置值的配置键
+     * @param value 要设置键的值
      */
     function setConfiguration(bytes32 key, uint256 value)
         external
@@ -214,7 +215,7 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-     * @notice 如果成员地址未注册或无效，则在 DAO 中注册成员地址。 
+     * @notice 如果成员地址未注册或无效，则在 DAO 中注册成员地址。
      * @notice 潜在会员是 不持有股份 的会员，其 注册 仍需投票。
      */
     function potentialNewMember(address memberAddress)
@@ -224,13 +225,23 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
         require(memberAddress != address(0x0), "invalid member address");
 
         Member storage member = members[memberAddress];
-        
-        bool is_exists = DaoHelper.getFlag(member.flags, uint8(MemberFlag.EXISTS));
+
+        bool is_exists = DaoHelper.getFlag(
+            member.flags,
+            uint8(MemberFlag.EXISTS)
+        );
 
         if (!is_exists) {
-            require(memberAddressesByDelegatedKey[memberAddress] == address(0x0), "member address already taken as delegated key");
-            
-            member.flags = DaoHelper.setFlag(member.flags, uint8(MemberFlag.EXISTS), true);
+            require(
+                memberAddressesByDelegatedKey[memberAddress] == address(0x0),
+                "member address already taken as delegated key"
+            );
+
+            member.flags = DaoHelper.setFlag(
+                member.flags,
+                uint8(MemberFlag.EXISTS),
+                true
+            );
 
             memberAddressesByDelegatedKey[memberAddress] = memberAddress;
             _members.push(memberAddress);
@@ -238,18 +249,22 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
 
         address bankAddress = extensions[DaoHelper.BANK];
         if (bankAddress != address(0x0)) {
-            
             BankExtension bank = BankExtension(bankAddress);
 
             if (bank.balanceOf(memberAddress, DaoHelper.MEMBER_COUNT) == 0) {
-                bank.addToBalance(this, memberAddress, DaoHelper.MEMBER_COUNT, 1);
+                bank.addToBalance(
+                    this,
+                    memberAddress,
+                    DaoHelper.MEMBER_COUNT,
+                    1
+                );
             }
         }
     }
 
     /**
-     * @notice 设置配置值， 改变配置映射中某个键的值 
-     * @param key 要设置值的配置键 
+     * @notice 设置配置值， 改变配置映射中某个键的值
+     * @param key 要设置值的配置键
      * @param value 设置key的值
      */
     function setAddressConfiguration(bytes32 key, address value)
@@ -262,7 +277,7 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-     * @return 根据 key 获取配置中的 value 
+     * @return 根据 key 获取配置中的 value
      * @param key 在配置映射中查找的key
      */
     function getConfiguration(bytes32 key) external view returns (uint256) {
@@ -270,8 +285,8 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-     * @return 特定键的配置值 
-     * @param key 在配置映射中查找的key   
+     * @return 特定键的配置值
+     * @param key 在配置映射中查找的key
      */
     function getAddressConfiguration(bytes32 key)
         external
@@ -300,9 +315,9 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
      * @notice 如果 adapterId 映射到现有适配器地址，则删除当前适配器
      * @dev 如果 adapterAddress 参数不为零，它会添加一个适配器
      * @param adapterId 适配器的唯一标识符
-     * @param adapterAddress 新适配器的地址， 如果是删除操作， 则为零 
-     * @param acl 表示新适配器的访问控制层或权限的标志 
-     * @param keys 表示适配器配置名称的键 
+     * @param adapterAddress 新适配器的地址， 如果是删除操作， 则为零
+     * @param acl 表示新适配器的访问控制层或权限的标志
+     * @param keys 表示适配器配置名称的键
      * @param values 表示适配器配置值的值
      */
     function replaceAdapter(
@@ -329,7 +344,10 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
         }
 
         if (adapterAddress != address(0x0)) {
-            require(inverseAdapters[adapterAddress].id == bytes32(0), "adapterAddress already in use");
+            require(
+                inverseAdapters[adapterAddress].id == bytes32(0),
+                "adapterAddress already in use"
+            );
 
             adapters[adapterId] = adapterAddress;
             inverseAdapters[adapterAddress].id = adapterId;
@@ -339,9 +357,9 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-     * @notice 向注册表添加新扩展 
-     * @param extensionId 新扩展的唯一标识符 
-     * @param extension 扩展的地址 
+     * @notice 向注册表添加新扩展
+     * @param extensionId 新扩展的唯一标识符
+     * @param extension 扩展的地址
      * @param creator DAO 的创建者，他将成为初始成员
      */
     function addExtension(
@@ -349,11 +367,16 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
         IExtension extension,
         address creator
     ) external hasAccess(this, AclFlag.ADD_EXTENSION) {
-        
         require(extensionId != bytes32(0), "extension id must not be empty");
-        require(extensions[extensionId] == address(0x0), "extension Id already in use");
-        require(!inverseExtensions[address(extension)].deleted, "extension can not be re-added");
-        
+        require(
+            extensions[extensionId] == address(0x0),
+            "extension Id already in use"
+        );
+        require(
+            !inverseExtensions[address(extension)].deleted,
+            "extension can not be re-added"
+        );
+
         extensions[extensionId] = address(extension);
 
         inverseExtensions[address(extension)].id = extensionId;
@@ -366,7 +389,7 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     /**
      * @notice Removes an adapter from the registry
      * @param extensionId The unique identifier of the extension
-     * @notice 从注册表中移除一个适配器 
+     * @notice 从注册表中移除一个适配器
      * @param extensionId 扩展的唯一标识符
      */
     function removeExtension(bytes32 extensionId)
@@ -386,8 +409,8 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-     * @notice 查找给定地址是否有扩展名 
-     * @return 地址是否为分机 
+     * @notice 查找给定地址是否有扩展名
+     * @return 地址是否为分机
      * @param extensionAddr 要查找的地址
      */
     function isExtension(address extensionAddr) public view returns (bool) {
@@ -395,8 +418,8 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-     * @notice 查找是否存在给定地址的适配器 
-     * @return 地址是否为适配器 
+     * @notice 查找是否存在给定地址的适配器
+     * @return 地址是否为适配器
      * @param adapterAddress 要查找的地址
      */
     function isAdapter(address adapterAddress) public view returns (bool) {
@@ -404,9 +427,9 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-     * @notice 检查适配器是否具有给定的 ACL 标志 
-     * @return 给定的适配器是否设置了给定的标志 
-     * @param adapterAddress 要查找的地址 
+     * @notice 检查适配器是否具有给定的 ACL 标志
+     * @return 给定的适配器是否设置了给定的标志
+     * @param adapterAddress 要查找的地址
      * @param flag 用于检查给定地址的 ACL 标志
      */
     function hasAdapterAccess(address adapterAddress, AclFlag flag)
@@ -414,13 +437,14 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
         view
         returns (bool)
     {
-        return DaoHelper.getFlag(inverseAdapters[adapterAddress].acl, uint8(flag));
+        return
+            DaoHelper.getFlag(inverseAdapters[adapterAddress].acl, uint8(flag));
     }
 
     /**
-     * @notice 检查 适配器 是否具有给定的 ACL 标志 
-     * @return 给定的适配器是否设置了给定的标志 
-     * @param adapterAddress 要查找的地址 
+     * @notice 检查 适配器 是否具有给定的 ACL 标志
+     * @return 给定的适配器是否设置了给定的标志
+     * @param adapterAddress 要查找的地址
      * @param flag 用于检查给定地址的 ACL 标志
      */
     function hasAdapterAccessToExtension(
@@ -428,14 +452,14 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
         address extensionAddress,
         uint8 flag
     ) external view returns (bool) {
-        
-        uint256 flags = inverseExtensions[extensionAddress].acl[adapterAddress]; 
-        
-        return isAdapter(adapterAddress) && DaoHelper.getFlag(flags, uint8(flag));
+        uint256 flags = inverseExtensions[extensionAddress].acl[adapterAddress];
+
+        return
+            isAdapter(adapterAddress) && DaoHelper.getFlag(flags, uint8(flag));
     }
 
     /**
-     * @return 给定适配器 ID 的地址 
+     * @return 给定适配器 ID 的地址
      * @param adapterId 要查找的 ID
      */
     function getAdapterAddress(bytes32 adapterId)
@@ -448,7 +472,7 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-     * @return 给定扩展 ID 的地址 
+     * @return 给定扩展 ID 的地址
      * @param extensionId 要查找的 ID
      */
     function getExtensionAddress(bytes32 extensionId)
@@ -460,7 +484,6 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
         return extensions[extensionId];
     }
 
-
     /**
      * @notice 向 DAO 注册表提交提案
      */
@@ -469,7 +492,7 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
         hasAccess(this, AclFlag.SUBMIT_PROPOSAL)
     {
         require(proposalId != bytes32(0), "invalid proposalId");
-        
+
         bool is_exists = getProposalFlag(proposalId, ProposalFlag.EXISTS);
 
         require(!is_exists, "proposalId must be unique");
@@ -481,8 +504,8 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-     * @notice 提交给 DAO 注册中心的提案， 将 SPONSORED 添加到提案标志 
-     * @param proposalId 提案的 ID 
+     * @notice 提交给 DAO 注册中心的提案， 将 SPONSORED 添加到提案标志
+     * @param proposalId 提案的 ID
      * @param sponsoringMember 提案的成员
      * @param votingAdapterAddr voting adapter 地址
      */
@@ -491,19 +514,27 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
         address sponsoringMember,
         address votingAdapterAddr
     ) external onlyMember2(this, sponsoringMember) {
-        
         // 检查 flag 是否 设置过
-        Proposal storage proposal = _setProposalFlag(proposalId, ProposalFlag.SPONSORED);
+        Proposal storage proposal = _setProposalFlag(
+            proposalId,
+            ProposalFlag.SPONSORED
+        );
 
         uint256 flags = proposal.flags;
 
-        bool isProcessed = DaoHelper.getFlag(flags, uint8(ProposalFlag.PROCESSED);
+        bool isProcessed = DaoHelper.getFlag(
+            flags,
+            uint8(ProposalFlag.PROCESSED)
+        );
 
         // 只有提交提案的适配器才能处理它
-        require(proposal.adapterAddress == msg.sender, "only the adapter that submitted the proposal can process it");
-        
+        require(
+            proposal.adapterAddress == msg.sender,
+            "only the adapter that submitted the proposal can process it"
+        );
+
         // 提案 必须未被处理
-        require(!isProcessed), "proposal already processed");
+        require(!isProcessed, "proposal already processed");
 
         votingAdapter[proposalId] = votingAdapterAddr;
 
@@ -513,11 +544,14 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     /**
      * @notice Mark a proposal as processed in the DAO registry
      * @param proposalId The ID of the proposal that is being processed
-     * @notice 在 DAO 注册表中将提案标记为已处理 
+     * @notice 在 DAO 注册表中将提案标记为已处理
      * @param proposalId 正在处理的提案的 ID
      */
     function processProposal(bytes32 proposalId) external {
-        Proposal storage proposal = _setProposalFlag(proposalId, ProposalFlag.PROCESSED);
+        Proposal storage proposal = _setProposalFlag(
+            proposalId,
+            ProposalFlag.PROCESSED
+        );
 
         require(proposal.adapterAddress == msg.sender, "err::adapter mismatch");
         uint256 flags = proposal.flags;
@@ -526,9 +560,9 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-     * @notice 设置提案的标志 
-     * @dev 如果提案已经处理，则恢复 
-     * @param proposalId 要更改的提案ID 
+     * @notice 设置提案的标志
+     * @dev 如果提案已经处理，则恢复
+     * @param proposalId 要更改的提案ID
      * @param flag 将在提案上设置的标志
      */
     function _setProposalFlag(bytes32 proposalId, ProposalFlag flag)
@@ -539,9 +573,15 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
 
         uint256 flags = proposal.flags;
 
-        require(DaoHelper.getFlag(flags, uint8(ProposalFlag.EXISTS)), "proposal does not exist for this dao");
+        require(
+            DaoHelper.getFlag(flags, uint8(ProposalFlag.EXISTS)),
+            "proposal does not exist for this dao"
+        );
 
-        require(proposal.adapterAddress == msg.sender, "invalid adapter try to set flag");
+        require(
+            proposal.adapterAddress == msg.sender,
+            "invalid adapter try to set flag"
+        );
 
         require(!DaoHelper.getFlag(flags, uint8(flag)), "flag already set");
 
@@ -557,18 +597,18 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
      */
 
     /**
-    * @return 给定地址是否是 DAO 的成员
-    * @dev 它将通过委托密钥解决，而不是成员地址 
-    * @param addr 要查找的地址
-    */
+     * @return 给定地址是否是 DAO 的成员
+     * @dev 它将通过委托密钥解决，而不是成员地址
+     * @param addr 要查找的地址
+     */
     function isMember(address addr) external view returns (bool) {
         address memberAddress = memberAddressesByDelegatedKey[addr];
         return getMemberFlag(memberAddress, MemberFlag.EXISTS);
     }
 
     /**
-     * @return 是否为 提案 设置了 标志 
-     * @param proposalId 要检查标志的提案 
+     * @return 是否为 提案 设置了 标志
+     * @param proposalId 要检查标志的提案
      * @param flag 要签入提案的标志
      */
     function getProposalFlag(bytes32 proposalId, ProposalFlag flag)
@@ -580,8 +620,8 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-     * @return 是否 为成员 设置了 标志 
-     * @param memberAddress 要检查标志的成员 
+     * @return 是否 为成员 设置了 标志
+     * @param memberAddress 要检查标志的成员
      * @param flag 签入成员的标志
      */
     function getMemberFlag(address memberAddress, MemberFlag flag)
@@ -605,10 +645,10 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-    * @notice 更新成员的委托密钥 
-    * @param memberAddr 进行委托的成员 
-    * @param newDelegateKey 被委托的成员    
-    */
+     * @notice 更新成员的委托密钥
+     * @param memberAddr 进行委托的成员
+     * @param newDelegateKey 被委托的成员
+     */
     function updateDelegateKey(address memberAddr, address newDelegateKey)
         external
         hasAccess(this, AclFlag.UPDATE_DELEGATE_KEY)
@@ -617,18 +657,29 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
 
         // 检查成员是否将 委托地址 设置为 其成员地址
         if (newDelegateKey != memberAddr) {
-            require(memberAddressesByDelegatedKey[newDelegateKey] == address(0x0), "cannot overwrite existing delegated keys");
+            require(
+                memberAddressesByDelegatedKey[newDelegateKey] == address(0x0),
+                "cannot overwrite existing delegated keys"
+            );
         } else {
-            require(memberAddressesByDelegatedKey[memberAddr] == address(0x0), "address already taken as delegated key");
+            require(
+                memberAddressesByDelegatedKey[memberAddr] == address(0x0),
+                "address already taken as delegated key"
+            );
         }
 
         Member storage member = members[memberAddr];
 
-        bool isExist = DaoHelper.getFlag(member.flags, uint8(MemberFlag.EXISTS));
+        bool isExist = DaoHelper.getFlag(
+            member.flags,
+            uint8(MemberFlag.EXISTS)
+        );
         require(isExist, "member does not exist");
 
         // 重置当前的委托
-        memberAddressesByDelegatedKey[getCurrentDelegateKey(memberAddr)] = address(0x0);
+        memberAddressesByDelegatedKey[
+            getCurrentDelegateKey(memberAddr)
+        ] = address(0x0);
 
         memberAddressesByDelegatedKey[newDelegateKey] = memberAddr;
 
@@ -641,7 +692,7 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
      */
 
     /**
-     * @param checkAddr 检查委托的地址 
+     * @param checkAddr 检查委托的地址
      * @return 委托的地址， 如果不是委托， 则返回检查的地址
      */
     function getAddressIfDelegated(address checkAddr)
@@ -654,7 +705,7 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-     * @param 将返回其委托的成员 
+     * @param 将返回其委托的成员
      * @return 成员当前时间的委托 地址
      */
     function getCurrentDelegateKey(address memberAddr)
@@ -686,10 +737,10 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-     * @notice 确定一个账户在区块号之前的投票数 
-     * @dev 区块编号必须是最终区块，否则此功能将恢复以防止错误信息。 
-     * @param memberAddr 要检查的账户地址 
-     * @param blockNumber 获得投票余额的区块号 
+     * @notice 确定一个账户在区块号之前的投票数
+     * @dev 区块编号必须是最终区块，否则此功能将恢复以防止错误信息。
+     * @param memberAddr 要检查的账户地址
+     * @param blockNumber 获得投票余额的区块号
      * @return 给定区块中的 委托地址
      */
     function getPriorDelegateKey(address memberAddr, uint256 blockNumber)
@@ -733,8 +784,8 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-     * @notice 创建某个成员的新委托检查点 
-     * @param member 委托检查点将被添加到的成员 
+     * @notice 创建某个成员的新委托检查点
+     * @param member 委托检查点将被添加到的成员
      * @param newDelegateKey 将被写入新检查点的委托密钥
      */
     function _createNewDelegateCheckpoint(
@@ -742,13 +793,19 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
         address newDelegateKey
     ) internal {
         uint32 nCheckpoints = numCheckpoints[member];
-        // 我们应该允许 deletegaKey 升级的唯一条件 
-        // 当 block.number 与 fromBlock 值完全匹配时。 
+        // 我们应该允许 deletegaKey 升级的唯一条件
+        // 当 block.number 与 fromBlock 值完全匹配时。
         // 任何与此不同的东西都应该生成一个新的检查点。
-        if (nCheckpoints > 0 && checkpoints[member][nCheckpoints - 1].fromBlock == block.number) {
+        if (
+            nCheckpoints > 0 &&
+            checkpoints[member][nCheckpoints - 1].fromBlock == block.number
+        ) {
             checkpoints[member][nCheckpoints - 1].delegateKey = newDelegateKey;
         } else {
-            checkpoints[member][nCheckpoints] = DelegateCheckpoint(uint96(block.number), newDelegateKey);
+            checkpoints[member][nCheckpoints] = DelegateCheckpoint(
+                uint96(block.number),
+                newDelegateKey
+            );
             numCheckpoints[member] = nCheckpoints + 1;
         }
     }

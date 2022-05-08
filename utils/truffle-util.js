@@ -1,7 +1,6 @@
 // Whole-script strict mode syntax
 "use strict";
 
-
 const { sha3, toHex, ZERO_ADDRESS } = require("./contract-util");
 const { checkpoint, restore } = require("./checkpoint-util");
 const { log } = require("./log-util");

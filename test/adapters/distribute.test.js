@@ -1,7 +1,6 @@
 // Whole-script strict mode syntax
 "use strict";
 
-
 // Whole-script strict mode syntax
 "use strict";
 

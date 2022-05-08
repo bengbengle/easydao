@@ -5,7 +5,6 @@ pragma solidity ^0.8.0;
 import "../../core/DaoRegistry.sol";
 import "../IExtension.sol";
 
-
 /**
  * @dev Proxy contract which executes delegated calls to another contract using the EVM
  * instruction `delegatecall`, the call is triggered via fallback function.
@@ -127,7 +126,7 @@ contract ExecutorExtension is IExtension {
      * function in the contract matches the call data.
      */
     // Only senders with the EXECUTE ACL Flag enabled is allowed to send eth.
-     
+
     fallback() external payable {
         _fallback();
     }
@@ -137,7 +136,7 @@ contract ExecutorExtension is IExtension {
      * is empty.
      */
     // Only senders with the EXECUTE ACL Flag enabled is allowed to send eth.
-     
+
     receive() external payable {
         _fallback();
     }

@@ -9,7 +9,6 @@ import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
-
 contract NFTExtension is IExtension, IERC721Receiver {
     // Add the library methods
     using EnumerableSet for EnumerableSet.UintSet;
@@ -44,7 +43,13 @@ contract NFTExtension is IExtension, IERC721Receiver {
 
     modifier hasExtensionAccess(DaoRegistry _dao, AclFlag flag) {
         require(
-            dao == _dao && (DaoHelper.isInCreationModeAndHasAccess(dao) || dao.hasAdapterAccessToExtension(msg.sender, address(this), uint8(flag))),
+            dao == _dao &&
+                (DaoHelper.isInCreationModeAndHasAccess(dao) ||
+                    dao.hasAdapterAccessToExtension(
+                        msg.sender,
+                        address(this),
+                        uint8(flag)
+                    )),
             "erc721::accessDenied"
         );
         _;
@@ -54,10 +59,10 @@ contract NFTExtension is IExtension, IERC721Receiver {
     constructor() {}
 
     /**
-    * @notice 用它所属的 DAO 地址初始化扩展
-    * @param _dao 拥有扩展的 DAO 的地址
-    * @param creator DAO 和 扩展的所有者，也是 DAO 的成员   
-    */
+     * @notice 用它所属的 DAO 地址初始化扩展
+     * @param _dao 拥有扩展的 DAO 的地址
+     * @param creator DAO 和 扩展的所有者，也是 DAO 的成员
+     */
     function initialize(DaoRegistry _dao, address creator) external override {
         require(!initialized, "erc721::already initialized");
         require(_dao.isMember(creator), "erc721::not a member");
@@ -67,19 +72,18 @@ contract NFTExtension is IExtension, IERC721Receiver {
     }
 
     /**
-    * @notice 从所有者那里收集 NFT 并将其移动到 NFT 扩展
-    * @notice {approve} 或 {setApprovalForAll} 必须允许移动此令牌 
-    * @dev 如果 NFT 不在 ERC721 标准中，则恢复 
-    * @param nftAddr NFT 合约地址 
-    * @param nftTokenId NFT 令牌 ID
-    */
-     
+     * @notice 从所有者那里收集 NFT 并将其移动到 NFT 扩展
+     * @notice {approve} 或 {setApprovalForAll} 必须允许移动此令牌
+     * @dev 如果 NFT 不在 ERC721 标准中，则恢复
+     * @param nftAddr NFT 合约地址
+     * @param nftTokenId NFT 令牌 ID
+     */
+
     function collect(
         DaoRegistry _dao,
         address nftAddr,
         uint256 nftTokenId
     ) external hasExtensionAccess(_dao, AclFlag.COLLECT_NFT) {
-
         IERC721 erc721 = IERC721(nftAddr);
 
         // 将 NFT 移动到合约地址
@@ -90,17 +94,16 @@ contract NFTExtension is IExtension, IERC721Receiver {
 
         _saveNft(nftAddr, nftTokenId, DaoHelper.GUILD);
         emit CollectedNFT(nftAddr, nftTokenId);
-
     }
 
     /**
-     * @notice 将 NFT 代币从 extension 地址转移给新的所有者 
+     * @notice 将 NFT 代币从 extension 地址转移给新的所有者
      * @notice 它还更新内部状态以跟踪扩展收集的所有 NFT
      * @notice 调用者必须有 ACL 标志： WITHDRAW_NFT
      * @notice TODO 需要从一个新的适配器 (RagequitNFT) 调用此函数，该适配器将管理银行余额，并将 NFT 返还给所有者
      * @dev 如果 NFT 不在 ERC721 标准中，则恢复
      * @param newOwner 新所有者的地址
-     * @param nftAddr 必须符合 ERC721 标准的 NFT 地址 
+     * @param nftAddr 必须符合 ERC721 标准的 NFT 地址
      * @param nftTokenId NFT 令牌 ID
      */
     function withdrawNFT(
@@ -109,10 +112,12 @@ contract NFTExtension is IExtension, IERC721Receiver {
         address nftAddr,
         uint256 nftTokenId
     ) external hasExtensionAccess(_dao, AclFlag.WITHDRAW_NFT) {
-
         // 将 NFT 从合约地址中取出给实际拥有者
-        require(_nfts[nftAddr].remove(nftTokenId), "erc721::can not remove token id");
-        
+        require(
+            _nfts[nftAddr].remove(nftTokenId),
+            "erc721::can not remove token id"
+        );
+
         IERC721 erc721 = IERC721(nftAddr);
 
         erc721.safeTransferFrom(address(this), newOwner, nftTokenId);
@@ -125,25 +130,24 @@ contract NFTExtension is IExtension, IERC721Receiver {
             _nftAddresses.remove(nftAddr);
             // require(_nftAddresses.remove(nftAddr), "erc721::can not remove nft");
         }
-         
+
         emit WithdrawnNFT(nftAddr, nftTokenId, newOwner);
     }
 
     /**
-    * @notice 在内部更新 NFT 的所有权
-    * @notice 调用者必须有 ACL 标志：INTERNAL_TRANSFER 
-    * @dev 如果 NFT 尚未在扩展内部拥有，则还原 
-    * @param nftAddr NFT 地址 
-    * @param nftTokenId NFT 令牌 ID 
-    * @param newOwner 新所有者的地址
-    */
+     * @notice 在内部更新 NFT 的所有权
+     * @notice 调用者必须有 ACL 标志：INTERNAL_TRANSFER
+     * @dev 如果 NFT 尚未在扩展内部拥有，则还原
+     * @param nftAddr NFT 地址
+     * @param nftTokenId NFT 令牌 ID
+     * @param newOwner 新所有者的地址
+     */
     function internalTransfer(
         DaoRegistry _dao,
         address nftAddr,
         uint256 nftTokenId,
         address newOwner
     ) external hasExtensionAccess(_dao, AclFlag.INTERNAL_TRANSFER) {
-        
         require(newOwner != address(0x0), "erc721::new owner is 0");
         address currentOwner = _ownership[getNFTId(nftAddr, nftTokenId)];
         require(currentOwner != address(0x0), "erc721::nft not found");
@@ -154,10 +158,10 @@ contract NFTExtension is IExtension, IERC721Receiver {
     }
 
     /**
-    * @notice 获取从 NFT 地址和令牌 ID 生成的 ID（内部用于映射所有权） 
-    * @param nftAddress NFT 地址 
-    * @param tokenId NFT 代币 ID
-    */
+     * @notice 获取从 NFT 地址和令牌 ID 生成的 ID（内部用于映射所有权）
+     * @param nftAddress NFT 地址
+     * @param tokenId NFT 代币 ID
+     */
     function getNFTId(address nftAddress, uint256 tokenId)
         public
         pure
@@ -167,18 +171,18 @@ contract NFTExtension is IExtension, IERC721Receiver {
     }
 
     /**
-    * @notice 返回为 NFT 地址收集的代币 ID 总数 
-    * @param tokenAddr NFT 地址
+     * @notice 返回为 NFT 地址收集的代币 ID 总数
+     * @param tokenAddr NFT 地址
      */
     function nbNFTs(address tokenAddr) external view returns (uint256) {
         return _nfts[tokenAddr].length();
     }
 
     /**
-    * @notice 返回与存储在指定索引处的 GUILD 集合中的 NFT 地址关联的令牌 ID
-    * @param tokenAddr NFT 地址 
-    * @param index 获取令牌 ID（如果存在）的索引
-    */
+     * @notice 返回与存储在指定索引处的 GUILD 集合中的 NFT 地址关联的令牌 ID
+     * @param tokenAddr NFT 地址
+     * @param index 获取令牌 ID（如果存在）的索引
+     */
     function getNFT(address tokenAddr, uint256 index)
         external
         view
@@ -195,17 +199,17 @@ contract NFTExtension is IExtension, IERC721Receiver {
     }
 
     /**
-    * @notice 返回存储在 GUILD 集合 中 指定索引处的 NFT 地址
-    * @param index 获取 NFT 地址（如果存在）的索引
-    */
+     * @notice 返回存储在 GUILD 集合 中 指定索引处的 NFT 地址
+     * @param index 获取 NFT 地址（如果存在）的索引
+     */
     function getNFTAddress(uint256 index) external view returns (address) {
         return _nftAddresses.at(index);
     }
 
     /**
-    * @notice 获取 guild 中 NFT 的拥有者 
-    * @param nftAddress NFT 地址 
-    * @param tokenId NFT 代币 ID
+     * @notice 获取 guild 中 NFT 的拥有者
+     * @param nftAddress NFT 地址
+     * @param tokenId NFT 代币 ID
      */
     function getNFTOwner(address nftAddress, uint256 tokenId)
         external
@@ -224,17 +228,16 @@ contract NFTExtension is IExtension, IERC721Receiver {
         uint256 id,
         bytes calldata
     ) external override returns (bytes4) {
-        
         _saveNft(msg.sender, id, DaoHelper.GUILD);
 
         return this.onERC721Received.selector;
     }
 
     /**
-    * @notice Helper 函数用于更新 扩展收集 的 NFT 的扩展状态
-    * @param nftAddr NFT 地址
-    * @param nftTokenId 令牌 ID 
-    * @param owner 所有者的地址
+     * @notice Helper 函数用于更新 扩展收集 的 NFT 的扩展状态
+     * @param nftAddr NFT 地址
+     * @param nftTokenId 令牌 ID
+     * @param owner 所有者的地址
      */
     function _saveNft(
         address nftAddr,

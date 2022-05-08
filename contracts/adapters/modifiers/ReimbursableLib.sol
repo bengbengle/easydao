@@ -20,7 +20,9 @@ library ReimbursableLib {
         } else {
             data.reimbursement = IReimbursement(reimbursementAdapter);
 
-            (bool shouldReimburse, uint256 spendLimitPeriod) = data.reimbursement.shouldReimburse(dao, data.gasStart);
+            (bool shouldReimburse, uint256 spendLimitPeriod) = data
+                .reimbursement
+                .shouldReimburse(dao, data.gasStart);
 
             data.shouldReimburse = shouldReimburse;
             data.spendLimitPeriod = spendLimitPeriod;

@@ -7,7 +7,6 @@ import "../guards/AdapterGuard.sol";
 import "../adapters/interfaces/IVoting.sol";
 import "../helpers/DaoHelper.sol";
 
-
 contract ERC1155TestAdapterContract is AdapterGuard {
     /**
      * @notice Internally transfers the NFT from one owner to a new owner as long as both are active members.

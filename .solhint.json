@@ -4,12 +4,14 @@
     "no-empty-blocks": "off",
     "no-inline-assembly": "warn",
     "func-order": "warn",
-    "func-param-name-mixedcase": "error",
+    "func-param-name-mixedcase": "off",
     "compiler-version": ["error", "^0.8.0"],
     "mark-callable-contracts": "off",
     "reentrancy": "error",
     "code-complexity": ["warn", 7],
-    "private-vars-leading-underscore": "error",
-    "modifier-name-mixedcase": "error"
+    "private-vars-leading-underscore": "false",
+    "modifier-name-mixedcase": "false",
+    "state-visibility": "false",
+    "const-name-snakecase": "false"
   }
 }

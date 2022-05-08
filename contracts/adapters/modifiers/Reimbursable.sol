@@ -9,13 +9,13 @@ import "./ReimbursableLib.sol";
 abstract contract Reimbursable {
     struct ReimbursementData {
         // 在执行操作之前有多少气体
-        uint256 gasStart; 
+        uint256 gasStart;
         // 交易是否应报销
-        bool shouldReimburse; 
+        bool shouldReimburse;
         // 花费限制期（以秒为单位）
-        uint256 spendLimitPeriod; 
+        uint256 spendLimitPeriod;
         // 用于报销的适配器地址
-        IReimbursement reimbursement; 
+        IReimbursement reimbursement;
     }
 
     /**

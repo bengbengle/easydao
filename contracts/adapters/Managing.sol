@@ -9,7 +9,6 @@ import "../guards/AdapterGuard.sol";
 import "./modifiers/Reimbursable.sol";
 import "../helpers/DaoHelper.sol";
 
-
 contract ManagingContract is IManaging, AdapterGuard, Reimbursable {
     // DAO => (ProposalID => ProposalDetails)
     mapping(address => mapping(bytes32 => ProposalDetails)) public proposals;
@@ -18,17 +17,17 @@ contract ManagingContract is IManaging, AdapterGuard, Reimbursable {
         public configurations;
 
     /**
-     * @notice 创建替换、删除或添加适配器的提议。 
-     * @dev 如果 adapterAddress 等于 0x0，adapterId 会从注册表中删除（如果可用）。 
-     * @dev 如果 adapterAddress 是保留地址，它会恢复。 
-     * @dev 键和值必须具有相同的长度。 
-     * @dev proposalId 不能重复使用。 
-     * @param dao dao 地址。 
-     * @param proposalId Tproposal 详细信息 
-     * @param proposal 提案详情 
+     * @notice 创建替换、删除或添加适配器的提议。
+     * @dev 如果 adapterAddress 等于 0x0，adapterId 会从注册表中删除（如果可用）。
+     * @dev 如果 adapterAddress 是保留地址，它会恢复。
+     * @dev 键和值必须具有相同的长度。
+     * @dev proposalId 不能重复使用。
+     * @param dao dao 地址。
+     * @param proposalId Tproposal 详细信息
+     * @param proposal 提案详情
      * @param data 传递给投票合约并识别提交者的附加数据
      */
-     
+
     function submitProposal(
         DaoRegistry dao,
         bytes32 proposalId,
@@ -71,7 +70,9 @@ contract ManagingContract is IManaging, AdapterGuard, Reimbursable {
             );
         }
 
-        IVoting votingContract = IVoting(dao.getAdapterAddress(DaoHelper.VOTING));
+        IVoting votingContract = IVoting(
+            dao.getAdapterAddress(DaoHelper.VOTING)
+        );
         address senderAddress = votingContract.getSenderAddress(
             dao,
             address(this),
@@ -84,15 +85,15 @@ contract ManagingContract is IManaging, AdapterGuard, Reimbursable {
     }
 
     /**
-     * @notice 处理发起的提案。 
-     * @dev 只有成员才能处理提案。 
-     * @dev 仅当投票通过时，提案才会被处理。 
-     * @dev 当适配器地址已被使用并且它是适配器添加时恢复。 
-     * @dev 当扩展地址已被使用并且它是扩展添加时恢复。 
-     * @param dao dao 地址。 
+     * @notice 处理发起的提案。
+     * @dev 只有成员才能处理提案。
+     * @dev 仅当投票通过时，提案才会被处理。
+     * @dev 当适配器地址已被使用并且它是适配器添加时恢复。
+     * @dev 当扩展地址已被使用并且它是扩展添加时恢复。
+     * @param dao dao 地址。
      * @param proposalId 提案 ID。
      */
-     
+
     function processProposal(DaoRegistry dao, bytes32 proposalId)
         external
         override
@@ -104,7 +105,8 @@ contract ManagingContract is IManaging, AdapterGuard, Reimbursable {
         require(address(votingContract) != address(0), "adapter not found");
 
         require(
-            votingContract.voteResult(dao, proposalId) == IVoting.VotingState.PASS,
+            votingContract.voteResult(dao, proposalId) ==
+                IVoting.VotingState.PASS,
             "proposal did not pass"
         );
 
@@ -127,7 +129,7 @@ contract ManagingContract is IManaging, AdapterGuard, Reimbursable {
     }
 
     /**
-     * @notice 如果扩展已经注册，它会从 DAO 注册表中删除扩展。 
+     * @notice 如果扩展已经注册，它会从 DAO 注册表中删除扩展。
      * @notice 如果提供了 adapterOrExtensionAddr，则新地址将作为新扩展添加到 DAO 注册表。
      */
     function _replaceExtension(DaoRegistry dao, ProposalDetails memory proposal)

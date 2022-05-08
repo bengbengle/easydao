@@ -13,7 +13,6 @@ import "./modifiers/Reimbursable.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 
-
 contract LendNFTContract is
     AdapterGuard,
     Reimbursable,
@@ -30,7 +29,7 @@ contract LendNFTContract is
         bytes32 id;
         // 申请人
         address applicant;
-        // 申请者地址（将接收 DAO 内部代币并成为成员； 此地址可能与作为贡品的 ERC-721 代币的实际所有者不同 ） 。    
+        // 申请者地址（将接收 DAO 内部代币并成为成员； 此地址可能与作为贡品的 ERC-721 代币的实际所有者不同 ） 。
         address nftAddr;
         // nft 令牌标识符
         uint256 nftTokenId;
@@ -58,25 +57,28 @@ contract LendNFTContract is
         external
         onlyAdapter(dao)
     {
-        address ext = dao.getExtensionAddress(DaoHelper.BANK);
-        BankExtension bank = BankExtension(ext);
-        
-        bank.registerPotentialNewInternalToken(dao, token);
+        // address ext = dao.getExtensionAddress(DaoHelper.BANK);
+        // BankExtension bank = BankExtension(ext);
+
+        // bank.registerPotentialNewInternalToken(dao, token);
+
+        BankExtension(dao.getExtensionAddress(DaoHelper.BANK))
+            .registerPotentialNewInternalToken(dao, token);
     }
 
     /**
-     * @notice 创建并赞助一个 tribute 提案以启动投票过程。 
-     * @dev 申请人地址不得保留。 
-     * @dev 只有 DAO 的成员才能发起致敬提案。 
-     * @param dao DAO 地址。 
-     * @param proposalId 提案ID（由客户端管理）。 
-     * @param applicant 申请人地址（将收到 DAO 内部代币并成为会员）。 
-     * @param nftAddr 将转移到 DAO 以换取 DAO 内部代币的 ERC-721 代币的地址。 
-     * @param nftTokenId NFT 令牌 ID。 
-     * @param requestAmount DAO 内部代币（UNITS）的请求数量。 
+     * @notice 创建并赞助一个 tribute 提案以启动投票过程。
+     * @dev 申请人地址不得保留。
+     * @dev 只有 DAO 的成员才能发起致敬提案。
+     * @param dao DAO 地址。
+     * @param proposalId 提案ID（由客户端管理）。
+     * @param applicant 申请人地址（将收到 DAO 内部代币并成为会员）。
+     * @param nftAddr 将转移到 DAO 以换取 DAO 内部代币的 ERC-721 代币的地址。
+     * @param nftTokenId NFT 令牌 ID。
+     * @param requestAmount DAO 内部代币（UNITS）的请求数量。
      * @param data 与致敬提案相关的附加信息。
      */
-     
+
     function submitProposal(
         DaoRegistry dao,
         bytes32 proposalId,
@@ -87,15 +89,17 @@ contract LendNFTContract is
         uint64 lendingPeriod,
         bytes memory data
     ) external reimbursable(dao) {
-
-        require(DaoHelper.isNotReservedAddress(applicant), "applicant is reserved address");
+        require(
+            DaoHelper.isNotReservedAddress(applicant),
+            "applicant is reserved address"
+        );
 
         dao.submitProposal(proposalId);
 
         IVoting votingContract = IVoting(
             dao.getAdapterAddress(DaoHelper.VOTING)
         );
-        
+
         address sponsoredBy = votingContract.getSenderAddress(
             dao,
             address(this),
@@ -103,14 +107,11 @@ contract LendNFTContract is
             msg.sender
         );
         dao.sponsorProposal(proposalId, sponsoredBy, address(votingContract));
-        
-        address ext = dao.getExtensionAddress(DaoHelper.BANK);
-        BankExtension bank = BankExtension(ext);
 
         DaoHelper.potentialNewMember(
             applicant,
             dao,
-            bank
+            BankExtension(dao.getExtensionAddress(DaoHelper.BANK))
         );
 
         votingContract.startNewVotingForProposal(dao, proposalId, data);
@@ -130,14 +131,14 @@ contract LendNFTContract is
     }
 
     /**
-    * @notice 处理提案以处理 DAO 内部代币的 铸造 和 交换 以获取贡品代币（通过投票） 
-    * @dev 提案 ID 必须存在
-    * @dev 仅接受 尚未处理的提案 
-    * @dev 仅接受 已完成投票的赞助提案 
-    * @dev 作为贡品提供的 ERC-721 代币的所有者必须首先单独 “批准” NFT 扩展作 为该代币的花费者 （以便 NFT 可以转移以获得通过的投票）     
-    * @param dao The DAO address.
-    * @param proposalId The proposal id.
-    */
+     * @notice 处理提案以处理 DAO 内部代币的 铸造 和 交换 以获取贡品代币（通过投票）
+     * @dev 提案 ID 必须存在
+     * @dev 仅接受 尚未处理的提案
+     * @dev 仅接受 已完成投票的赞助提案
+     * @dev 作为贡品提供的 ERC-721 代币的所有者必须首先单独 “批准” NFT 扩展作 为该代币的花费者 （以便 NFT 可以转移以获得通过的投票）
+     * @param dao The DAO address.
+     * @param proposalId The proposal id.
+     */
     // 该函数只能从 _onERC1155Received 和 _onERC721Received 函数中调用 , 可以防止重入攻击。
     function _processProposal(DaoRegistry dao, bytes32 proposalId)
         internal
@@ -148,7 +149,10 @@ contract LendNFTContract is
     {
         proposal = proposals[address(dao)][proposalId];
 
-        bool is_processed = dao.getProposalFlag(proposalId, DaoRegistry.ProposalFlag.PROCESSED);
+        bool is_processed = dao.getProposalFlag(
+            proposalId,
+            DaoRegistry.ProposalFlag.PROCESSED
+        );
 
         require(proposal.id == proposalId, "proposal does not exist");
 
@@ -213,12 +217,15 @@ contract LendNFTContract is
         reimbursable(dao)
     {
         ProposalDetails storage proposal = proposals[address(dao)][proposalId];
-        
+
         require(proposal.lendingStart > 0, "lending not started");
-        
+
         require(!proposal.sentBack, "already sent back");
 
-        require(msg.sender == proposal.previousOwner, "only the previous owner can withdraw the NFT");
+        require(
+            msg.sender == proposal.previousOwner,
+            "only the previous owner can withdraw the NFT"
+        );
 
         proposal.sentBack = true;
 
@@ -237,16 +244,14 @@ contract LendNFTContract is
                 proposal.lendingStart + proposal.lendingPeriod,
                 proposal.requestAmount
             );
-            BankExtension bank = BankExtension(
-                dao.getExtensionAddress(DaoHelper.BANK)
-            );
 
-            bank.subtractFromBalance(
-                dao,
-                proposal.applicant,
-                DaoHelper.UNITS,
-                blockedAmount
-            );
+            BankExtension(dao.getExtensionAddress(DaoHelper.BANK))
+                .subtractFromBalance(
+                    dao,
+                    proposal.applicant,
+                    DaoHelper.UNITS,
+                    blockedAmount
+                );
             vesting.removeVesting(
                 dao,
                 proposal.applicant,
@@ -292,7 +297,6 @@ contract LendNFTContract is
         uint256 value,
         bytes calldata data
     ) external override returns (bytes4) {
-    
         ProcessProposal memory ppS = abi.decode(data, (ProcessProposal));
 
         return _onERC1155Received(ppS.dao, ppS.proposalId, from, id, value);
@@ -306,7 +310,8 @@ contract LendNFTContract is
         uint256 value
     ) internal reimbursable(dao) returns (bytes4) {
         (
-            ProposalDetails storage proposal, IVoting.VotingState voteResult
+            ProposalDetails storage proposal,
+            IVoting.VotingState voteResult
         ) = _processProposal(dao, proposalId);
 
         require(proposal.nftTokenId == id, "wrong NFT");
@@ -316,13 +321,19 @@ contract LendNFTContract is
 
         // 严格匹配是为了确保投票通过。
         if (voteResult == IVoting.VotingState.PASS) {
-
-            address erc1155ExtAddr = dao.getExtensionAddress(DaoHelper.ERC1155_EXT);
+            address erc1155ExtAddr = dao.getExtensionAddress(
+                DaoHelper.ERC1155_EXT
+            );
 
             IERC1155 erc1155 = IERC1155(msg.sender);
 
-            erc1155.safeTransferFrom(address(this), erc1155ExtAddr, id, value, "");
-
+            erc1155.safeTransferFrom(
+                address(this),
+                erc1155ExtAddr,
+                id,
+                value,
+                ""
+            );
         } else {
             IERC1155 erc1155 = IERC1155(msg.sender);
             erc1155.safeTransferFrom(address(this), from, id, value, "");
