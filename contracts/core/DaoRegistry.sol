@@ -215,13 +215,8 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-<<<<<<< Updated upstream
-     * @notice 如果成员地址未注册或无效，则在 DAO 中注册成员地址。
-     * @notice 潜在会员是 不持有股份 的会员，其 注册 仍需投票。
-=======
      * @notice 如果成员地址未注册或无效，则在 DAO 中注册成员地址  
      * @notice 潜在会员是 不持有股份 的会员，其 注册 仍需投票 
->>>>>>> Stashed changes
      */
     function potentialNewMember(address memberAddress)
         public
@@ -742,17 +737,10 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-<<<<<<< Updated upstream
-     * @notice 确定一个账户在区块号之前的投票数
-     * @dev 区块编号必须是最终区块，否则此功能将恢复以防止错误信息。
-     * @param memberAddr 要检查的账户地址
-     * @param blockNumber 获得投票余额的区块号
-=======
      * @notice 确定一个账户在区块号之前的投票数 
      * @dev 区块编号必须是最终区块，否则此功能将恢复以防止错误信息  
      * @param memberAddr 要检查的账户地址 
      * @param blockNumber 获得投票余额的区块号 
->>>>>>> Stashed changes
      * @return 给定区块中的 委托地址
      */
     function getPriorDelegateKey(address memberAddr, uint256 blockNumber)
@@ -805,20 +793,10 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
         address newDelegateKey
     ) internal {
         uint32 nCheckpoints = numCheckpoints[member];
-<<<<<<< Updated upstream
-        // 我们应该允许 deletegaKey 升级的唯一条件
-        // 当 block.number 与 fromBlock 值完全匹配时。
-        // 任何与此不同的东西都应该生成一个新的检查点。
-        if (
-            nCheckpoints > 0 &&
-            checkpoints[member][nCheckpoints - 1].fromBlock == block.number
-        ) {
-=======
         // 我们应该允许 deletegaKey 升级的唯一条件 
         // 当 block.number 与 fromBlock 值完全匹配时  
         // 任何与此不同的东西都应该生成一个新的检查点 
         if (nCheckpoints > 0 && checkpoints[member][nCheckpoints - 1].fromBlock == block.number) {
->>>>>>> Stashed changes
             checkpoints[member][nCheckpoints - 1].delegateKey = newDelegateKey;
         } else {
             checkpoints[member][nCheckpoints] = DelegateCheckpoint(

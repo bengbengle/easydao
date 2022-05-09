@@ -12,15 +12,8 @@ import "../helpers/DaoHelper.sol";
 import "../extensions/bank/Bank.sol";
 
 contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
-<<<<<<< Updated upstream
-    // Event to indicate the distribution process has been completed
-    // if the unitHolder address is 0x0, then the amount were distributed to all members of the DAO.
-    // 表示分发过程已经完成的事件
-    // 如果 unitHolder 地址为 0x0，则金额分配给 DAO 的所有成员。
-=======
 
     // 表示分发过程已经完成的事件 
->>>>>>> Stashed changes
     event Distributed(
         address daoAddress,
         address token,
@@ -129,27 +122,6 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
     }
 
     /**
-<<<<<<< Updated upstream
-     * @notice Process the distribution proposal, calculates the fair amount of funds to distribute to the members based on the units holdings.
-     * @dev A distribution proposal proposal must be in progress.
-     * @dev Only one proposal per DAO can be executed at time.
-     * @dev Only active members can receive funds.
-     * @dev Only proposals that passed the voting can be set to In Progress status.
-     * @param dao The dao address.
-     * @param proposalId The distribution proposal id.
-     * @notice 处理分配方案，根据单位持有量计算分配给会员的公平金额。
-     * @dev 分发提案提案必须正在进行中。
-     * @dev 每个 DAO 一次只能执行一个提案。
-     * @dev 只有活跃会员才能收到资金。
-     * @dev 只有通过投票的提案才能设置为进行中状态。
-     * @param dao dao 地址。
-     * @param proposalId 分发提案 ID。
-     */
-    // The function is protected against reentrancy with the reentrancyGuard
-    // Which prevents concurrent modifications in the DAO registry.
-    // 使用 reentrancyGuard 防止函数重入，这可以防止 DAO 注册表中的并发修改。
-
-=======
      * @notice 处理分配方案，根据单位持有量计算分配给会员的公平金额 
      * @dev 分发提案提案必须正在进行中 
      * @dev 每个 DAO 一次只能执行一个提案 
@@ -160,7 +132,6 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
      */
     // 使用 reentrancyGuard 防止函数重入，这可以防止 DAO 注册表中的并发修改
      
->>>>>>> Stashed changes
     function processProposal(DaoRegistry dao, bytes32 proposalId)
         external
         override
@@ -299,8 +270,7 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
     }
 
     /**
-     * @notice Updates the holder account with the amount based on the token parameter.
-     * @notice It is an internal transfer only that happens in the Bank extension.
+     * @notice 使用基于令牌参数的金额更新持有人帐户, 这是仅在 银行分发中发生的内部转账。
      */
     function _distributeOne(
         DaoRegistry dao,
@@ -316,7 +286,7 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
             blockNumber
         );
         require(memberTokens > 0, "not enough tokens");
-        // Distributes the funds to 1 unit holder only
+        // 只给 1 个地址分发资金
         bank.internalTransfer(
             dao,
             DaoHelper.ESCROW,
@@ -327,14 +297,7 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
     }
 
     /**
-<<<<<<< Updated upstream
-     * @notice Updates all the holder accounts with the amount based on the token parameter.
-     * @notice It is an internal transfer only that happens in the Bank extension.
-     * @notice 使用基于 token 参数的金额更新所有持有人账户。
-     * @notice 这是仅在银行分机中发生的内部转账。
-=======
      * @notice 使用基于 token 参数的金额更新所有持有人账户， 这是仅在银行分机中发生的内部转账
->>>>>>> Stashed changes
      */
     function _distributeAll(
         DaoRegistry dao,

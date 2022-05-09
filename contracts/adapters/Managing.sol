@@ -17,16 +17,6 @@ contract ManagingContract is IManaging, AdapterGuard, Reimbursable {
         public configurations;
 
     /**
-<<<<<<< Updated upstream
-     * @notice 创建替换、删除或添加适配器的提议。
-     * @dev 如果 adapterAddress 等于 0x0，adapterId 会从注册表中删除（如果可用）。
-     * @dev 如果 adapterAddress 是保留地址，它会恢复。
-     * @dev 键和值必须具有相同的长度。
-     * @dev proposalId 不能重复使用。
-     * @param dao dao 地址。
-     * @param proposalId Tproposal 详细信息
-     * @param proposal 提案详情
-=======
      * @notice 创建替换、删除或添加适配器的提议  
      * @dev 如果 adapterAddress 等于 0x0，adapterId 会从注册表中删除（如果可用）  
      * @dev 如果 adapterAddress 是保留地址，它会恢复  
@@ -35,7 +25,6 @@ contract ManagingContract is IManaging, AdapterGuard, Reimbursable {
      * @param dao dao 地址  
      * @param proposalId Tproposal 详细信息 
      * @param proposal 提案详情 
->>>>>>> Stashed changes
      * @param data 传递给投票合约并识别提交者的附加数据
      */
 
@@ -96,15 +85,6 @@ contract ManagingContract is IManaging, AdapterGuard, Reimbursable {
     }
 
     /**
-<<<<<<< Updated upstream
-     * @notice 处理发起的提案。
-     * @dev 只有成员才能处理提案。
-     * @dev 仅当投票通过时，提案才会被处理。
-     * @dev 当适配器地址已被使用并且它是适配器添加时恢复。
-     * @dev 当扩展地址已被使用并且它是扩展添加时恢复。
-     * @param dao dao 地址。
-     * @param proposalId 提案 ID。
-=======
      * @notice 处理发起的提案  
      * @dev 只有成员才能处理提案  
      * @dev 仅当投票通过时，提案才会被处理  
@@ -112,7 +92,6 @@ contract ManagingContract is IManaging, AdapterGuard, Reimbursable {
      * @dev 当扩展地址已被使用并且它是扩展添加时恢复  
      * @param dao dao 地址  
      * @param proposalId 提案 ID 
->>>>>>> Stashed changes
      */
 
     function processProposal(DaoRegistry dao, bytes32 proposalId)
@@ -150,13 +129,8 @@ contract ManagingContract is IManaging, AdapterGuard, Reimbursable {
     }
 
     /**
-<<<<<<< Updated upstream
-     * @notice 如果扩展已经注册，它会从 DAO 注册表中删除扩展。
-     * @notice 如果提供了 adapterOrExtensionAddr，则新地址将作为新扩展添加到 DAO 注册表。
-=======
      * @notice 如果扩展已经注册，它会从 DAO 注册表中删除扩展  
      * @notice 如果提供了 adapterOrExtensionAddr，则新地址将作为新扩展添加到 DAO 注册表 
->>>>>>> Stashed changes
      */
     function _replaceExtension(DaoRegistry dao, ProposalDetails memory proposal)
         internal

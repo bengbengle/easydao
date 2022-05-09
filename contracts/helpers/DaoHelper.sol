@@ -19,13 +19,8 @@ library DaoHelper {
     bytes32 internal constant DISTRIBUTE = keccak256("distribute");
     bytes32 internal constant TRIBUTE_NFT = keccak256("tribute-nft");
     bytes32 internal constant REIMBURSEMENT = keccak256("reimbursement");
-<<<<<<< Updated upstream
-    bytes32 internal constant TRANSFER_STRATEGY =
-        keccak256("erc20-transfer-strategy");
-=======
     bytes32 internal constant TRANSFER_STRATEGY = keccak256("erc20-transfer-strategy");
 
->>>>>>> Stashed changes
     bytes32 internal constant DAO_REGISTRY_ADAPT = keccak256("daoRegistry");
     bytes32 internal constant BANK_ADAPT = keccak256("bank");
     bytes32 internal constant ERC721_ADAPT = keccak256("nft");

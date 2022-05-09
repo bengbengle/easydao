@@ -34,17 +34,10 @@ contract DaoArtifacts is Ownable {
     );
 
     /**
-<<<<<<< Updated upstream
-     * @notice 将适配器地址添加到存储中
-     * @param _id 适配器的 id (sha3)。
-     * @param _version 适配器的版本。
-     * @param _address 要存储的适配器的地址。
-=======
      * @notice 将适配器地址添加到存储中 
      * @param _id 适配器的 id (sha3)  
      * @param _version 适配器的版本  
      * @param _address 要存储的适配器的地址  
->>>>>>> Stashed changes
      * @param _type 工件类型：0 = Core，1 = Factory，2 = Extension，3 = Adapter，4 = Util
      */
     function addArtifact(
@@ -59,21 +52,12 @@ contract DaoArtifacts is Ownable {
     }
 
     /**
-<<<<<<< Updated upstream
-     * @notice 从存储中检索适配器/扩展工厂地址。
-     * @param _id 适配器/扩展工厂 (sha3) 的 id。
-     * @param _owner 适配器/扩展工厂所有者的地址。
-     * @param _version 适配器/扩展工厂的版本。
-     * @param _type 工件的类型：0 = 核心，1 = 工厂，2 = 扩展，3 = 适配器，4 = 实用程序。
-     * @return 适配器/扩展工厂的地址（如果有）。
-=======
      * @notice 从存储中检索适配器/扩展工厂地址  
      * @param _id 适配器/扩展工厂 (sha3) 的 id  
      * @param _owner 适配器/扩展工厂所有者的地址  
      * @param _version 适配器/扩展工厂的版本  
      * @param _type 工件的类型：0 = 核心，1 = 工厂，2 = 扩展，3 = 适配器，4 = 实用程序  
      * @return 适配器/扩展工厂的地址（如果有） 
->>>>>>> Stashed changes
      */
     function getArtifactAddress(
         bytes32 _id,
@@ -85,15 +69,9 @@ contract DaoArtifacts is Ownable {
     }
 
     /**
-<<<<<<< Updated upstream
-     * @notice 更新存储中的适配器/扩展工厂地址。
-     * @notice 每个事务最多更新 20 个工件， 只允许合约的所有者执行批量更新。
-     * @param _artifacts 要更新的工件数组。
-=======
      * @notice 更新存储中的适配器/扩展工厂地址  
      * @notice 每个事务最多更新 20 个工件， 只允许合约的所有者执行批量更新  
      * @param _artifacts 要更新的工件数组 
->>>>>>> Stashed changes
      */
     function updateArtifacts(Artifact[] memory _artifacts) external onlyOwner {
         require(_artifacts.length <= 20, "Maximum artifacts limit exceeded");

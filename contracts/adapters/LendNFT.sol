@@ -29,11 +29,7 @@ contract LendNFTContract is
         bytes32 id;
         // 申请人
         address applicant;
-<<<<<<< Updated upstream
-        // 申请者地址（将接收 DAO 内部代币并成为成员； 此地址可能与作为贡品的 ERC-721 代币的实际所有者不同 ） 。
-=======
         // 申请者地址（将接收 DAO 内部代币并成为成员； 此地址可能与作为贡品的 ERC-721 代币的实际所有者不同 ）      
->>>>>>> Stashed changes
         address nftAddr;
         // nft 令牌标识符
         uint256 nftTokenId;
@@ -71,18 +67,6 @@ contract LendNFTContract is
     }
 
     /**
-<<<<<<< Updated upstream
-     * @notice 创建并赞助一个 tribute 提案以启动投票过程。
-     * @dev 申请人地址不得保留。
-     * @dev 只有 DAO 的成员才能发起致敬提案。
-     * @param dao DAO 地址。
-     * @param proposalId 提案ID（由客户端管理）。
-     * @param applicant 申请人地址（将收到 DAO 内部代币并成为会员）。
-     * @param nftAddr 将转移到 DAO 以换取 DAO 内部代币的 ERC-721 代币的地址。
-     * @param nftTokenId NFT 令牌 ID。
-     * @param requestAmount DAO 内部代币（UNITS）的请求数量。
-     * @param data 与致敬提案相关的附加信息。
-=======
      * @notice 创建并赞助一个 tribute 提案以启动投票过程  
      * @dev 申请人地址不得保留  
      * @dev 只有 DAO 的成员才能发起致敬提案  
@@ -93,7 +77,6 @@ contract LendNFTContract is
      * @param nftTokenId NFT 令牌 ID  
      * @param requestAmount DAO 内部代币（UNITS）的请求数量  
      * @param data 与致敬提案相关的附加信息 
->>>>>>> Stashed changes
      */
 
     function submitProposal(
@@ -148,17 +131,6 @@ contract LendNFTContract is
     }
 
     /**
-<<<<<<< Updated upstream
-     * @notice 处理提案以处理 DAO 内部代币的 铸造 和 交换 以获取贡品代币（通过投票）
-     * @dev 提案 ID 必须存在
-     * @dev 仅接受 尚未处理的提案
-     * @dev 仅接受 已完成投票的赞助提案
-     * @dev 作为贡品提供的 ERC-721 代币的所有者必须首先单独 “批准” NFT 扩展作 为该代币的花费者 （以便 NFT 可以转移以获得通过的投票）
-     * @param dao The DAO address.
-     * @param proposalId The proposal id.
-     */
-    // 该函数只能从 _onERC1155Received 和 _onERC721Received 函数中调用 , 可以防止重入攻击。
-=======
     * @notice 处理提案以处理 DAO 内部代币的 铸造 和 交换 以获取贡品代币（通过投票） 
     * @dev 提案 ID 必须存在
     * @dev 仅接受 尚未处理的提案 
@@ -168,7 +140,6 @@ contract LendNFTContract is
     * @param proposalId The proposal id.
     */
     // 该函数只能从 _onERC1155Received 和 _onERC721Received 函数中调用 , 可以防止重入攻击 
->>>>>>> Stashed changes
     function _processProposal(DaoRegistry dao, bytes32 proposalId)
         internal
         returns (

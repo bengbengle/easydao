@@ -346,19 +346,9 @@ contract BankExtension is IExtension, ERC165 {
     }
 
     /**
-<<<<<<< Updated upstream
-     * @notice Remove from a member's balance of a given token
-     * @param member The member whose balance will be updated
-     * @param token The token to update
-     * @param amount The new balance
-     * @notice 从给定令牌的成员余额中删除
-     * @param member 余额将被更新的成员
-     * @param token 要更新的令牌
-=======
      * @notice 从给定令牌的成员余额中删除 
      * @param member 余额将被更新的成员 
      * @param token 要更新的令牌 
->>>>>>> Stashed changes
      * @param amount 新余额
      */
     function subtractFromBalance(
@@ -413,15 +403,9 @@ contract BankExtension is IExtension, ERC165 {
     }
 
     /**
-<<<<<<< Updated upstream
-     * @notice 确定一个账户在某区块号之前的投票数， 区块编号必须是最终区块，否则此功能将恢复以防止错误信息。
-     * @param account 要检查的账户地址
-     * @param blockNumber 获得投票余额的区块号
-=======
      * @notice 确定一个账户在某区块号之前的投票数， 区块编号必须是最终区块，否则此功能将恢复以防止错误信息  
      * @param account 要检查的账户地址 
      * @param blockNumber 获得投票余额的区块号 
->>>>>>> Stashed changes
      * @return 账户在给定区块中的投票数
      */
     function getPriorAmount(

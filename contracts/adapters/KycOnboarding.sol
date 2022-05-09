@@ -366,11 +366,7 @@ contract KycOnboardingContract is
     }
 
     /**
-<<<<<<< Updated upstream
-     * @notice 通过使用字符串键对 地址进行编码来构建 配置键。
-=======
      * @notice 通过使用字符串键对 地址进行编码来构建 配置键  
->>>>>>> Stashed changes
      * @param tokenAddrToMint 要编码的地址
      * @param key 要编码的密钥
      */

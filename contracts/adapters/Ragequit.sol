@@ -81,13 +81,8 @@ contract RagequitContract is IRagequit, AdapterGuard {
      * @param memberAddr 想要烧掉 units 或 loot 的成员地址
      * @param unitsToBurn 必须转换为资金的成员 units 数量
      * @param lootToBurn 必须转换为资金的成员 loot 数量
-<<<<<<< Updated upstream
-     * @param tokens 资金应该发送到的 tokens 数组。
-     * @param bank 银行扩展名。
-=======
      * @param tokens 资金应该发送到的 tokens 数组 
      * @param bank 银行扩展名
->>>>>>> Stashed changes
      */
     function _prepareRagequit(
         DaoRegistry dao,
@@ -153,15 +148,8 @@ contract RagequitContract is IRagequit, AdapterGuard {
         // 计算要燃烧的 loot 和 units 的总量
         uint256 unitsAndLootToBurn = unitsToBurn + lootToBurn;
 
-<<<<<<< Updated upstream
-        // Transfers the funds from the internal Guild account to the internal member's account based on each token provided by the member.
-        // The provided token must be supported/allowed by the Guild Bank, otherwise it reverts the entire transaction.
-        // 根据会员提供的每个代币，将资金从内部公会账户转移到内部会员账户。
-        // 所提供的代币必须得到公会银行的支持/允许，否则会恢复整个交易。
-=======
         // 根据会员提供的每个代币，将资金从内部公会账户转移到内部会员账户 
         // 所提供的代币必须得到公会银行的支持/允许，否则会恢复整个交易
->>>>>>> Stashed changes
         uint256 length = tokens.length;
         for (uint256 i = 0; i < length; i++) {
             address currentToken = tokens[i];
@@ -175,12 +163,7 @@ contract RagequitContract is IRagequit, AdapterGuard {
 
             require(bank.isTokenAllowed(currentToken), "token not allowed");
 
-<<<<<<< Updated upstream
-            // 根据 代币、单位 和 loot 计算公平的资金数额
-
-=======
             // 根据 代币、单位 和 loot 计算公平的 资金数额
->>>>>>> Stashed changes
             uint256 amountToRagequit = FairShareHelper.calc(
                 bank.balanceOf(DaoHelper.GUILD, currentToken),
                 unitsAndLootToBurn,
@@ -188,14 +171,6 @@ contract RagequitContract is IRagequit, AdapterGuard {
             );
 
             if (amountToRagequit > 0) {
-<<<<<<< Updated upstream
-                // gas optimization to allow a higher maximum token limit
-                // deliberately not using safemath here to keep overflows from preventing the function execution
-                // (which would break ragekicks) if a token overflows,
-                // it is because the supply was artificially inflated to oblivion, so we probably don"t care about it anyways
-
-=======
->>>>>>> Stashed changes
                 bank.internalTransfer(
                     dao,
                     DaoHelper.GUILD,
@@ -206,12 +181,7 @@ contract RagequitContract is IRagequit, AdapterGuard {
             }
         }
 
-<<<<<<< Updated upstream
-        // 一旦 units 和 loot 被烧毁， 资金也转移完成， 发出一个事件以指示操作成功。
-
-=======
         // 一旦 units 和 loot 被烧毁， 资金也转移完成， 发出一个事件以指示操作成功
->>>>>>> Stashed changes
         emit MemberRagequit(
             address(dao),
             memberAddr,

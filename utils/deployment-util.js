@@ -38,17 +38,10 @@ const deployContract = ({ config, options }) => {
 };
 
 /**
-<<<<<<< Updated upstream
- * 部署使用 Factory 类型定义的所有合约。
- * 合约必须在 configs/networks/.config.ts 中启用， 并且不应在自动部署过程中跳过。
- * 工厂合约必须在 options 对象中提供。
- * 如果在 options 对象中找不到合约，则部署将返回并出现错误。
-=======
  * 部署使用 Factory 类型定义的所有合约  
  * 合约必须在 configs/networks/.config.ts 中启用， 并且不应在自动部署过程中跳过  
  * 工厂合约必须在 options 对象中提供  
  * 如果在 options 对象中找不到合约，则部署将返回并出现错误 
->>>>>>> Stashed changes
  */
 const createFactories = async ({ options }) => {
   const factories = {};
@@ -347,16 +340,6 @@ const validateContractConfigs = (contractConfigs) => {
 };
 
 /**
-<<<<<<< Updated upstream
- * 部署 configs/contracts.config.ts 中定义的所有合约。
- * 合约必须在 configs/networks/.config.ts 中启用， 并且不应在自动部署过程中跳过。
- * 每一份合约都必须在 options 对象中提供。
- * 如果在 options 对象中找不到合约，则部署将返回并出现错误。
- * 它还为 DAO 配置正确的访问权限，并为所有适配器和扩展配置参数。
- *
- *
- * 仅当通过 options.offchainVoting 参数需要时才部署链下投票。
-=======
  * 部署 configs/contracts.config.ts 中定义的所有合约  
  * 合约必须在 configs/networks/.config.ts 中启用， 并且不应在自动部署过程中跳过  
  * 每一份合约都必须在 options 对象中提供  
@@ -365,7 +348,6 @@ const validateContractConfigs = (contractConfigs) => {
  *
  *   
  * 仅当通过 options.offchainVoting 参数需要时才部署链下投票 
->>>>>>> Stashed changes
  *
  * 所有已部署的合约都将在映射中返回，其中别名在 ​​ configs/networks/.config.ts 中定义 
  */

@@ -11,21 +11,12 @@ import "./modifiers/Reimbursable.sol";
 
 contract BankAdapterContract is AdapterGuard, Reimbursable {
     /**
-<<<<<<< Updated upstream
-     * @notice 允许 DAO 的成员/顾问从其内部银行账户中提取资金。
-     * @notice 只有未预留的账户才能提取资金。
-     * @notice 如果用户账户中没有可用余额，则交易被撤销。
-     * @param dao DAO 地址。
-     * @param account 接收资金的账户。
-     * @param token 接收资金的代币地址。
-=======
      * @notice 允许 DAO 的成员/顾问从其内部银行账户中提取资金  
      * @notice 只有未预留的账户才能提取资金  
      * @notice 如果用户账户中没有可用余额，则交易被撤销  
      * @param dao DAO 地址  
      * @param account 接收资金的账户  
      * @param token 接收资金的代币地址 
->>>>>>> Stashed changes
      */
     function withdraw(
         DaoRegistry dao,
@@ -49,34 +40,21 @@ contract BankAdapterContract is AdapterGuard, Reimbursable {
     }
 
     /**
-<<<<<<< Updated upstream
-     * @notice 允许任何人更新银行扩展中的代币余额
-     * @notice 如果用户账户中没有可用余额，则交易被撤销。
-     * @param dao DAO 地址。
-     * @param token 要更新的令牌地址。
-=======
      * @notice 允许任何人更新银行扩展中的代币余额 
      * @notice 如果用户账户中没有可用余额，则交易被撤销  
      * @param dao DAO 地址  
      * @param token 要更新的令牌地址 
->>>>>>> Stashed changes
      */
     function updateToken(DaoRegistry dao, address token)
         external
         reentrancyGuard(dao)
     {
-<<<<<<< Updated upstream
-        // 我们不需要检查 token 是否被银行支持， 因为如果不是，余额将永远为零。
-        BankExtension bank = BankExtension(
-            dao.getExtensionAddress(DaoHelper.BANK)
-=======
         // 我们不需要检查 token 是否被银行支持， 因为如果不是，余额将永远为零 
         BankExtension bank = BankExtension(dao.getExtensionAddress(DaoHelper.BANK));
         
         bank.updateToken(
             dao,
             token
->>>>>>> Stashed changes
         );
 
         bank.updateToken(dao, token);

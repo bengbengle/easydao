@@ -24,19 +24,10 @@ library GuildKickHelper {
     {
         // Get the bank extension
         BankExtension bank = BankExtension(dao.getExtensionAddress(BANK));
-<<<<<<< Updated upstream
-        // Calculates the total units, loot and locked loot before any internal transfers
-        // it considers the locked loot to be able to calculate the fair amount to ragequit,
-        // but locked loot can not be burned.
-        // 在任何内部转移之前计算总单位、战利品和锁定战利品
-        // 它认为锁定的战利品能够计算公平的 ragequit 数量，
-        // 但是锁定的战利品不能被烧毁。
-=======
         
         // 在任何内部转移之前计算 total units、loot 和 locked_units 
         // locked_loot 计算公平的 ragequit 数量 
         // 但是 locked_loot 不能被烧毁
->>>>>>> Stashed changes
 
         uint256 unitsToBurn = bank.balanceOf(potentialKickedMember, UNITS);
         uint256 lootToBurn = bank.balanceOf(potentialKickedMember, LOOT);
@@ -82,15 +73,6 @@ library GuildKickHelper {
     }
 
     /**
-<<<<<<< Updated upstream
-     * @notice 根据当前的踢球提案 id 将资金从公会帐户转移到被踢的成员帐户。
-     * @notice 资金金额以会员实际余额计算，以确保会员没有退票。
-     * @dev 踢球提案必须正在进行中。
-     * @dev 每个 DAO 一次只能执行一个 kick。
-     * @dev 只有活跃成员才能被踢出。
-     * @dev 只有通过投票过程的提案才能完成。
-     * @param dao dao 地址。
-=======
      * @notice 根据当前的踢球提案 id 将资金从公会帐户转移到被踢的成员帐户 
      * @notice 资金金额以会员实际余额计算，以确保会员没有退票 
      * @dev 踢球提案必须正在进行中 
@@ -98,7 +80,6 @@ library GuildKickHelper {
      * @dev 只有活跃成员才能被踢出 
      * @dev 只有通过投票过程的提案才能完成 
      * @param dao dao 地址
->>>>>>> Stashed changes
      */
     function rageKick(DaoRegistry dao, address kickedMember) internal {
         BankExtension bank = BankExtension(dao.getExtensionAddress(BANK));
@@ -119,15 +100,10 @@ library GuildKickHelper {
             for (uint256 i = 0; i < nbTokens; i++) {
                 address token = bank.getToken(i);
 
-<<<<<<< Updated upstream
-                // 根据代币、单位和战利品计算公平的资金数额。创建踢球提案时考虑了历史公会余额。
-
-=======
                 // 根据代币、单位和战利品计算公平的资金数额创建踢球提案时考虑了历史公会余额
                 // balance * units / totalunits 
                 // initialTotalTokens == units + locked units + loot + locked loot
                 // (用户锁定的数量(locked unit + locked loot) / 总共数量) * GUILD 的余额 
->>>>>>> Stashed changes
                 uint256 amountToRagequit = FairShareHelper.calc(
                     bank.balanceOf(GUILD, token),
                     unitsAndLootToBurn,
@@ -136,12 +112,6 @@ library GuildKickHelper {
 
                 // 如果用户有足够的资金来接收，则只执行内部转账
                 if (amountToRagequit > 0) {
-<<<<<<< Updated upstream
-                    // 气体优化以允许更高的最大令牌限制， 这里故意不使用安全数学来防止溢出阻止函数执行
-                    // 如果令牌溢出（这会打破狂暴）， 这是因为供应被人为地夸大到被遗忘，所以我们可能无论如何都不关心它
-
-=======
->>>>>>> Stashed changes
                     bank.internalTransfer(
                         dao,
                         GUILD,
