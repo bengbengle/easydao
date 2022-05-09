@@ -56,10 +56,17 @@ contract DaoFactory is CloneFactory {
         emit DAOCreated(daoAddr, daoName);
     }
 
+<<<<<<< Updated upstream
     /***
      * @notice 根据名称返回 DAO 地址。
      * @return 一个 DAO 的地址，给定它的名字。
      * @param daoName 要搜索的 DAO 的名称。
+=======
+    /*** 
+     * @notice 根据名称返回 DAO 地址  
+     * @return 一个 DAO 的地址，给定它的名字  
+     * @param daoName 要搜索的 DAO 的名称 
+>>>>>>> Stashed changes
      */
     function getDaoAddress(string calldata daoName)
         external
@@ -70,6 +77,7 @@ contract DaoFactory is CloneFactory {
     }
 
     /**
+<<<<<<< Updated upstream
      * @notice 配置扩展为需要访问扩展的每个适配器设置 ACL。
      * @dev 消息发送者必须是 DAO 的活跃成员。
      * @dev DAO 必须处于 `CREATION` 状态。
@@ -77,6 +85,15 @@ contract DaoFactory is CloneFactory {
      * @param extension 要配置的扩展地址。
      * @param adapters 为扩展设置 ACL 的适配器结构。
      */
+=======
+    * @notice 配置扩展为需要访问扩展的每个适配器设置 ACL  
+    * @dev 消息发送者必须是 DAO 的活跃成员  
+    * @dev DAO 必须处于 `CREATION` 状态  
+    * @param dao DaoRegistry 正在为其配置扩展  
+    * @param extension 要配置的扩展地址  
+    * @param adapters 为扩展设置 ACL 的适配器结构 
+    */
+>>>>>>> Stashed changes
     function configureExtension(
         DaoRegistry dao,
         address extension,
@@ -98,11 +115,19 @@ contract DaoFactory is CloneFactory {
     }
 
     /**
+<<<<<<< Updated upstream
      * @notice 为 DaoRegistry 函数添加适配器并设置它们的 ACL。
      * @dev 一个新的 DAO 仅在启用核心模块的情况下实例化，以降低调用成本。必须进行此调用以添加适配器。
      * @dev 消息发送者必须是 DAO 的活跃成员。
      * @dev DAO 必须处于 `CREATION` 状态。
      * @param dao DaoRegistry 添加适配器。
+=======
+     * @notice 为 DaoRegistry 函数添加适配器并设置它们的 ACL  
+     * @dev 一个新的 DAO 仅在启用核心模块的情况下实例化，以降低调用成本 必须进行此调用以添加适配器  
+     * @dev 消息发送者必须是 DAO 的活跃成员  
+     * @dev DAO 必须处于 `CREATION` 状态  
+     * @param dao DaoRegistry 添加适配器  
+>>>>>>> Stashed changes
      * @param adapters 要添加到 DAO 的适配器结构
      */
     function addAdapters(DaoRegistry dao, Adapter[] calldata adapters)

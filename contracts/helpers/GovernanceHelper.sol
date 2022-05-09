@@ -15,11 +15,19 @@ library GovernanceHelper {
         keccak256(abi.encodePacked(ROLE_PREFIX, "default"));
 
     /*
+<<<<<<< Updated upstream
      * @dev 检查成员地址是否拥有足够的资金被视为州长。
      * @param dao DAO 地址。
      * @param memberAddr 要验证为州长的消息发送者。
      * @param proposalId 用于检索治理令牌地址的提案 ID（如果已配置）。
      * @param snapshot 用于检查已配置成员的治理令牌余额的快照 ID。
+=======
+     * @dev 检查成员地址是否拥有足够的资金被视为州长  
+     * @param dao DAO 地址  
+     * @param memberAddr 要验证为州长的消息发送者  
+     * @param proposalId 用于检索治理令牌地址的提案 ID（如果已配置）  
+     * @param snapshot 用于检查已配置成员的治理令牌余额的快照 ID 
+>>>>>>> Stashed changes
      */
     function getVotingWeight(
         DaoRegistry dao,
@@ -29,6 +37,7 @@ library GovernanceHelper {
     ) internal view returns (uint256) {
         (address adapterAddress, ) = dao.proposals(proposalId);
 
+<<<<<<< Updated upstream
         // 1st - 适配器 如果有任何治理令牌配置, 读取基于该令牌的投票权重。
         bytes32 adapterAddressToken = keccak256(
             abi.encodePacked(ROLE_PREFIX, adapterAddress)
@@ -36,18 +45,28 @@ library GovernanceHelper {
         address governanceToken = dao.getAddressConfiguration(
             adapterAddressToken
         );
+=======
+        // 1st - 适配器 如果有任何治理令牌配置, 读取基于该令牌的投票权重 
+        bytes32 adapterAddressToken = keccak256(abi.encodePacked(ROLE_PREFIX, adapterAddress));
+        address governanceToken = dao.getAddressConfiguration(adapterAddressToken);
+>>>>>>> Stashed changes
 
         if (DaoHelper.isNotZeroAddress(governanceToken)) {
             return getVotingWeight(dao, governanceToken, voterAddr, snapshot);
         }
 
-        // 2nd - 如果没有为适配器配置治理令牌， 检查是否存在默认治理令牌。 如果是，则根据该令牌读取投票权重。
+        // 2nd - 如果没有为适配器配置治理令牌， 检查是否存在默认治理令牌  如果是，则根据该令牌读取投票权重 
         governanceToken = dao.getAddressConfiguration(DEFAULT_GOV_TOKEN_CFG);
         if (DaoHelper.isNotZeroAddress(governanceToken)) {
             return getVotingWeight(dao, governanceToken, voterAddr, snapshot);
         }
 
+<<<<<<< Updated upstream
         // 如果前面的选项都不可用，则假设治理代币是 UNITS，然后读取基于该代币的投票权重。
+=======
+        
+        // 如果前面的选项都不可用，则假设治理代币是 UNITS，然后读取基于该代币的投票权重 
+>>>>>>> Stashed changes
 
         BankExtension bank = BankExtension(
             dao.getExtensionAddress(DaoHelper.BANK)
@@ -69,8 +88,13 @@ library GovernanceHelper {
             return bank.getPriorAmount(voterAddr, governanceToken, snapshot);
         }
 
+<<<<<<< Updated upstream
         // 外部令牌必须实现 getPriorAmount 函数， 否则此调用将失败并恢复投票过程。
         // 实际的revert没有显示清楚的原因， 所以我们捕获了错误，并返回一个更好的错误消息。
+=======
+        // 外部令牌必须实现 getPriorAmount 函数， 否则此调用将失败并恢复投票过程  
+        // 实际的revert没有显示清楚的原因， 所以我们捕获了错误，并返回一个更好的错误消息  
+>>>>>>> Stashed changes
         try
             ERC20Extension(governanceToken).getPriorAmount(voterAddr, snapshot)
         returns (uint256 votingWeight) {

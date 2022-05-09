@@ -64,8 +64,13 @@ contract VotingContract is IVoting, MemberGuard, AdapterGuard, Reimbursable {
     }
 
     /**
+<<<<<<< Updated upstream
      * @notice 返回发件人地址， 这个函数是 IVoting 需要的，通常链下投票有不同的规则来识别发送者，但这里不是这样，所以我们只返回 fallback 参数：发送者。
      * @param sender 在没有找到其他人的情况下应该返回的后备发件人地址。
+=======
+     * @notice 返回发件人地址， 这个函数是 IVoting 需要的，通常链下投票有不同的规则来识别发送者，但这里不是这样，所以我们只返回 fallback 参数：发送者  
+     * @param sender 在没有找到其他人的情况下应该返回的后备发件人地址 
+>>>>>>> Stashed changes
      */
     function getSenderAddress(
         DaoRegistry,
@@ -77,11 +82,19 @@ contract VotingContract is IVoting, MemberGuard, AdapterGuard, Reimbursable {
     }
 
     /**
+<<<<<<< Updated upstream
      * @notice 向 DAO Registry 提交投票， 投票必须在 startNewVotingForProposal 中定义的开始时间之后提交。
      * @notice 投票需要在投票期内提交， 会员不能投票两次或多次。
      * @param dao DAO 地址。
      * @param proposalId 该提案需要被赞助，而不是被处理。
      * @param voteValue 只允许是 (1) 和否 (2) 投票。
+=======
+     * @notice 向 DAO Registry 提交投票， 投票必须在 startNewVotingForProposal 中定义的开始时间之后提交  
+     * @notice 投票需要在投票期内提交， 会员不能投票两次或多次  
+     * @param dao DAO 地址  
+     * @param proposalId 该提案需要被赞助，而不是被处理  
+     * @param voteValue 只允许是 (1) 和否 (2) 投票 
+>>>>>>> Stashed changes
      */
     function submitVote(
         DaoRegistry dao,
@@ -140,9 +153,15 @@ contract VotingContract is IVoting, MemberGuard, AdapterGuard, Reimbursable {
     }
 
     /**
+<<<<<<< Updated upstream
      * @notice 根据提案计算投票结果。
      * @param dao DAO 地址。
      * @param proposalId 需要计算投票的提案。
+=======
+     * @notice 根据提案计算投票结果  
+     * @param dao DAO 地址  
+     * @param proposalId 需要计算投票的提案  
+>>>>>>> Stashed changes
      * @return state 状态
      * The possible results are:
      * 0: has not started

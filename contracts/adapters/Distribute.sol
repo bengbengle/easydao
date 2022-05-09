@@ -12,10 +12,15 @@ import "../helpers/DaoHelper.sol";
 import "../extensions/bank/Bank.sol";
 
 contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
+<<<<<<< Updated upstream
     // Event to indicate the distribution process has been completed
     // if the unitHolder address is 0x0, then the amount were distributed to all members of the DAO.
     // 表示分发过程已经完成的事件
     // 如果 unitHolder 地址为 0x0，则金额分配给 DAO 的所有成员。
+=======
+
+    // 表示分发过程已经完成的事件 
+>>>>>>> Stashed changes
     event Distributed(
         address daoAddress,
         address token,
@@ -23,8 +28,7 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
         address unitHolder
     );
 
-    // The distribution status
-    // 分发 状态
+    // distribution 状态
     enum DistributionStatus {
         NOT_STARTED,
         IN_PROGRESS,
@@ -32,50 +36,43 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
         FAILED
     }
 
-    // State of the distribution proposal
-    // 分配提案的状态
+    // distribution 提案的状态
     struct Distribution {
-        // The distribution token in which the members should receive the funds. Must be supported by the DAO.
-        // 代币地址，成员应收到资金的分配代币。必须得到 DAO 的支持。
+        // 代币地址
         address token;
-        // The amount to distribute.
+
         // 金额
         uint256 amount;
-        // The unit holder address that will receive the funds. If 0x0, the funds will be distributed to all members of the DAO.
-        // 将接收资金的单位持有人地址。如果为 0x0，资金将分配给 DAO 的所有成员
+
+        // 将接收 资金的 成员地址 如果为 0x0，资金将分配给 DAO 的所有成员
         address unitHolderAddr;
-        // The distribution status.
+        
+        // 状态 
         DistributionStatus status;
-        // Current iteration index to control the cached for-loop.
+        
         // 当前迭代索引来控制缓存的for循环
         uint256 currentIndex;
-        // The block number in which the proposal has been created.
+        
         // 创建提案的区块号
         uint256 blockNumber;
     }
 
-    // Keeps track of all the distributions executed per DAO.
-    // 跟踪每个 DAO 执行的所有分发
+    // 跟踪每个 DAO 执行的所有分发， Dao Addr --> mapping { proposalId --> Distribution } 
     mapping(address => mapping(bytes32 => Distribution)) public distributions;
 
-    // Keeps track of the latest ongoing distribution proposal per DAO to ensure only 1 proposal can be processed at a time.
-    // 跟踪每个 DAO 的最新正在进行的分发提案，以确保一次只能处理 1 个提案。
+    // 跟踪每个 DAO 的最新正在进行的分发提案，以确保一次只能处理 1 个提案, dao addr --> proposalId
     mapping(address => bytes32) public ongoingDistributions;
 
     /**
-     * @notice Creates a distribution proposal for one or all members of the DAO, opens it for voting, and sponsors it.
-     * @dev Only tokens that are allowed by the Bank are accepted.
-     * @dev If the unitHolderAddr is 0x0, then the funds will be distributed to all members of the DAO.
-     * @dev Proposal ids can not be reused.
-     * @dev The amount must be greater than zero.
-     * @param dao The dao address.
-     * @param proposalId The distribution proposal id.
-     * @param unitHolderAddr The member address that should receive the funds, if 0x0, the funds will be distributed to all members of the DAO.
-     * @param token The distribution token in which the members should receive the funds. Must be supported by the DAO.
-     * @param amount The amount to distribute.
-     * @param data Additional information related to the distribution proposal.
-     * @param token 成员应收到资金的分配代币。必须得到 DAO 的支持
-     *
+     * @notice 为 DAO 的一个或所有成员创建 分发提案，打开它进行投票，并赞助它 
+     * @dev 只接受银行允许的代币， 如果 unitHolderAddr 为 0x0，则资金将分配给 DAO 的所有成员， 提案 ID 不能重复使用， 金额必须大于零 
+     * @param dao dao 地址 
+     * @param proposalId 分发提案 ID 
+     * @param unitHolderAddr 应收到资金的成员地址，如果为0x0，资金将分配给DAO的所有成员 
+     * @param token 成员应该收到资金的分发代币必须得到 DAO 的支持 
+     * @param amount 要分配的金额 
+     * @param data 与分配提案相关的附加信息
+     * @param token 成员应收到资金的分配代币必须得到 DAO 的支持
      */
 
     function submitProposal(
@@ -114,7 +111,7 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
             require(units > 0, "not enough units");
         }
 
-        // Saves the state of the proposal.
+        // 保存提案的状态
         distributions[address(dao)][proposalId] = Distribution(
             token,
             amount,
@@ -132,6 +129,7 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
     }
 
     /**
+<<<<<<< Updated upstream
      * @notice Process the distribution proposal, calculates the fair amount of funds to distribute to the members based on the units holdings.
      * @dev A distribution proposal proposal must be in progress.
      * @dev Only one proposal per DAO can be executed at time.
@@ -151,6 +149,18 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
     // Which prevents concurrent modifications in the DAO registry.
     // 使用 reentrancyGuard 防止函数重入，这可以防止 DAO 注册表中的并发修改。
 
+=======
+     * @notice 处理分配方案，根据单位持有量计算分配给会员的公平金额 
+     * @dev 分发提案提案必须正在进行中 
+     * @dev 每个 DAO 一次只能执行一个提案 
+     * @dev 只有活跃会员才能收到资金 
+     * @dev 只有通过投票的提案才能设置为进行中状态 
+     * @param dao dao 地址 
+     * @param proposalId 分发提案 ID
+     */
+    // 使用 reentrancyGuard 防止函数重入，这可以防止 DAO 注册表中的并发修改
+     
+>>>>>>> Stashed changes
     function processProposal(DaoRegistry dao, bytes32 proposalId)
         external
         override
@@ -158,7 +168,6 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
     {
         dao.processProposal(proposalId);
 
-        // Checks if the proposal exists or is not in progress yet.
         // 检查提案是否存在或尚未进行中
         Distribution storage distribution = distributions[address(dao)][
             proposalId
@@ -168,7 +177,7 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
             "proposal already completed or in progress"
         );
 
-        // Checks if there is an ongoing proposal, only one proposal can be executed at time.
+        // 检查是否有正在进行的提案，一次只能执行一个提案
         bytes32 ongoingProposalId = ongoingDistributions[address(dao)];
         require(
             ongoingProposalId == bytes32(0) ||
@@ -177,7 +186,7 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
             "another proposal already in progress"
         );
 
-        // Checks if the proposal has passed.
+        // 检查提案是否通过
         IVoting votingContract = IVoting(dao.votingAdapter(proposalId));
         require(address(votingContract) != address(0), "adapter not found");
 
@@ -212,13 +221,13 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
     }
 
     /**
-     * @notice Transfers the funds from the Guild account to the member's internal accounts.
-     * @notice The amount of funds is caculated using the historical number of units of each member.
-     * @dev A distribution proposal must be in progress.
-     * @dev Only proposals that have passed the voting can be completed.
-     * @dev Only active members can receive funds.
-     * @param dao The dao address.
-     * @param toIndex The index to control the cached for-loop.
+     * @notice 将资金从公会账户转移到会员的内部账户 
+     * @notice 资金金额以每个会员的历史单位数计算 
+     * @dev 分发提案必须正在进行中 
+     * @dev 只有通过投票的提案才能完成 
+     * @dev 只有活跃会员才能收到资金 
+     * @param dao dao 地址 
+     * @param toIndex 控制缓存的for循环的索引
      */
 
     function distribute(DaoRegistry dao, uint256 toIndex)
@@ -226,7 +235,7 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
         override
         reimbursable(dao)
     {
-        // Checks if the proposal does not exist or is not completed yet
+        // 检查提案是否不存在或尚未完成
         bytes32 ongoingProposalId = ongoingDistributions[address(dao)];
         Distribution storage distribution = distributions[address(dao)][
             ongoingProposalId
@@ -237,14 +246,14 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
             "distrib completed or not exist"
         );
 
-        // Check if the given index was already processed
+        // 检查给定的索引是否已经被处理
         uint256 currentIndex = distribution.currentIndex;
         require(currentIndex <= toIndex, "toIndex too low");
 
         address token = distribution.token;
         uint256 amount = distribution.amount;
 
-        // Get the total number of units when the proposal was processed.
+        // 获取处理提案时的总单位数
         BankExtension bank = BankExtension(
             dao.getExtensionAddress(DaoHelper.BANK)
         );
@@ -263,7 +272,7 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
 
             emit Distributed(address(dao), token, amount, unitHolderAddr);
         } else {
-            // Set the max index supported which is based on the number of members
+            // 根据成员数设置支持的最大索引
             uint256 nbMembers = dao.getNbMembers();
             uint256 maxIndex = toIndex;
             if (maxIndex > nbMembers) {
@@ -318,10 +327,14 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
     }
 
     /**
+<<<<<<< Updated upstream
      * @notice Updates all the holder accounts with the amount based on the token parameter.
      * @notice It is an internal transfer only that happens in the Bank extension.
      * @notice 使用基于 token 参数的金额更新所有持有人账户。
      * @notice 这是仅在银行分机中发生的内部转账。
+=======
+     * @notice 使用基于 token 参数的金额更新所有持有人账户， 这是仅在银行分机中发生的内部转账
+>>>>>>> Stashed changes
      */
     function _distributeAll(
         DaoRegistry dao,
@@ -332,9 +345,10 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
         address token,
         uint256 amount
     ) internal {
+
         uint256 totalTokens = DaoHelper.priorTotalTokens(bank, blockNumber);
-        // Distributes the funds to all unit holders of the DAO and ignores non-active members.
-        // 将资金分配给 DAO 的所有单位持有人并忽略非活跃成员
+
+        // 将资金分配给 DAO 的所有单位持有人， 忽略 非活跃成员
         for (uint256 i = currentIndex; i < maxIndex; i++) {
             address memberAddr = dao.getMemberAddress(i);
 

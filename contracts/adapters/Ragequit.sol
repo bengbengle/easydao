@@ -40,11 +40,14 @@ contract RagequitContract is IRagequit, AdapterGuard {
         uint256 lootToBurn,
         address[] calldata tokens
     ) external override reentrancyGuard(dao) {
+        
         // At least one token needs to be provided
         require(tokens.length > 0, "missing tokens");
-        // Checks if the are enough units and/or loot to burn
+        
+        // 检查是否有足够的 unit 和/或 loot 可以燃烧
         require(unitsToBurn + lootToBurn > 0, "insufficient units/loot");
-        // Gets the delegated address, otherwise returns the sender address.
+        
+        // 获取委托地址，否则返回发件人地址
         address memberAddr = DaoHelper.msgSender(dao, msg.sender);
 
         // 实例化银行扩展以处理内部余额检查和转账
@@ -62,7 +65,6 @@ contract RagequitContract is IRagequit, AdapterGuard {
             "insufficient loot"
         );
 
-        // Start the ragequit process by updating the member's internal account balances
         // 更新会员的 内部账户余额， 开始 ragequit 流程
         _prepareRagequit(
             dao,
@@ -79,8 +81,13 @@ contract RagequitContract is IRagequit, AdapterGuard {
      * @param memberAddr 想要烧掉 units 或 loot 的成员地址
      * @param unitsToBurn 必须转换为资金的成员 units 数量
      * @param lootToBurn 必须转换为资金的成员 loot 数量
+<<<<<<< Updated upstream
      * @param tokens 资金应该发送到的 tokens 数组。
      * @param bank 银行扩展名。
+=======
+     * @param tokens 资金应该发送到的 tokens 数组 
+     * @param bank 银行扩展名
+>>>>>>> Stashed changes
      */
     function _prepareRagequit(
         DaoRegistry dao,
@@ -92,9 +99,10 @@ contract RagequitContract is IRagequit, AdapterGuard {
     ) internal {
         // 在任何内部转账 之前计算总的 units、loot 和 locked loot
         // 它认为 locked 的 loot 能够计算公平的 ragequit 数量， 但是 locked loot 是不能被烧毁的
+        // 全部代币数量
         uint256 totalTokens = DaoHelper.totalTokens(bank);
 
-        // 从成员账户中减去要 burn 的 units 的数量。
+        // 从成员账户中减去要 burn 的 units 的数量
         bank.internalTransfer(
             dao,
             memberAddr,
@@ -102,7 +110,7 @@ contract RagequitContract is IRagequit, AdapterGuard {
             DaoHelper.UNITS,
             unitsToBurn
         );
-        // 从成员账户中减去要 burn 的 loot 的数量。
+        // 从成员账户中减去要 burn 的 loot 的数量
         bank.internalTransfer(
             dao,
             memberAddr,
@@ -111,8 +119,7 @@ contract RagequitContract is IRagequit, AdapterGuard {
             lootToBurn
         );
 
-        // Completes the ragequit process by updating the GUILD internal balance based on each provided token.
-        // 通过基于每个提供的令牌更新 GUILD 内部余额来完成 ragequit 过程。
+        // 通过基于每个提供的令牌更新 GUILD 内部余额来完成 ragequit 过程
         _burnUnits(
             dao,
             memberAddr,
@@ -143,14 +150,18 @@ contract RagequitContract is IRagequit, AdapterGuard {
         address[] memory tokens,
         BankExtension bank
     ) internal {
-        // Calculates the total amount of units and loot to burn
         // 计算要燃烧的 loot 和 units 的总量
         uint256 unitsAndLootToBurn = unitsToBurn + lootToBurn;
 
+<<<<<<< Updated upstream
         // Transfers the funds from the internal Guild account to the internal member's account based on each token provided by the member.
         // The provided token must be supported/allowed by the Guild Bank, otherwise it reverts the entire transaction.
         // 根据会员提供的每个代币，将资金从内部公会账户转移到内部会员账户。
         // 所提供的代币必须得到公会银行的支持/允许，否则会恢复整个交易。
+=======
+        // 根据会员提供的每个代币，将资金从内部公会账户转移到内部会员账户 
+        // 所提供的代币必须得到公会银行的支持/允许，否则会恢复整个交易
+>>>>>>> Stashed changes
         uint256 length = tokens.length;
         for (uint256 i = 0; i < length; i++) {
             address currentToken = tokens[i];
@@ -164,21 +175,27 @@ contract RagequitContract is IRagequit, AdapterGuard {
 
             require(bank.isTokenAllowed(currentToken), "token not allowed");
 
+<<<<<<< Updated upstream
             // 根据 代币、单位 和 loot 计算公平的资金数额
 
+=======
+            // 根据 代币、单位 和 loot 计算公平的 资金数额
+>>>>>>> Stashed changes
             uint256 amountToRagequit = FairShareHelper.calc(
                 bank.balanceOf(DaoHelper.GUILD, currentToken),
                 unitsAndLootToBurn,
                 initialTotalUnitsAndLoot
             );
 
-            // Ony execute the internal transfer if the user has enough funds to receive.
             if (amountToRagequit > 0) {
+<<<<<<< Updated upstream
                 // gas optimization to allow a higher maximum token limit
                 // deliberately not using safemath here to keep overflows from preventing the function execution
                 // (which would break ragekicks) if a token overflows,
                 // it is because the supply was artificially inflated to oblivion, so we probably don"t care about it anyways
 
+=======
+>>>>>>> Stashed changes
                 bank.internalTransfer(
                     dao,
                     DaoHelper.GUILD,
@@ -189,8 +206,12 @@ contract RagequitContract is IRagequit, AdapterGuard {
             }
         }
 
+<<<<<<< Updated upstream
         // 一旦 units 和 loot 被烧毁， 资金也转移完成， 发出一个事件以指示操作成功。
 
+=======
+        // 一旦 units 和 loot 被烧毁， 资金也转移完成， 发出一个事件以指示操作成功
+>>>>>>> Stashed changes
         emit MemberRagequit(
             address(dao),
             memberAddr,

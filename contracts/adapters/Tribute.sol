@@ -24,7 +24,7 @@ contract TributeContract is Reimbursable, AdapterGuard {
         // 申请者地址（将收到 DAO 内部代币并成为成员；此地址可能与作为贡品的 ERC-20 代币的实际所有者不同
         address applicant;
         // The address of the DAO internal token to be minted to the applicant.
-        // 要铸造给申请人的 DAO 内部代币的地址。
+        // 要铸造给申请人的 DAO 内部代币的地址 
         address tokenToMint;
         // The amount requested of DAO internal tokens.
         uint256 requestAmount;
@@ -48,7 +48,7 @@ contract TributeContract is Reimbursable, AdapterGuard {
      * @dev A DAO Bank extension must exist and be configured with proper access for this adapter.
      * @param dao The DAO address.
      * @param tokenAddrToMint The internal token address to be registered with the DAO Bank.
-     * @param tokenAddrToMint 要在 DAO 银行注册的内部代币地址。
+     * @param tokenAddrToMint 要在 DAO 银行注册的内部代币地址 
      */
     function configureDao(DaoRegistry dao, address tokenAddrToMint)
         external

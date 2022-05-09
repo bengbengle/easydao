@@ -32,7 +32,7 @@ export enum ContractType {
 /**
  * Each contract contains different configurations that will be required by the deployment
  * script. This type helps you to define these configs.
- * 每个合约都包含部署脚本所需的不同配置。此类型可帮助您定义这些配置。
+ * 每个合约都包含部署脚本所需的不同配置 此类型可帮助您定义这些配置 
  */
 export type ContractConfig = {
   /**

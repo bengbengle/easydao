@@ -15,7 +15,8 @@ contract BankExtension is IExtension, ERC165 {
     using Address for address payable;
     using SafeERC20 for IERC20;
 
-    uint8 public maxExternalTokens; // the maximum number of external tokens that can be stored in the bank
+    // 可以存储在银行中的外部代币的最大数量
+    uint8 public maxExternalTokens;
 
     // 在 eip-1167 代理模式下内部跟踪部署
     bool public initialized = false;
@@ -299,7 +300,7 @@ contract BankExtension is IExtension, ERC165 {
     }
 
     /**
-     * @return 所有在银行注册的代币。
+     * @return 所有在银行注册的代币 
      */
     function getTokens() external view returns (address[] memory) {
         return tokens;
@@ -345,6 +346,7 @@ contract BankExtension is IExtension, ERC165 {
     }
 
     /**
+<<<<<<< Updated upstream
      * @notice Remove from a member's balance of a given token
      * @param member The member whose balance will be updated
      * @param token The token to update
@@ -352,6 +354,11 @@ contract BankExtension is IExtension, ERC165 {
      * @notice 从给定令牌的成员余额中删除
      * @param member 余额将被更新的成员
      * @param token 要更新的令牌
+=======
+     * @notice 从给定令牌的成员余额中删除 
+     * @param member 余额将被更新的成员 
+     * @param token 要更新的令牌 
+>>>>>>> Stashed changes
      * @param amount 新余额
      */
     function subtractFromBalance(
@@ -406,9 +413,15 @@ contract BankExtension is IExtension, ERC165 {
     }
 
     /**
+<<<<<<< Updated upstream
      * @notice 确定一个账户在某区块号之前的投票数， 区块编号必须是最终区块，否则此功能将恢复以防止错误信息。
      * @param account 要检查的账户地址
      * @param blockNumber 获得投票余额的区块号
+=======
+     * @notice 确定一个账户在某区块号之前的投票数， 区块编号必须是最终区块，否则此功能将恢复以防止错误信息  
+     * @param account 要检查的账户地址 
+     * @param blockNumber 获得投票余额的区块号 
+>>>>>>> Stashed changes
      * @return 账户在给定区块中的投票数
      */
     function getPriorAmount(
@@ -428,8 +441,7 @@ contract BankExtension is IExtension, ERC165 {
 
         // 首先检查最近的余额
         if (
-            checkpoints[tokenAddr][account][nCheckpoints - 1].fromBlock <=
-            blockNumber
+            checkpoints[tokenAddr][account][nCheckpoints - 1].fromBlock <= blockNumber
         ) {
             return checkpoints[tokenAddr][account][nCheckpoints - 1].amount;
         }

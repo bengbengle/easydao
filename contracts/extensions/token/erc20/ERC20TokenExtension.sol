@@ -161,9 +161,15 @@ contract ERC20Extension is AdapterGuard, IExtension, IERC20 {
     }
 
     /**
+<<<<<<< Updated upstream
      * @dev 返回 `spender` 将被允许通过 {transferFrom} 代表 `owner`  花费的剩余代币数量。 这是默认情况下为零
      * 当调用 {approve} 或 {transferFrom} 时，此值会发生变化
      */
+=======
+    * @dev 返回 `spender` 将被允许通过 {transferFrom} 代表 `owner`  花费的剩余代币数量  这是默认情况下为零 
+    * 当调用 {approve} 或 {transferFrom} 时，此值会发生变化
+    */
+>>>>>>> Stashed changes
     function allowance(address owner, address spender)
         public
         view

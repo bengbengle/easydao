@@ -19,8 +19,13 @@ library DaoHelper {
     bytes32 internal constant DISTRIBUTE = keccak256("distribute");
     bytes32 internal constant TRIBUTE_NFT = keccak256("tribute-nft");
     bytes32 internal constant REIMBURSEMENT = keccak256("reimbursement");
+<<<<<<< Updated upstream
     bytes32 internal constant TRANSFER_STRATEGY =
         keccak256("erc20-transfer-strategy");
+=======
+    bytes32 internal constant TRANSFER_STRATEGY = keccak256("erc20-transfer-strategy");
+
+>>>>>>> Stashed changes
     bytes32 internal constant DAO_REGISTRY_ADAPT = keccak256("daoRegistry");
     bytes32 internal constant BANK_ADAPT = keccak256("bank");
     bytes32 internal constant ERC721_ADAPT = keccak256("nft");
@@ -62,7 +67,8 @@ library DaoHelper {
     uint8 internal constant MAX_TOKENS_GUILD_BANK = 200;
 
     function totalTokens(BankExtension bank) internal view returns (uint256) {
-        return memberTokens(bank, TOTAL) - memberTokens(bank, GUILD); //否则 GUILD 被计算两次  GUILD is accounted for twice otherwise
+        //否则 GUILD 被计算两次  GUILD is accounted for twice otherwise
+        return memberTokens(bank, TOTAL) - memberTokens(bank, GUILD); 
     }
 
     /**
