@@ -21,18 +21,18 @@ contract FinancingContract is IFinancing, AdapterGuard, Reimbursable {
     mapping(address => mapping(bytes32 => ProposalDetails)) public proposals;
 
     /**
-     * @notice Creates and sponsors a financing proposal.
-     * @dev Applicant address must not be reserved.
-     * @dev Token address must be allowed/supported by the DAO Bank.
-     * @dev Requested amount must be greater than zero.
-     * @dev Only members of the DAO can sponsor a financing proposal.
-     * @param dao The DAO Address.
-     * @param proposalId The proposal id.
-     * @param applicant The applicant address.
-     * @param token The token to receive the funds.
-     * @param amount The desired amount.
-     * @param data Additional details about the financing proposal.
-     */
+    * @notice 创建并发起融资提案
+    * @dev 申请人地址不得保留
+    * @dev 令牌地址必须得到 DAO 银行的允许/支持
+    * @dev 请求的金额必须大于零
+    * @dev 只有 DAO 的成员才能发起融资提案
+    * @param dao DAO 地址
+    * @param proposalId 提案 ID
+    * @param applicant 申请人地址
+    * @param token 接收资金的代币
+    * @param amount 所需的金额
+    * @param data 有关融资提案的其他详细信息
+    */
 
     function submitProposal(
         DaoRegistry dao,
@@ -58,9 +58,8 @@ contract FinancingContract is IFinancing, AdapterGuard, Reimbursable {
         proposal.amount = amount;
         proposal.token = token;
 
-        IVoting votingContract = IVoting(
-            dao.getAdapterAddress(DaoHelper.VOTING)
-        );
+        IVoting votingContract = IVoting(dao.getAdapterAddress(DaoHelper.VOTING));
+
         address sponsoredBy = votingContract.getSenderAddress(
             dao,
             address(this),
@@ -73,14 +72,15 @@ contract FinancingContract is IFinancing, AdapterGuard, Reimbursable {
     }
 
     /**
-     * @notice Processing a financing proposal to grant the requested funds.
-     * @dev Only proposals that were not processed are accepted.
-     * @dev Only proposals that were sponsored are accepted.
-     * @dev Only proposals that passed can get processed and have the funds released.
-     * @param dao The DAO Address.
-     * @param proposalId The proposal id.
-     */
-
+      *
+      * @notice 处理融资提案以授予所请求的资金
+      * @dev 仅接受未处理的提案
+      * @dev 仅接受赞助的提案 
+      * @dev 只有通过的提案才能得到处理并释放资金 
+      * @param dao DAO 地址
+      * @param proposalId 提案 ID
+      */
+      
     function processProposal(DaoRegistry dao, bytes32 proposalId)
         external
         override
@@ -92,14 +92,11 @@ contract FinancingContract is IFinancing, AdapterGuard, Reimbursable {
         require(address(votingContract) != address(0), "adapter not found");
 
         require(
-            votingContract.voteResult(dao, proposalId) ==
-                IVoting.VotingState.PASS,
+            votingContract.voteResult(dao, proposalId) == IVoting.VotingState.PASS,
             "proposal needs to pass"
         );
         dao.processProposal(proposalId);
-        BankExtension bank = BankExtension(
-            dao.getExtensionAddress(DaoHelper.BANK)
-        );
+        BankExtension bank = BankExtension(dao.getExtensionAddress(DaoHelper.BANK));
 
         bank.subtractFromBalance(
             dao,

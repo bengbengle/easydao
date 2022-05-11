@@ -346,7 +346,8 @@ contract BankExtension is IExtension, ERC165 {
     }
 
     /**
-     * @notice 从给定令牌的成员余额中删除 
+     * @notice 从给定令牌的成员余额中
+     * @param _dao 指定 _dao
      * @param member 余额将被更新的成员 
      * @param token 要更新的令牌 
      * @param amount 新余额

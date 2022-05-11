@@ -98,9 +98,9 @@ contract DaoFactory is CloneFactory {
     }
 
     /**
-     * @notice 为 DaoRegistry 函数添加适配器并设置它们的 ACL  
-     * @dev 一个新的 DAO 仅在启用核心模块的情况下实例化，以降低调用成本 必须进行此调用以添加适配器  
-     * @dev 消息发送者必须是 DAO 的活跃成员  
+     * @notice 为 DaoRegistry 函数添加 适配器 并设置它们的 ACL  
+     * @dev 一个新的 DAO 仅在 启用核心模块的情况下才能 实例化， 以降低调用成本 必须进行此调用以添加适配器  
+     * @dev 消息发送者必须是 DAO 的 成员  
      * @dev DAO 必须处于 `CREATION` 状态  
      * @param dao DaoRegistry 添加适配器  
      * @param adapters 要添加到 DAO 的适配器结构

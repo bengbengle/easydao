@@ -12,8 +12,7 @@ abstract contract AdapterGuard {
      */
     modifier onlyAdapter(DaoRegistry dao) {
         require(
-            dao.isAdapter(msg.sender) ||
-                DaoHelper.isInCreationModeAndHasAccess(dao),
+            dao.isAdapter(msg.sender) || DaoHelper.isInCreationModeAndHasAccess(dao),
             "onlyAdapter"
         );
         _;
@@ -28,9 +27,7 @@ abstract contract AdapterGuard {
     }
 
     modifier executorFunc(DaoRegistry dao) {
-        address executorAddr = dao.getExtensionAddress(
-            keccak256("executor-ext")
-        );
+        address executorAddr = dao.getExtensionAddress(keccak256("executor-ext"));
 
         require(address(this) == executorAddr, "only callable by the executor");
         _;
@@ -38,8 +35,7 @@ abstract contract AdapterGuard {
 
     modifier hasAccess(DaoRegistry dao, DaoRegistry.AclFlag flag) {
         require(
-            DaoHelper.isInCreationModeAndHasAccess(dao) ||
-                dao.hasAdapterAccess(msg.sender, flag),
+            DaoHelper.isInCreationModeAndHasAccess(dao) || dao.hasAdapterAccess(msg.sender, flag),
             "access Denied"
         );
         _;

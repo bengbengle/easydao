@@ -121,12 +121,7 @@ contract VotingContract is IVoting, MemberGuard, AdapterGuard, Reimbursable {
 
         require(vote.votes[memberAddr] == 0, "member has already voted");
 
-        uint256 votingWeight = GovernanceHelper.getVotingWeight(
-            dao,
-            memberAddr,
-            proposalId,
-            vote.blockNumber
-        );
+        uint256 votingWeight = GovernanceHelper.getVotingWeight(dao, memberAddr, proposalId, vote.blockNumber);
 
         if (votingWeight == 0) revert("vote not allowed");
 

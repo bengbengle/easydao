@@ -512,11 +512,7 @@ contract OffchainVotingContract is
                 vote.resultRoot,
                 vote.snapshot,
                 vote.gracePeriodStartingTime,
-                _getBank(dao).getPriorAmount(
-                    DaoHelper.TOTAL,
-                    DaoHelper.MEMBER_COUNT,
-                    vote.snapshot
-                ),
+                _getBank(dao).getPriorAmount(DaoHelper.TOTAL, DaoHelper.MEMBER_COUNT, vote.snapshot),
                 node
             ) != OffchainVotingHelperContract.BadNodeError.OK
         ) {

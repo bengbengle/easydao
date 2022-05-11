@@ -214,11 +214,7 @@ const updateConfiguration = async (
     gasPrice: toBN("0"),
   });
 
-  const membersCount = await bank.getPriorAmount(
-    TOTAL,
-    MEMBER_COUNT,
-    blockNumber
-  );
+  const membersCount = await bank.getPriorAmount(TOTAL, MEMBER_COUNT, blockNumber);
   const voteEntries = [];
   const maintainer = members[index];
   for (let i = 0; i < parseInt(membersCount.toString()); i++) {

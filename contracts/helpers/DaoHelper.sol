@@ -49,14 +49,15 @@ library DaoHelper {
 
     // Reserved Addresses
     address internal constant GUILD = address(0xdead);
-    address internal constant ESCROW = address(0x4bec);
-    address internal constant TOTAL = address(0xbabe);
-    address internal constant UNITS = address(0xFF1CE);
-    address internal constant LOCKED_UNITS = address(0xFFF1CE);
-    address internal constant LOOT = address(0xB105F00D);
-    address internal constant LOCKED_LOOT = address(0xBB105F00D);
-    address internal constant ETH_TOKEN = address(0x0);
+    address internal constant ESCROW = address(0x4bec); // TOTAL 池子 账户地址 
+    address internal constant TOTAL = address(0xbabe); // TOTAL 池子 账户地址
+    address internal constant UNITS = address(0xFF1CE); // units 代币地址
+    address internal constant LOCKED_UNITS = address(0xFFF1CE); // locked_units 代币地址
+    address internal constant LOOT = address(0xB105F00D); // loot 代币地址 
+    address internal constant LOCKED_LOOT = address(0xBB105F00D); //locked_loot 代币地址
+    address internal constant ETH_TOKEN = address(0x0); // eth 代币地址
 
+    // DAO 成员的数量
     address internal constant MEMBER_COUNT = address(0xDECAFBAD);
 
     uint8 internal constant MAX_TOKENS_GUILD_BANK = 200;
@@ -159,6 +160,7 @@ library DaoHelper {
         return addr != address(0x0);
     }
 
+    // 
     function potentialNewMember(
         address memberAddress,
         DaoRegistry dao,

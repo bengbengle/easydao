@@ -270,7 +270,7 @@ contract DistributeContract is IDistribute, AdapterGuard, Reimbursable {
     }
 
     /**
-     * @notice 使用基于令牌参数的金额更新持有人帐户, 这是仅在 银行分发中发生的内部转账。
+     * @notice 使用基于令牌参数的金额更新持有人帐户, 这是仅在 银行分发中发生的内部转账
      */
     function _distributeOne(
         DaoRegistry dao,

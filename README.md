@@ -1,37 +1,7 @@
 <div align="center">
     <img src="https://demo.tributedao.com/favicon.ico" height="70" alt="Tribute DAO Framework Logo">
     <h1>Tribute DAO Framework</h1>
-    <strong>A modular, low cost and extensible set of contracts to build your DAO on Ethereum</strong>
-</div>
-<br>
-<div align="center">
-    <a href="https://github.com/openlawteam/tribute-contracts/actions/workflows/test.yml">
-        <img src="https://github.com/openlawteam/tribute-contracts/actions/workflows/test.yml/badge.svg" alt="Tests">
-    </a>
-    <a href="https://github.com/openlawteam/tribute-contracts/actions/workflows/slither.yml">
-        <img src="https://github.com/openlawteam/tribute-contracts/actions/workflows/slither.yml/badge.svg" alt="Slither">
-    </a>
-    <a href="https://codecov.io/gh/openlawteam/tribute-contracts">
-        <img src="https://codecov.io/gh/openlawteam/tribute-contracts/branch/master/graph/badge.svg" alt="Coverage" >
-    </a>
-    <a href="https://www.npmjs.com/package/tribute-contracts">
-        <img src="https://img.shields.io/npm/v/tribute-contracts.svg?logo=npm" alt="Slither">
-    </a>
-    <a href="https://discord.gg/tEfP68xnTd">
-        <img src="https://img.shields.io/discord/854328535929192498.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2" alt="Discord">
-    </a>
-    <a href="https://twitter.com/TributeLabsXYZ">
-        <img src="https://img.shields.io/twitter/follow/SnapshotLabs?label=TributeLabsXYZ&style=flat&logo=twitter&color=1DA1F2" alt="Twitter">
-    </a>
-</div>
-
-<div align="center">
-    <br>
-    <a href="https://tributelabs.xyz"><b>TributeLabs.xyz »</b></a>
-    <br><br>
-    <a href="https://tributedao.com"><b>Docs</b></a>
-    •
-    <a href="https://demo.tributedao.com"><b>Demo</b></a>
+    <strong> 一套模块化、低成本和可扩展的合约，用于在以太坊上构建你的 DAO </strong>
 </div>
 
 ## Contents
@@ -48,51 +18,52 @@
 
 ## Overview
 
-TributeDAO is a new modular, low cost DAO framework. The framework aims to improve DAOs by fixing the:
+TributeDAO 是一个新的模块化、低成本的 DAO 框架。 该框架旨在通过修复以下问题来改进 DAO：
 
-- **Lack of modularity**: which has created challenges both in terms of extending, managing, and upgrading DAOs;
-- **Rigid voting and governance mechanisms**: which limit the ability to experiment with additional forms of governance;
-- **High costs**: especially for onchain voting;
-- **Single token DAO structures**: which make it difficult to divide up economic and governance rights and create teams or sub-groups; and
-- **Lack of NFT Support**: which makes it difficult for DAOs to be deployed for NFT projects.
+- **Lack of modularity**:  在扩展、管理和升级 DAO 方面都带来了挑战；
+- **Rigid voting and governance mechanisms**: 限制了尝试其他治理形式的能力；
+- **High costs**: 特别是对于链上投票；
+- **Single token DAO structures**: 这使得划分 经济 和 治理权 以及 创建团队 或 子群体 变得困难；
+- **Lack of NFT Support**:  DAO 很难部署到 NFT 项目中
 
-The TributeDAO framework aims to address these issues, as part of our quest to make DAOs the dominant form of organization. As the growing number of participants in DAOs know, there is no “one size fits all” for managing any organization. DAOs need low cost and easy to develop components that can be assembled like lego blocks to fit the needs of the organization and its membership.
+TributeDAO 框架旨在解决这些问题，作为我们使 DAO 成为主要组织形式的努力的一部分。正如越来越多的 DAO 参与者所知道的那样，管理任何组织都没有“一刀切”的做法。 DAO 需要低成本且易于开发的组件，这些组件可以像乐高积木一样组装，以满足组织及其成员的需求
 
-## Proposed Evolution of MolochDAO Framework
+## MolochDAO 框架的演进
 
-The TributeDAO framework is our team's tribute to the MolochDAO ecosystem. As many know, MolochDAO brought new life to DAOs. Through an elegant smart contract design, this smart contract framework brought DAOs back to life, helping us push beyond the fiery depths of “The DAO.”
+TributeDAO 框架是我们团队对 MolochDAO 生态系统的致敬。众所周知，MolochDAO 为 DAO 带来了新的活力。 通过优雅的智能合约设计， 这个智能合约框架让 DAO 重新焕发生机，帮助我们超越“The DAO”的火热深度
 
-Last year, we worked to evolve the initial MolochDAO smart contracts by assisting with the creation of Moloch v2, which enabled multiple token support, “guildkicks” to remove unwanted members, and “loot” to issue non-voting shares still entitled to financial distributions. These upgraded contracts were built with “venture” and similar investment transactions in mind, allowing for more effective swaps and control over tokenized assets and membership.
+去年，我们通过协助创建 Moloch v2 来改进最初的 MolochDAO 智能合约， 该版本支持多种代币， “公会踢” 以删除不需要的成员， “战利品” 以发行仍有权获得财务分配的无投票权股份。 这些升级的合约是在考虑 “风险” 和类似的投资交易的情况下构建的， 允许更有效的交换和对代币化资产和成员的控制
 
-The TributeDAO framework hopes to provide teams looking to deploy DAOs with several enhancements and improvements, including:
+TributeDAO 框架希望为希望部署 DAO 的团队提供多项增强和改进，包括：
 
-- **Simpler code** - each module is responsible for only one function which reduces coupling and makes the system easier to understand.
-- **Adaptability** - each part of the DAO can be adapted to the needs of a particular DAO without the need to audit the entire code base every time.
-- **Upgradability** - modules can be easily upgraded as necessary. For example, as the voting process evolves over time the module responsible for managing the voting process can be upgraded without changing any other modules or the Core Contract. Modules can also be used by multiple DAOs without the need to be redeployed.
+- **Simpler code** - 每个模块只负责一个功能，从而减少耦合并使系统更易于理解.
+- **Adaptability** - DAO 的每个部分都可以适应特定 DAO 的需求，而无需每次都审核整个代码库
+- **Upgradability** - 模块可以根据需要轻松升级。 例如，随着投票过程的发展，负责管理投票过程的模块可以升级，而无需更改任何其他模块或核心合约。 模块也可以被多个 DAO 使用，而无需重新部署
 
-Inspired by the [hexagonal architecture design pattern](<https://en.wikipedia.org/wiki/Hexagonal_architecture_(software)>) we believe that we can have additional layers of security, and break the main contract into smaller contracts. With that, we create loosely coupled modules/contracts, easier to audit, and can be easily connected to the DAO.
+受 [六边形架构设计模式](<https://en.wikipedia.org/wiki/Hexagonal_architecture_(software)>) 的启发，我们相信我们可以拥有额外的安全层，并将主合约分解为更小的合约
+有了这个，我们创建了松散耦合的模块/合约，更容易审计，并且可以很容易地连接到 DAO
 
-## Tribute DAO Architecture
+## Tribute DAO 架构
 
 ![laoland_hexagon_architecture](https://user-images.githubusercontent.com/708579/107689684-e7300200-6c87-11eb-89c0-7bfe7eddaaaf.png)
 
-The main design goal is to limit access to the smart contracts according at layer boundaries. The External World (i.e. RPC clients) can access the core contracts only via Adapters, never directly. Every adapter contains all the necessary logic and data to update/change the state of the DAO in the DAORegistry Contract. The Core Contract tracks all the state changes of the DAO, and an Adapter tracks only the state changes in its own context. Extensions enhance the DAO capabilities and simplify the Core Contract code. The information always flows from the External World to the Core Contracts, never the other way around. If a Core Contract needs external info, it must be provided by an Adapter and/or an Extension instead of calling External World directly.
+主要设计目标是根据层边界限制对智能合约的访问。外部世界（即 RPC 客户端）只能通过适配器访问核心合约，而不能直接访问。每个适配器都包含所有必要的逻辑和数据，以在 DAORegistry 合约中更新/更改 DAO 的状态。 Core Contract 跟踪 DAO 的所有状态变化，而 Adapter 仅跟踪其自身上下文中的状态变化。扩展增强了 DAO 功能并简化了核心合约代码。信息总是从外部世界流向核心合约，而不是相反。如果核心合约需要外部信息，它必须由适配器和/或扩展提供，而不是直接调用外部世界
 
-There are five main components in the Tribute architecture outlined further below.
+Tribute 架构中有五个主要组件，下面将进一步概述
 
 ### Core Contracts
 
-The core contracts serve as the spine for the Tribute DAO framework and act as a DAO registry, creating a digital version of "division of corporations." These contracts compose the DAO itself, and make it cheaper and easier to deploy a DAO. These contracts directly change the DAO state without the need of going through an adapter or extension (described further below). A core contract never pulls information directly from the external world. For that we use Adapters and Extensions, and the natural information flow is always from the external world to the core contracts.
+核心合约充当 Tribute DAO 框架的支柱，并充当 DAO 注册表，创建“公司分工”的数字版本 这些合约构成了 DAO 本身， 并使部署 DAO 变得更便宜、更容易
+这些合约直接改变 DAO 状态，而不需要通过适配器或扩展（下面进一步描述）核心合约从不直接从外部世界提取信息
+因此，我们使用适配器和扩展，自然信息流总是从外部世界流向核心合约 
 
-There are three core contracts as part of the Tribute DAO framework, including a:
+Tribute DAO 框架包含三个核心合约，包括：
 
-- [DaoRegistry](https://tributedao.com/docs/contracts/core/dao-registry): tracks the state changes of the DAO, only adapters with proper [Access Flags](#access-control-layer) can alter the DAO state.
-- CloneFactory: creates a clone of the DAO based on its address.
-- [DaoFactory](https://tributedao.com/docs/contracts/core/dao-factory): creates, initializes, and adds adapter configurations to the new DAO, and uses the CloneFactory to reduce the DAO creation transaction costs.
+- [DaoRegistry](https://tributedao.com/docs/contracts/core/dao-registry): 跟踪 DAO 的状态变化， 只有具有正确 [Access Flags](#access-control-layer) 的适配器才能更改 DAO 状态
+- CloneFactory: 根据其地址创建 DAO 的克隆
+- [DaoFactory](https://tributedao.com/docs/contracts/core/dao-factory): 创建、初始化和添加适配器配置到新的 DAO， 并使用 CloneFactory 降低 DAO 创建事务成本
 
 ### Adapters and Extensions
-
-Once a DAO is created using the above core contracts, they can be extended and modified with adapters and extensions. Adapters and extensions make it easy to assemble a DAO like lego blocks, by adding to a DAO narrowly-defined, tested, and extensible smart contracts created for specific purposes. Adapters and extensions make DAOs more modular, upgradeable, and also enable us to work together to build robust DAO tooling. They can be added to a TributeDAO via a DAO vote.
 
 一旦使用上述核心合约创建了 DAO，就可以使用适配器和扩展对其进行扩展和修改 
 适配器和扩展通过向 DAO 添加为特定目的而创建的经过严格定义、测试和可扩展的智能合约，可以轻松组装像乐高积木一样的 DAO 
@@ -101,81 +72,65 @@ Once a DAO is created using the above core contracts, they can be extended and m
 
 #### Adapters
 
-There are currently 12 adapters implemented in the Tribute DAO framework and these adapters make the Tribute DAO framework feature compatible with Moloch v2:
+目前在 Tribute DAO 框架中实现了 12 个适配器，这些适配器使 Tribute DAO 框架功能与 Moloch v2 兼容：
 
-- [Configuration](https://tributedao.com/docs/contracts/adapters/configuration/configuration-adapter): manages storing and retrieving per-DAO settings required by shared adapters.
-- [Distribute](https://tributedao.com/docs/contracts/adapters/distribution/distribute-adapter): allows the members to distribute funds to one or all members of the DAO.
-- [Financing](https://tributedao.com/docs/contracts/adapters/funding/financing-adapter): allows individuals and/or organizations to request funds to finance their projects, and the members of the DAO have the power to vote and decide which projects should be funded.
-- [GuildKick](https://tributedao.com/docs/contracts/adapters/exiting/guild-kick-adapter): gives the members the freedom to choose which individuals or organizations should really be part of the DAO.
-- [Managing](https://tributedao.com/docs/contracts/adapters/configuration/managing-adapter): enhances the DAO capabilities by adding/updating the DAO Adapters through a voting process.
-- [OffchainVoting](https://tributedao.com/docs/contracts/adapters/voting/offchain-voting-adapter): adds the offchain voting governance process to the DAO to support gasless voting.
-- [Onboarding](https://tributedao.com/docs/contracts/adapters/onboarding/onboarding-adapter): triggers the process of minting internal tokens in exchange of a specific token at a fixed price.
-- [Ragequit](https://tributedao.com/docs/contracts/adapters/exiting/rage-quit-adapter): gives the members the freedom to choose when it is the best time to exit the DAO for any given reason.
-- [Tribute](https://tributedao.com/docs/contracts/adapters/onboarding/tribute-adapter): allows potential and existing DAO members to contribute any amount of ERC-20 tokens to the DAO in exchange for any amount of DAO internal tokens.
-- [TributeNFT](https://tributedao.com/docs/contracts/adapters/onboarding/tribute-nft-adapter): allows potential DAO members to contribute a registered ERC-721 asset to the DAO in exchange for any amount of DAO units.
-- [Voting](https://tributedao.com/docs/contracts/adapters/voting/basic-voting-adapter): adds the simple on chain voting governance process to the DAO.
-- [Withdraw](https://tributedao.com/docs/contracts/adapters/utils/bank-adapter#withdraw): allows the members to withdraw their funds from the DAO bank.
+- [Configuration](https://tributedao.com/docs/contracts/adapters/configuration/configuration-adapter): 管理共享适配器所需的每个 DAO 设置的存储和检索
+- [Distribute](https://tributedao.com/docs/contracts/adapters/distribution/distribute-adapter): 允许成员将资金分配给 DAO 的一个或所有成员
+- [Financing](https://tributedao.com/docs/contracts/adapters/funding/financing-adapter): 允许个人和/或组织申请资金来资助他们的项目，DAO 的成员有权投票决定应该资助哪些项目
+- [GuildKick](https://tributedao.com/docs/contracts/adapters/exiting/guild-kick-adapter): 让成员可以自由选择哪些个人或组织真正应该成为 DAO 的一部分
+- [Managing](https://tributedao.com/docs/contracts/adapters/configuration/managing-adapter): 通过投票过程添加/更新 DAO 适配器来增强 DAO 功能
+- [OffchainVoting](https://tributedao.com/docs/contracts/adapters/voting/offchain-voting-adapter): 将链下投票治理流程添加到 DAO 以支持无气体投票
+- [Onboarding](https://tributedao.com/docs/contracts/adapters/onboarding/onboarding-adapter): 触发以固定价格铸造内部代币以换取特定代币的过程
+- [Ragequit](https://tributedao.com/docs/contracts/adapters/exiting/rage-quit-adapter): 让成员可以自由选择出于任何给定原因退出 DAO 的最佳时间
+- [Tribute](https://tributedao.com/docs/contracts/adapters/onboarding/tribute-adapter): 允许潜在的和现有的 DAO 成员向 DAO 贡献任意数量的 ERC-20 代币，以换取任意数量的 DAO 内部代币
+- [TributeNFT](https://tributedao.com/docs/contracts/adapters/onboarding/tribute-nft-adapter): 允许潜在的 DAO 成员向 DAO 贡献注册的 ERC-721 资产，以换取任何数量的 DAO 单位
+- [Voting](https://tributedao.com/docs/contracts/adapters/voting/basic-voting-adapter): 将简单的链上投票治理流程添加到 DAO
+- [Withdraw](https://tributedao.com/docs/contracts/adapters/utils/bank-adapter#withdraw): 允许成员从 DAO 银行提取资金
 
-The range of potential adapters will expand over time and likely will include:
 潜在适配器的范围将随着时间的推移而扩大，可能包括：
 
-- "Streams" to manage a DAO's treasury in a more agile way
-- Alternative voting structures to layer to improve DAO governance, including quadratic voting, one-member-one-vote voting
-- Swaps of one token for another
-- Streaming payments
-- NFT-based onboarding
-- DAO-to-DAO voting
-- Creating a liquidity pool for a DAO's native asset
-- Staking or depositing assets into existing DeFi projects (like Aave, Compound, or Lido)
+- [Streaming_Payments] 流式支付 
+- [Streams] 更灵活的方式管理 DAO 的金库
+- [Alternative_Voting_Structures_To_Layer] 分层的替代投票结构 用于改善 DAO 治理，包括二次投票、一人一票 投票
+- [Swap] 将一个令牌换成另一个
+- [NFT-Onboarding] 基于 NFT 的入职
+- [DAO-to-DAO] DAO 到 DAO 投票
+- [LiquidityPool] 为 DAO 的原生资产创建流动资金池 
+- [Staking] [Depositing] 将资产质押 或 存入现有 DeFi 项目 （ 如 Aave、 Compound 或 Lido ）
 
-- "流" 以更敏捷的方式管理 DAO 的金库
-- 分层的替代投票结构 用于改善 DAO 治理，包括二次投票、一人一票 投票
-- 将一个令牌换成另一个
-- 流式支付
-- 基于 NFT 的入职
-- DAO 到 DAO 投票
-- 为 DAO 的原生资产创建流动资金池
-- 将资产质押或存入现有 DeFi 项目（如 Aave、Compound 或 Lido）
+创建适配器很简单，应该可以节省开发人员的工程时间。 每个适配器都需要配置 [Access Flags](#access-control-layer) 以访问 [Core Contracts](#core-contracts) 和/或 [Extensions](#extensions)
+否则， 适配器将无法从 DAO 拉取/推送信息
 
-Creating an adapter is straight forward and should save developers engineering time. Each adapter needs to be configured with the [Access Flags](#access-control-layer) in order to access the [Core Contracts](#core-contracts), and/or [Extensions](#extensions). Otherwise the Adapter will not able to pull/push information to/from the DAO.
-
-创建适配器很简单，应该可以节省开发人员的工程时间 每个适配器都需要配置 [Access Flags] 以访问 [Core Contracts] 和 [Extensions] 否则，适配器将无法从 DAO 获取/推送信息 
-Please note:
-
-- Adapters do not keep track of the state of the DAO. An adapter might use storage to control its own state, but ideally any DAO state change must be propagated to the DAORegistry Core Contract.
-- Adapters just execute smart contract logic that changes the state of the DAO by calling the DAORegistry. They also can compose complex calls that interact with External World, other Adapters or even Extensions, to pull/push additional information.
-- The adapter must follow the rules defined by the [Template Adapter](https://tributedao.com/docs/tutorial/adapters/adapter-template).
-- If you want to contribute and create an Adapter, please checkout this: [How to create an Adapter](https://tributedao.com/docs/tutorial/adapters/creating-an-adapter).
-
-- 适配器不跟踪 DAO 的状态 适配器可能使用存储来控制自己的状态，但理想情况下，任何 DAO 状态更改都必须传播到 DAORegistry 核心合约， 最好是无状态的  
+- 适配器不跟踪 DAO 的状态 适配器可能使用存储来控制自己的状态， 但理想情况下， 任何 DAO 状态更改都必须传播到 DAORegistry 核心合约， 最好是无状态的
 - 适配器只是执行智能合约逻辑，通过调用 DAORegistry 来改变 DAO 的状态 他们还可以编写与外部世界、其他适配器甚至扩展交互的复杂调用，以提取/推送附加信息  
-- 适配器必须遵循 [模板适配器](https://tributedao.com/docs/tutorial/adapter/adapter-template) 定义的规则  - 如果您想贡献并创建适配器，请查看：[如何创建适配器](https://tributedao.com/docs/tutorial/adapters/creating-an-adapter) 
+- 适配器必须遵循 [模板适配器](https://tributedao.com/docs/tutorial/adapter/adapter-template) 定义的规则
+- 如果您想贡献并创建适配器， 请查看：[如何创建适配器](https://tributedao.com/docs/tutorial/adapters/creating-an-adapter)
+
 ### Extensions
 
-Extensions are conceived to isolate the complexity of state changes from the DAORegistry contract, and to simplify the core logic. Essentially an Extension is similar to an Adapter, but the main difference is that it is used by several adapters and by the DAORegistry - which end up enhancing the DAO capabilities and the state management without cluttering the DAO core contract.
+扩展旨在将状态更改的复杂性与 DAORegistry 合约隔离开来， 并简化核心逻辑。 本质上，扩展类似于适配器，但主要区别在于它被多个适配器和 DAORegistry 使用——最终增强了 DAO 功能和状态管理，而不会弄乱 DAO 核心合约
 
-- [Bank](https://tributedao.com/docs/contracts/extensions/bank-extension): adds the banking capabilities to the DAO, and keeps track of the DAO accounts and internal token balances.
+- [Bank](https://tributedao.com/docs/contracts/extensions/bank-extension): 将银行功能添加到 DAO，并跟踪 DAO 帐户和内部代币余额
 
-- [NFT](https://tributedao.com/docs/contracts/extensions/nft-extension): adds to the DAO the capability of managing and curating a collection of standard NFTs.
+- [NFT](https://tributedao.com/docs/contracts/extensions/nft-extension): 为 DAO 添加了管理和策划一组标准 NFT 的能力
 
-- [ERC20](https://tributedao.com/docs/contracts/extensions/erc20-extension): adds to the DAO the capability of managing and transfer internal tokens between members and/or external accounts.
+- [ERC20](https://tributedao.com/docs/contracts/extensions/erc20-extension): 为 DAO 添加了在内部成员和/或外部账户之间 管理和转移内部代币的能力
 
-- [Executor](https://tributedao.com/docs/contracts/extensions/executor-extension): adds to the DAO the capability of executing delegated calls to other contracts, including contracts that are not part of the DAO, using the EVM instruction `delegatecall`.
+- [Executor](https://tributedao.com/docs/contracts/extensions/executor-extension): 使用 EVM 指令 `delegatecall` 为 DAO 添加执行对其他合约的委托调用的能力， 包括不属于 DAO 的合约
 
 #### Access Control Layer
 
-The Access Control Layer (ACL) is implemented using Access Flags to indicate which permissions an adapter must have in order to access and modify the DAO state. The are 3 main categories of [Access Flags](https://tributedao.com/docs/intro/design/access-control):
+访问控制层 (ACL) 是使用访问标志来实现的，以指示适配器必须具有哪些权限才能访问和修改 DAO 状态。 [访问标志]（https://tributedao.com/docs/intro/design/access-control）有 3 个主要类别：
 
 - MemberFlag: `EXISTS`.
 - ProposalFlag: `EXISTS`, `SPONSORED`, `PROCESSED`.
 - AclFlag: `REPLACE_ADAPTER`, `SUBMIT_PROPOSAL`, `UPDATE_DELEGATE_KEY`, `SET_CONFIGURATION`, `ADD_EXTENSION`, `REMOVE_EXTENSION`, `NEW_MEMBER`.
 
-The Access Flags of each adapter must be provided to the DAOFactory when the `daoFactory.addAdapters` function is called passing the new adapters. These flags will grant the access to the DAORegistry contract, and the same process must be done to grant the access of each Adapter to each Extension (function `daoFactory.configureExtension`).
+当调用 `daoFactory.addAdapters` 函数传递新的适配器时， 必须将每个适配器的访问标志提供给 DAOFactory。 这些标志将授予对 DAORegistry 合约的访问权限，并且必须执行相同的过程来授予每个适配器对每个扩展的访问权限（函数 `daoFactory.configureExtension`）
 
-The Access Flags are defined in the DAORegistry using the modifier `hasAccess`. For example, a function with the modifier `hasAccess(this, AclFlag.REPLACE_ADAPTER)` means the adapter calling this function needs to have the Access Flag `REPLACE_ADAPTER` enabled, otherwise the call will revert. In order to create an Adapter with the proper Access Flags one needs to first map out all the functions that the Adapter will be calling in the DAORegistry and Extensions, and provide these Access Flags using the DAO Factory as described above.
+访问标志在 DAORegistry 中使用修饰符 `hasAccess` 定义。例如，带有修饰符 `hasAccess(this, AclFlag.REPLACE_ADAPTER)` 的函数意味着调用此函数的适配器需要启用访问标志 `REPLACE_ADAPTER`，否则调用将恢复。为了创建具有正确访问标志的适配器，首先需要映射适配器将在 DAORegistry 和扩展中调用的所有函数，并使用如上所述的 DAO 工厂提供这些访问标志
 
-You can find more information about the purpose of each access flag at [DAO Registry - Access Flags](https://tributedao.com/docs/contracts/core/dao-registry#access-flags).
-
+您可以在 [DAO Registry - Access Flags](https://tributedao.com/docs/contracts/core/dao-registry#access-flags) 中找到有关每个访问标志用途的更多信息
 ## Quickstart
 
 ### Install all dependencies
@@ -198,7 +153,7 @@ npm run compile
 
 ### Deploy contracts
 
-Deploy contracts to networks such as rinkeby, goerli, harmonytest, polygontest, ganache, mainnet, harmony or polygon.
+将合约部署到 rinkeby、goerli、harmonitest、polygontest、ganache、mainnet、harmonic 或 polygon 等网络
 
 ```sh
 npm run deploy rinkeby
@@ -317,23 +272,21 @@ npm test
 
 Contracts:
 
-- `DAO_NAME`: The name of the DAO.
-- `DAO_OWNER_ADDR`: The DAO Owner ETH Address (0x...) in the target network.
-- `ETH_NODE_URL`: The Ethereum Node URL to connect to the Ethereum blockchain, it can be http/ws.
-- `WALLET_MNEMONIC`: The wallet mnemonic string containing the 12 secret keywords.
-- `ETHERSCAN_API_KEY`: The Ether Scan API Key to verify the contracts after the deployment.
-- `DEBUG`: Debug the Ether Scan contract verification calls (`true`|`false`).
-- `COUPON_CREATOR_ADDR`: The public eth (0x...) address of the creator of the onboarding coupons.
-- `ERC20_TOKEN_NAME`: The ERC20 Token Name used by the ERC20 Token Extension.
-- `ERC20_TOKEN_SYMBOL`: Token Symbol used by the ERC20 Token Extension.
-- `ERC20_TOKEN_DECIMALS`: The ERC20 Token Decimals to display in MetaMask.
-- `OFFCHAIN_ADMIN_ADDR`: The address of the admin account that manages the offchain voting adapter.
-- `VOTING_PERIOD_SECONDS`: The maximum amount of time in seconds that members are allowed vote on proposals.
-- `GRACE_PERIOD_SECONDS`: The minimum time in seconds after the voting period has ended, that the members need to wait before processing a proposal.
+- `DAO_NAME`: DAO 的名称
+- `DAO_OWNER_ADDR`: 目标网络中的 DAO 所有者 ETH 地址 (0x...)
+- `ETH_NODE_URL`: 连接以太坊区块链的以太坊节点 URL，可以是 http/ws
+- `WALLET_MNEMONIC`: 包含 12 个秘密关键字的钱包助记符字符串
+- `ETHERSCAN_API_KEY`: 用于在部署后验证合约的 Ether Scan API 密钥
+- `DEBUG`: 调试 Ether Scan 合约验证调用 (`true`|`false`).
+- `COUPON_CREATOR_ADDR`: 入职优惠券创建者的公共地址
+- `ERC20_TOKEN_NAME`: ERC20 代币扩展使用的 ERC20 代币名称
+- `ERC20_TOKEN_SYMBOL`: ERC20 代币扩展使用的代币符号
+- `ERC20_TOKEN_DECIMALS`: 在 MetaMask 中显示的 ERC20 代币小数
+- `OFFCHAIN_ADMIN_ADDR`: 管理链下投票适配器的管理员帐户的地址
+- `VOTING_PERIOD_SECONDS`: 允许成员对提案进行投票的最长时间（以秒为单位）
 - `GRACE_PERIOD_SECONDS`: 投票期结束后，成员在处理提案之前需要等待的最短时间（以秒为单位）.
-- `DAO_ARTIFACTS_OWNER_ADDR`: The owner address of the artifacts deployed. Leave it empty to if you want to use the `DAO_OWNER_ADDR` as the artifacts owner.
-- `DAO_ARTIFACTS_OWNER_ADDR`: 部署的工件的所有者地址 如果您想使用 `DAO_OWNER_ADDR` 作为工件所有者，请将其留空
-- `DAO_ARTIFACTS_CONTRACT_ADDR`: The `DaoArtifacts` contract address that will be used in the deployment script to fetch Adapters and Factories during the deployment to save gas costs.
+- `DAO_ARTIFACTS_OWNER_ADDR`: 部署的工件的所有者地址。如果您想使用 `DAO_OWNER_ADDR` 作为工件所有者，请将其留空
+- `DAO_ARTIFACTS_CONTRACT_ADDR`: `DaoArtifacts` 合约地址，将在部署脚本中用于在部署期间获取适配器和工厂，以节省 gas 成本
 
 Snapshot-hub:
 

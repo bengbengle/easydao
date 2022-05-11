@@ -17,7 +17,7 @@ contract ERC20MinterContract is AdapterGuard {
     event Minted(address owner, address token, uint256 amount);
 
     /**
-     * @notice default fallback function to prevent from sending ether to the contract.
+     * @notice 默认回退功能，以防止将以太币发送到合约
      */
     receive() external payable {
         revert("fallback revert");

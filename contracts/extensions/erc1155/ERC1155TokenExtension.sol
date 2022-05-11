@@ -87,16 +87,16 @@ contract ERC1155TokenExtension is IExtension, IERC1155Receiver {
     }
 
     /**
-     * @notice Transfers the NFT token from the extension address to the new owner.
-     * @notice It also updates the internal state to keep track of the all the NFTs collected by the extension.
-     * @notice The caller must have the ACL Flag: WITHDRAW_NFT
-     * @notice This function needs to be called from a new adapter (RagequitNFT) that will manage the Bank balances, and will return the NFT to the owner.
-     * @dev Reverts if the NFT is not in ERC1155 standard.
-     * @param newOwner The address of the new owner that will receive the NFT.
-     * @param nftAddr The NFT address that must be in ERC1155 standard.
-     * @param nftTokenId The NFT token id.
-     * @param amount The NFT token id amount to withdraw.
-     */
+    * @notice 将 NFT 代币从扩展地址转移给新的所有者。 
+    * @notice 它还更新内部状态以跟踪扩展收集的所有 NFT。 
+    * @notice 调用者必须具有 ACL 标志： WITHDRAW_NFT 
+    * @notice 此函数需要从将管理银行余额的新适配器 (RagequitNFT) 调用，并将 NFT 返回给所有者。 
+    * @dev 如果 NFT 不在 ERC1155 标准中，则恢复。 
+    * @param newOwner 将接收 NFT 的新所有者的地址。 
+    * @param nftAddr 必须符合 ERC1155 标准的 NFT 地址。 
+    * @param nftTokenId NFT 令牌 ID。 
+    * @param amount 要提取的 NFT 代币 ID 数量。     
+    */
     function withdrawNFT(
         DaoRegistry _dao,
         address from,
@@ -116,7 +116,7 @@ contract ERC1155TokenExtension is IExtension, IERC1155Receiver {
         require(currentAmount >= amount, "erc1155Ext::insufficient funds");
         uint256 remainingAmount = currentAmount - amount;
 
-        // Updates the tokenID amount to keep the records consistent
+        // 更新 tokenID 数量以保持记录一致
         _updateTokenAmount(from, nftAddr, nftTokenId, remainingAmount);
 
         uint256 ownerTokenIdBalance = erc1155.balanceOf(
@@ -124,22 +124,22 @@ contract ERC1155TokenExtension is IExtension, IERC1155Receiver {
             nftTokenId
         ) - amount;
 
-        // Updates the mappings if the amount of tokenId in the Extension is 0
-        // It means the GUILD/Extension does not hold that token id anymore.
+        // 如果 Extension 中的 tokenId 数量为 0，则更新映射 
+        // 这意味着 GUILD/Extension 不再持有该 token id。    
         if (ownerTokenIdBalance == 0) {
             delete _nftTracker[newOwner][nftAddr][nftTokenId];
 
             _ownership[getNFTId(nftAddr, nftTokenId)].remove(newOwner);
 
             _nfts[nftAddr].remove(nftTokenId);
-            // If there are 0 tokenIds for the NFT address, remove the NFT from the collection
+            // 如果 NFT 地址有 0 个 tokenId， 则从集合中移除 NFT
             if (_nfts[nftAddr].length() == 0) {
                 _nftAddresses.remove(nftAddr);
                 delete _nfts[nftAddr];
             }
         }
 
-        // Transfer the NFT, TokenId and amount from the contract address to the new owner
+        // 将 NFT、TokenId 和金额从合约地址转移给新所有者
         erc1155.safeTransferFrom(
             address(this),
             newOwner,
@@ -152,15 +152,15 @@ contract ERC1155TokenExtension is IExtension, IERC1155Receiver {
     }
 
     /**
-     * @notice Updates internally the ownership of the NFT.
-     * @notice The caller must have the ACL Flag: INTERNAL_TRANSFER
-     * @dev Reverts if the NFT is not already internally owned in the extension.
-     * @param fromOwner The address of the current owner.
-     * @param toOwner The address of the new owner.
-     * @param nftAddr The NFT address.
-     * @param nftTokenId The NFT token id.
-     * @param amount the number of a particular NFT token id.
-     */
+    * @notice 在内部更新 NFT 的所有权。 
+    * @notice 调用者必须具有 ACL 标志：INTERNAL_TRANSFER 
+    * @dev 如果 NFT 尚未在扩展内部拥有，则还原。 
+    * @param fromOwner 当前所有者的地址。 
+    * @param toOwner 新所有者的地址。 
+    * @param nftAddr NFT 地址。 
+    * @param nftTokenId NFT 令牌 ID。 
+    * @param amount 特定 NFT 代币 ID 的数量。
+    */
     function internalTransfer(
         DaoRegistry _dao,
         address fromOwner,
@@ -169,27 +169,27 @@ contract ERC1155TokenExtension is IExtension, IERC1155Receiver {
         uint256 nftTokenId,
         uint256 amount
     ) external hasExtensionAccess(_dao, AclFlag.INTERNAL_TRANSFER) {
-        // Checks if there token amount is valid and has enough funds
+        // 检查代币数量是否有效且是否有足够的资金
         uint256 tokenAmount = _getTokenAmount(fromOwner, nftAddr, nftTokenId);
         require(
             amount > 0 && tokenAmount >= amount,
             "erc1155Ext::invalid amount"
         );
 
-        // Checks if the extension holds the NFT
+        // 检查扩展是否持有 NFT
         require(
             _nfts[nftAddr].contains(nftTokenId),
             "erc1155Ext::nft not found"
         );
         if (fromOwner != toOwner) {
-            // Updates the internal records for toOwner with the current balance + the transferred amount
+            // 用当前余额 + 转账金额更新 toOwner 的内部记录
             uint256 toOwnerNewAmount = _getTokenAmount(
                 toOwner,
                 nftAddr,
                 nftTokenId
             ) + amount;
             _updateTokenAmount(toOwner, nftAddr, nftTokenId, toOwnerNewAmount);
-            // Updates the internal records for fromOwner with the remaning amount
+            // 用剩余金额更新 fromOwner 的内部记录
             _updateTokenAmount(
                 fromOwner,
                 nftAddr,

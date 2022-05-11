@@ -743,10 +743,8 @@ describe("Extension - ERC20", () => {
     );
 
     // Check the A's historical balance using the saved block number
-    const historicalUnits = await erc20Ext.getPriorAmount(
-      applicantA,
-      blockNumber
-    );
+    const historicalUnits = await erc20Ext.getPriorAmount(applicantA, blockNumber);
+    
     expect(historicalUnits.toString()).equal(
       numberOfUnits.mul(toBN("3")).toString()
     );

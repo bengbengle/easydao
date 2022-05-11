@@ -48,19 +48,14 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
         EXISTS
     }
 
+    // 存在， 赞助， 已处理
     enum ProposalFlag {
         EXISTS,
         SPONSORED,
         PROCESSED
     }
 
-    // 替换适配器
-    // 提交提案
-    // 更新委托者地址
-    // 设置配置
-    // 添加 EXTENSION
-    // 移除 EXTENSION
-    // 添加 Dao 成员
+    // 替换适配器， 提交提案， 更新委托者地址， 设置配置， 添加 EXTENSION， 移除 EXTENSION， 添加 Dao 成员
     enum AclFlag {
         REPLACE_ADAPTER,
         SUBMIT_PROPOSAL,
@@ -146,7 +141,7 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     /// @notice 根据地址获取扩展ID的逆映射 ext_address --> []{ext_id, is_del, [acl]
     mapping(address => ExtensionEntry) public inverseExtensions;
 
-    /// @notice 跟踪 DAO 和适配器的配置参数的映射
+    /// @notice 跟踪 DAO 和 adapter 的配置参数的映射
     mapping(bytes32 => uint256) public mainConfiguration;
     mapping(bytes32 => address) public addressConfiguration;
 
@@ -225,11 +220,8 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
         require(memberAddress != address(0x0), "invalid member address");
 
         Member storage member = members[memberAddress];
-
-        bool is_exists = DaoHelper.getFlag(
-            member.flags,
-            uint8(MemberFlag.EXISTS)
-        );
+        
+        bool is_exists = DaoHelper.getFlag(member.flags, uint8(MemberFlag.EXISTS));
 
         if (!is_exists) {
             require(
@@ -252,12 +244,7 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
             BankExtension bank = BankExtension(bankAddress);
 
             if (bank.balanceOf(memberAddress, DaoHelper.MEMBER_COUNT) == 0) {
-                bank.addToBalance(
-                    this,
-                    memberAddress,
-                    DaoHelper.MEMBER_COUNT,
-                    1
-                );
+                bank.addToBalance(this, memberAddress, DaoHelper.MEMBER_COUNT, 1);
             }
         }
     }
@@ -387,8 +374,6 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-     * @notice Removes an adapter from the registry
-     * @param extensionId The unique identifier of the extension
      * @notice 从注册表中移除一个适配器
      * @param extensionId 扩展的唯一标识符
      */
@@ -515,17 +500,11 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
         address votingAdapterAddr
     ) external onlyMember2(this, sponsoringMember) {
         // 检查 flag 是否 设置过
-        Proposal storage proposal = _setProposalFlag(
-            proposalId,
-            ProposalFlag.SPONSORED
-        );
+        Proposal storage proposal = _setProposalFlag(proposalId, ProposalFlag.SPONSORED);
 
         uint256 flags = proposal.flags;
 
-        bool isProcessed = DaoHelper.getFlag(
-            flags,
-            uint8(ProposalFlag.PROCESSED)
-        );
+        bool isProcessed = DaoHelper.getFlag(flags, uint8(ProposalFlag.PROCESSED));
 
         // 只有提交提案的适配器才能处理它
         require(
@@ -542,8 +521,6 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-     * @notice Mark a proposal as processed in the DAO registry
-     * @param proposalId The ID of the proposal that is being processed
      * @notice 在 DAO 注册表中将提案标记为已处理
      * @param proposalId 正在处理的提案的 ID
      */
@@ -560,9 +537,8 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-     * @notice 设置提案的标志
-     * @dev 如果提案已经处理，则恢复
-     * @param proposalId 要更改的提案ID
+     * @notice 设置提案的标志， 如果提案已经处理，则恢复
+     * @param proposalId 要更改的提案 ID
      * @param flag 将在提案上设置的标志
      */
     function _setProposalFlag(bytes32 proposalId, ProposalFlag flag)
@@ -620,9 +596,9 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-     * @return 是否 为成员 设置了 标志
-     * @param memberAddress 要检查标志的成员
-     * @param flag 签入成员的标志
+     * @return 检查是否 为成员 设置了 标志
+     * @param memberAddress 成员地址
+     * @param flag 成员标志
      */
     function getMemberFlag(address memberAddress, MemberFlag flag)
         public
@@ -670,10 +646,8 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
 
         Member storage member = members[memberAddr];
 
-        bool isExist = DaoHelper.getFlag(
-            member.flags,
-            uint8(MemberFlag.EXISTS)
-        );
+        bool isExist = DaoHelper.getFlag(member.flags, uint8(MemberFlag.EXISTS));
+
         require(isExist, "member does not exist");
 
         // 重置当前的委托

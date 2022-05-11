@@ -164,12 +164,8 @@ contract OffchainVotingHashContract {
             dao.getMemberAddress(node.index),
             snapshot
         );
-        uint256 weight = GovernanceHelper.getVotingWeight(
-            dao,
-            voter,
-            node.proposalId,
-            snapshot
-        );
+        
+        uint256 weight = GovernanceHelper.getVotingWeight(dao, voter, node.proposalId, snapshot);
 
         if (node.choice == 0) {
             if (params.previousYes != node.nbYes) {

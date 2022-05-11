@@ -52,11 +52,7 @@ contract OffchainVotingHelperContract {
             dao.getExtensionAddress(DaoHelper.BANK)
         );
 
-        membersCount = bank.getPriorAmount(
-            DaoHelper.TOTAL,
-            DaoHelper.MEMBER_COUNT,
-            blockNumber
-        );
+        membersCount = bank.getPriorAmount(DaoHelper.TOTAL, DaoHelper.MEMBER_COUNT, blockNumber);
 
         require(membersCount - 1 == resultIndex, "index:member_count mismatch");
     }
@@ -148,12 +144,7 @@ contract OffchainVotingHelperContract {
         }
 
         // 如果权重 为 0，则该成员无权投票， 始终检查成员的权重，而不是代表的权重
-        uint256 votingWeight = GovernanceHelper.getVotingWeight(
-            dao,
-            memberAddr,
-            node.proposalId,
-            blockNumber
-        );
+        uint256 votingWeight = GovernanceHelper.getVotingWeight(dao, memberAddr, node.proposalId, blockNumber);
 
         if (node.choice != 0 && votingWeight == 0) {
             return BadNodeError.VOTE_NOT_ALLOWED;
@@ -223,11 +214,7 @@ contract OffchainVotingHelperContract {
         BankExtension bank = BankExtension(
             dao.getExtensionAddress(DaoHelper.BANK)
         );
-        uint256 totalWeight = bank.getPriorAmount(
-            DaoHelper.TOTAL,
-            DaoHelper.UNITS,
-            snapshot
-        );
+        uint256 totalWeight = bank.getPriorAmount(DaoHelper.TOTAL, DaoHelper.UNITS, snapshot);
 
         uint256 unvotedWeights = totalWeight - nbYes - nbNo;
         if (diff > unvotedWeights) {

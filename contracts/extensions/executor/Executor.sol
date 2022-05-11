@@ -6,12 +6,12 @@ import "../../core/DaoRegistry.sol";
 import "../IExtension.sol";
 
 /**
- * @dev Proxy contract which executes delegated calls to another contract using the EVM
- * instruction `delegatecall`, the call is triggered via fallback function.
- * The call is executed in the target contract identified by its address via `implementation` argument.
- * The success and return data of the delegated call are be returned back to the caller of the proxy.
- * Only contracts with the ACL Flag: EXECUTOR are allowed to use the proxy delegated call function.
- * This contract was based on the OpenZeppelin Proxy contract:
+ * @dev 代理合约使用 EVM 
+ * 指令 `delegatecall` 执行对另一个合约的委托调用，调用是通过回退函数触发的 
+ * 调用在由其地址通过 `implementation` 参数标识的目标合约中执行 
+ * 委托调用的成功和返回数据返回给代理的调用者 
+ * 只有带有 ACL Flag: EXECUTOR 的合约才允许使用代理委托调用功能 
+ * 该合约基于 OpenZeppelin Proxy 合约：
  * https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/proxy/Proxy.sol
  */
 contract ExecutorExtension is IExtension {
@@ -43,10 +43,10 @@ contract ExecutorExtension is IExtension {
     }
 
     /**
-     * @notice Initialises the Executor extension to be associated with a DAO
-     * @dev Can only be called once
-     * @param creator The DAO's creator, who will be an initial member
-     */
+    * @notice 初始化与 DAO 关联的 Executor 扩展 
+    * @dev 只能调用一次 
+    * @param creator DAO 的创建者，他将是初始成员    
+    */
     function initialize(DaoRegistry _dao, address creator) external override {
         require(!initialized, "executorExt::already initialized");
         require(_dao.isMember(creator), "executorExt::not member");
@@ -55,10 +55,9 @@ contract ExecutorExtension is IExtension {
     }
 
     /**
-     * @dev Delegates the current call to `implementation`.
-     *
-     * This function does not return to its internall call site, it will return directly to the external caller.
-     */
+    * @dev 将当前调用委托给 `implementation` 
+    * 此函数不返回其内部调用站点，它将直接返回给外部调用者
+    */
     function _delegate(address implementation)
         internal
         virtual
@@ -83,12 +82,12 @@ contract ExecutorExtension is IExtension {
 
         // solhint-disable-next-line no-inline-assembly
         assembly {
-            // Copy msg.data. We take full control of memory in this inline assembly
-            // block because it will not return to Solidity code. We overwrite the
-            // Solidity scratch pad at memory position 0.
+            // 复制 msg.data，我们在这个内联汇编 
+            // 块中完全控制内存，因为它不会返回到 Solidity 代码，我们在内存位置 0 处覆盖 
+            // Solidity 便签本
             calldatacopy(0, 0, calldatasize())
-            // Call the implementation.
-            // out and outsize are 0 because we don't know the size yet.
+            // 调用实现 
+            // out 和 outsize 为 0，因为我们还不知道大小
             let result := delegatecall(
                 gas(),
                 implementation,
@@ -98,11 +97,11 @@ contract ExecutorExtension is IExtension {
                 0
             )
 
-            // Copy the returned data.
+            // 复制返回的数据
             returndatacopy(0, 0, returndatasize())
 
+            // delegatecall 出错时返回 0
             switch result
-            // delegatecall returns 0 on error.
             case 0 {
                 revert(0, returndatasize())
             }

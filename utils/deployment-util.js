@@ -312,8 +312,7 @@ const createGovernanceRoles = async ({ options, dao, adapters }) => {
   if (options.defaultMemberGovernanceToken) {
     const configKey = sha3(encodePacked("governance.role.default"));
     await waitTx(
-      dao.setAddressConfiguration(
-        configKey,
+      dao.setAddressConfiguration(configKey, 
         getAddress(options.defaultMemberGovernanceToken)
       )
     );
