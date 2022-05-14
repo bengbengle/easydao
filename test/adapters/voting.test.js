@@ -38,9 +38,7 @@ describe("Adapter - Voting", () => {
   };
 
   before("deploy dao", async () => {
-    const { dao, adapters, extensions } = await deployDefaultDao({
-      owner: daoOwner,
-    });
+    const { dao, adapters, extensions } = await deployDefaultDao({owner: daoOwner});
     this.dao = dao;
     this.adapters = adapters;
     this.extensions = extensions;
@@ -290,11 +288,13 @@ describe("Adapter - Voting", () => {
     expect(value.toString()).equal("99");
   });
 
+  // 如果您持有 内部治理令牌的成员和维护者，可以 更新 DAO 配置
+  // 如果会员持有任何 UNITS，他就是维护者
   it("should be possible to update a DAO configuration if you are a member and a maintainer that holds an internal governance token", async () => {
     const maintainer = accounts[5];
     const { dao, adapters } = await deployDefaultDao({
       owner: daoOwner,
-      maintainerTokenAddress: UNITS, // if the member holds any UNITS he is a maintainer
+      maintainerTokenAddress: UNITS,
     });
     const voting = adapters.voting;
     const configuration = adapters.configuration;
@@ -305,11 +305,11 @@ describe("Adapter - Voting", () => {
       )
     );
 
-    // Make sure the governance token configuration was created
+    // 确保已创建 治理令牌的配置 
     const governanceToken = await dao.getAddressConfiguration(configKey);
     expect(governanceToken).equal(utils.getAddress(UNITS));
 
-    // Onboard the maintainer as a DAO member
+    // 作为 DAO 成员加入 维护者
     await onboardingNewMember(
       getProposalCounter(),
       dao,
@@ -324,7 +324,7 @@ describe("Adapter - Voting", () => {
     const key = sha3("key");
     const proposalId = getProposalCounter();
 
-    // The maintainer submits a new configuration proposal
+    // 维护者提交新的 配置提案
     await configuration.submitProposal(
       dao.address,
       proposalId,
@@ -343,19 +343,13 @@ describe("Adapter - Voting", () => {
     let value = await dao.getConfiguration(key);
     expect(value.toString()).equal("0");
 
-    // The maintainer votes on the new proposal
-    await voting.submitVote(dao.address, proposalId, 1, {
-      from: maintainer,
-      gasPrice: toBN("0"),
-    });
+    // 维护者对新提案进行投票
+    await voting.submitVote(dao.address, proposalId, 1, {from: maintainer, gasPrice: toBN("0")});
 
     await advanceTime(10000);
 
-    // The maintainer processes on the new proposal
-    await configuration.processProposal(dao.address, proposalId, {
-      from: maintainer,
-      gasPrice: toBN("0"),
-    });
+    // 维护者处理新提案
+    await configuration.processProposal(dao.address, proposalId, {from: maintainer, gasPrice: toBN("0")});
 
     value = await dao.getConfiguration(key);
     expect(value.toString()).equal("99");
@@ -621,18 +615,20 @@ describe("Adapter - Voting", () => {
   });
 
   it("should not be possible to update a DAO configuration if you are a member & maintainer that holds an external token which not implements getPriorAmount function", async () => {
-    // Mint a PixelNFT to use it as an External Governance Token which does not implements
-    // the getPriorAmount function. Only a DAO maintainer will hold this token.
+    
+    // 铸造一个 PixelNFT 以将其用作没有实现 getPriorAmount 函数的外部治理令牌。只有 DAO 维护者会持有这个令牌。  
     const externalGovToken = await PixelNFT.new(10);
     await externalGovToken.mintPixel(daoOwner, 1, 1, {
       from: daoOwner,
     });
 
+    
+    // only holders of the PixelNFTs tokens are considered maintainers
+    // 只有 PixelNFTs 代币的持有者 能成为 维护者
     const { dao, adapters } = await deployDefaultDao({
       owner: daoOwner,
-      // only holders of the PixelNFTs tokens are considered
-      // maintainers
       maintainerTokenAddress: externalGovToken.address,
+
     });
     const voting = adapters.voting;
     const configuration = adapters.configuration;

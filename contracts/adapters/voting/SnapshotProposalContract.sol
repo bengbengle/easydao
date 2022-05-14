@@ -10,27 +10,17 @@ import "../interfaces/IVoting.sol";
 import "./Voting.sol";
 
 contract SnapshotProposalContract {
-    string public constant EIP712_DOMAIN =
-        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract,address actionId)";
-    string public constant PROPOSAL_MESSAGE_TYPE =
-        "Message(uint64 timestamp,bytes32 spaceHash,MessagePayload payload)MessagePayload(bytes32 nameHash,bytes32 bodyHash,string[] choices,uint64 start,uint64 end,string snapshot)";
-    string public constant PROPOSAL_PAYLOAD_TYPE =
-        "MessagePayload(bytes32 nameHash,bytes32 bodyHash,string[] choices,uint64 start,uint64 end,string snapshot)";
-    string public constant VOTE_MESSAGE_TYPE =
-        "Message(uint64 timestamp,MessagePayload payload)MessagePayload(uint32 choice,bytes32 proposalId)";
-    string public constant VOTE_PAYLOAD_TYPE =
-        "MessagePayload(uint32 choice,bytes32 proposalId)";
+    string public constant EIP712_DOMAIN = "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract,address actionId)";
+    string public constant PROPOSAL_MESSAGE_TYPE = "Message(uint64 timestamp,bytes32 spaceHash,MessagePayload payload)MessagePayload(bytes32 nameHash,bytes32 bodyHash,string[] choices,uint64 start,uint64 end,string snapshot)";
+    string public constant PROPOSAL_PAYLOAD_TYPE = "MessagePayload(bytes32 nameHash,bytes32 bodyHash,string[] choices,uint64 start,uint64 end,string snapshot)";
+    string public constant VOTE_MESSAGE_TYPE = "Message(uint64 timestamp,MessagePayload payload)MessagePayload(uint32 choice,bytes32 proposalId)";
+    string public constant VOTE_PAYLOAD_TYPE = "MessagePayload(uint32 choice,bytes32 proposalId)";
 
-    bytes32 public constant EIP712_DOMAIN_TYPEHASH =
-        keccak256(abi.encodePacked(EIP712_DOMAIN));
-    bytes32 public constant PROPOSAL_MESSAGE_TYPEHASH =
-        keccak256(abi.encodePacked(PROPOSAL_MESSAGE_TYPE));
-    bytes32 public constant PROPOSAL_PAYLOAD_TYPEHASH =
-        keccak256(abi.encodePacked(PROPOSAL_PAYLOAD_TYPE));
-    bytes32 public constant VOTE_MESSAGE_TYPEHASH =
-        keccak256(abi.encodePacked(VOTE_MESSAGE_TYPE));
-    bytes32 public constant VOTE_PAYLOAD_TYPEHASH =
-        keccak256(abi.encodePacked(VOTE_PAYLOAD_TYPE));
+    bytes32 public constant EIP712_DOMAIN_TYPEHASH = keccak256(abi.encodePacked(EIP712_DOMAIN));
+    bytes32 public constant PROPOSAL_MESSAGE_TYPEHASH = keccak256(abi.encodePacked(PROPOSAL_MESSAGE_TYPE));
+    bytes32 public constant PROPOSAL_PAYLOAD_TYPEHASH = keccak256(abi.encodePacked(PROPOSAL_PAYLOAD_TYPE));
+    bytes32 public constant VOTE_MESSAGE_TYPEHASH = keccak256(abi.encodePacked(VOTE_MESSAGE_TYPE));
+    bytes32 public constant VOTE_PAYLOAD_TYPEHASH = keccak256(abi.encodePacked(VOTE_PAYLOAD_TYPE));
 
     struct ProposalMessage {
         uint256 timestamp;
@@ -84,11 +74,7 @@ contract SnapshotProposalContract {
     ) external view returns (bytes32) {
         return
             keccak256(
-                abi.encodePacked(
-                    "\x19\x01",
-                    DOMAIN_SEPARATOR(dao, actionId),
-                    hashProposalMessage(message)
-                )
+                abi.encodePacked("\x19\x01", DOMAIN_SEPARATOR(dao, actionId), hashProposalMessage(message))
             );
     }
 
@@ -134,11 +120,7 @@ contract SnapshotProposalContract {
     ) external view returns (bytes32) {
         return
             keccak256(
-                abi.encodePacked(
-                    "\x19\x01",
-                    DOMAIN_SEPARATOR(dao, actionId),
-                    hashVoteInternal(message)
-                )
+                abi.encodePacked("\x19\x01", DOMAIN_SEPARATOR(dao, actionId), hashVoteInternal(message))
             );
     }
 
@@ -147,14 +129,9 @@ contract SnapshotProposalContract {
         pure
         returns (bytes32)
     {
-        return
-            keccak256(
-                abi.encode(
-                    VOTE_MESSAGE_TYPEHASH,
-                    message.timestamp,
-                    hashVotePayload(message.payload)
-                )
-            );
+        return keccak256(
+            abi.encode(VOTE_MESSAGE_TYPEHASH, message.timestamp, hashVotePayload(message.payload))
+        );
     }
 
     function hashVotePayload(VotePayload memory payload)
@@ -162,14 +139,9 @@ contract SnapshotProposalContract {
         pure
         returns (bytes32)
     {
-        return
-            keccak256(
-                abi.encode(
-                    VOTE_PAYLOAD_TYPEHASH,
-                    payload.choice,
-                    payload.proposalId
-                )
-            );
+        return keccak256(
+            abi.encode(VOTE_PAYLOAD_TYPEHASH, payload.choice, payload.proposalId)
+        );
     }
 
     function toHashArray(string[] memory arr)

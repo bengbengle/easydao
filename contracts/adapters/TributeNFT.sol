@@ -102,11 +102,7 @@ contract TributeNFTContract is
             msg.sender
         );
         dao.sponsorProposal(proposalId, sponsoredBy, address(votingContract));
-        DaoHelper.potentialNewMember(
-            applicant,
-            dao,
-            BankExtension(dao.getExtensionAddress(DaoHelper.BANK))
-        );
+        DaoHelper.potentialNewMember(applicant, dao, BankExtension(dao.getExtensionAddress(DaoHelper.BANK)));
 
         votingContract.startNewVotingForProposal(dao, proposalId, data);
 

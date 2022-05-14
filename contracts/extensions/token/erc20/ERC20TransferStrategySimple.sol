@@ -8,11 +8,11 @@ import "./IERC20TransferStrategy.sol";
 import "./InternalTokenVestingExtension.sol";
 
 /**
- * ERC20Extension 是为 DAO 成员持有的内部代币
+ * ERC20Extension 是为 DAO 成员持有的 内部代币
  */
 contract ERC20TransferStrategySimple is IERC20TransferStrategy {
-    bytes32 public constant ERC20_EXT_TRANSFER_TYPE =
-        keccak256("erc20.transfer.type");
+
+    bytes32 public constant ERC20_EXT_TRANSFER_TYPE = keccak256("erc20.transfer.type");
 
     // @notice 可克隆合约必须有一个空的构造函数
     // constructor() {}

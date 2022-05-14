@@ -43,13 +43,7 @@ contract NFTExtension is IExtension, IERC721Receiver {
 
     modifier hasExtensionAccess(DaoRegistry _dao, AclFlag flag) {
         require(
-            dao == _dao &&
-                (DaoHelper.isInCreationModeAndHasAccess(dao) ||
-                    dao.hasAdapterAccessToExtension(
-                        msg.sender,
-                        address(this),
-                        uint8(flag)
-                    )),
+            dao == _dao && (DaoHelper.isInCreationModeAndHasAccess(dao) || dao.hasAdapterAccessToExtension(msg.sender, address(this), uint8(flag))),
             "erc721::accessDenied"
         );
         _;
@@ -112,6 +106,7 @@ contract NFTExtension is IExtension, IERC721Receiver {
         address nftAddr,
         uint256 nftTokenId
     ) external hasExtensionAccess(_dao, AclFlag.WITHDRAW_NFT) {
+        
         // 将 NFT 从合约地址中取出给实际拥有者
         require(
             _nfts[nftAddr].remove(nftTokenId),

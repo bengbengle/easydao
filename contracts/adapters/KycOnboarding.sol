@@ -231,9 +231,7 @@ contract KycOnboardingContract is
         OnboardingDetails memory details = _checkData(dao, tokenAddr, amount);
         totalUnits[dao][tokenAddr] += details.unitsRequested;
 
-        BankExtension bank = BankExtension(
-            dao.getExtensionAddress(DaoHelper.BANK)
-        );
+        BankExtension bank = BankExtension(dao.getExtensionAddress(DaoHelper.BANK));
         DaoHelper.potentialNewMember(kycedMember, dao, bank);
 
         address payable multisigAddress = payable(

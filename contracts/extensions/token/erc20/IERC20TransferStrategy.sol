@@ -5,8 +5,6 @@ import "../../../core/DaoRegistry.sol";
 
 /**
  *
- * The ERC20Extension is a contract to give erc20 functionality
- * to the internal token units held by DAO members inside the DAO itself.
  */
 interface IERC20TransferStrategy {
     enum AclFlag {

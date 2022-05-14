@@ -9,8 +9,7 @@ import "./InternalTokenVestingExtension.sol";
 
 /**
  *
- * The ERC20Extension is a contract to give erc20 functionality
- * to the internal token units held by DAO members inside the DAO itself.
+ * ERC20Extension 是为 DAO 成员在 DAO 内部持有的内部代币
  */
 contract ERC20TransferStrategy is IERC20TransferStrategy {
     bytes32 public constant ERC20_EXT_TRANSFER_TYPE =
@@ -40,12 +39,13 @@ contract ERC20TransferStrategy is IERC20TransferStrategy {
         uint256 amount,
         address caller
     ) external view override returns (ApprovalType, uint256) {
-        //if the transfer is an internal transfer, then make it unlimited
+        //如果转账是内部转账，则设置为无限制
         if (hasBankAccess(dao, caller)) {
             return (ApprovalType.SPECIAL, amount);
         }
 
         uint256 transferType = dao.getConfiguration(ERC20_EXT_TRANSFER_TYPE);
+
         // member only
         if (transferType == 0 && dao.isMember(to)) {
             // members only transfer

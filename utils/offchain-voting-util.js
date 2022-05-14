@@ -24,10 +24,10 @@ const VotingState = {
   5: "GRACE_PERIOD",
 };
 
-function getMessageERC712Hash(m, verifyingContract, actionId, chainId) {
-  const message = prepareMessage(m);
+function getMessageERC712Hash(msg, verifyingContract, actionId, chainId) {
+  const message = prepareMessage(msg);
   const { domain, types } = getDomainDefinition(
-    m,
+    msg,
     verifyingContract,
     actionId,
     chainId
@@ -53,6 +53,7 @@ function getCouponKycDomainDefinition(verifyingContract, actionId, chainId) {
 }
 
 function getVoteDomainDefinition(verifyingContract, actionId, chainId) {
+
   const domain = getMessageDomainType(chainId, verifyingContract, actionId);
 
   // The named list of all type definitions
@@ -195,30 +196,18 @@ function validateMessage(
   chainId,
   signature
 ) {
-  const { domain, types } = getDomainDefinition(
-    message,
-    verifyingContract,
-    actionId,
-    chainId
-  );
+  const { domain, types } = getDomainDefinition(message, verifyingContract, actionId, chainId);
 
-  const msgParams = {
-    domain,
-    message,
-    primaryType: "Message",
-    types,
-  };
+  const msgParams = {domain, message, primaryType: "Message", types };
 
-  const recoverAddress = sigUtil.recoverTypedSignature_v4({
-    data: msgParams,
-    sig: signature,
-  });
+  const recoverAddress = sigUtil.recoverTypedSignature_v4({data: msgParams, sig: signature});
+
   return address.toLowerCase() === recoverAddress.toLowerCase();
 }
 
 function Web3JsSigner(web3, account) {
-  return async function (m, verifyingContract, actionId, chainId) {
-    const message = prepareMessage(m);
+  return async function (msg, verifyingContract, actionId, chainId) {
+    const message = prepareMessage(msg);
     const { domain, types } = getDomainDefinition(
       message,
       verifyingContract,
@@ -231,6 +220,7 @@ function Web3JsSigner(web3, account) {
       primaryType: "Message",
       types,
     });
+
     const signature = await new Promise((resolve, reject) => {
       web3.currentProvider.send(
         {
@@ -252,8 +242,8 @@ function Web3JsSigner(web3, account) {
 }
 
 function Web3Signer(ethers, account) {
-  return function (m, verifyingContract, actionId, chainId) {
-    const message = prepareMessage(m);
+  return function (msg, verifyingContract, actionId, chainId) {
+    const message = prepareMessage(msg);
     const { domain, types } = getDomainDefinition(
       message,
       verifyingContract,
@@ -266,8 +256,8 @@ function Web3Signer(ethers, account) {
 }
 
 function SigUtilSigner(privateKeyStr) {
-  return function (m, verifyingContract, actionId, chainId) {
-    const message = prepareMessage(m);
+  return function (msg, verifyingContract, actionId, chainId) {
+    const message = prepareMessage(msg);
     if (privateKeyStr.indexOf("0x") === 0) {
       privateKeyStr = privateKeyStr.slice(2);
     }
@@ -297,11 +287,7 @@ function getDomainDefinition(message, verifyingContract, actionId, chainId) {
     case "draft":
       return getDraftDomainDefinition(verifyingContract, actionId, chainId);
     case "result":
-      return getVoteResultRootDomainDefinition(
-        verifyingContract,
-        actionId,
-        chainId
-      );
+      return getVoteResultRootDomainDefinition(verifyingContract, actionId, chainId);
     case "coupon":
       return getCouponDomainDefinition(verifyingContract, actionId, chainId);
     case "coupon-kyc":
@@ -360,6 +346,7 @@ function prepareProposalPayload(payload) {
     end: payload.end,
   });
 }
+
 /**
      * {      
       nbNo: 1,
@@ -396,11 +383,8 @@ async function createVote(proposalId, weight, voteYes) {
     proposalId,
     weight: toBNWeb3(weight),
   };
-  const vote = {
-    type: "vote",
-    timestamp: Math.floor(new Date().getTime() / 1000),
-    payload,
-  };
+
+  const vote = {type: "vote", timestamp: Math.floor(new Date().getTime() / 1000), payload};
 
   if (weight.toString() === "0") {
     payload.choice = 0;
@@ -409,26 +393,10 @@ async function createVote(proposalId, weight, voteYes) {
   return vote;
 }
 
-function buildVoteLeafHashForMerkleTree(
-  leaf,
-  verifyingContract,
-  actionId,
-  chainId
-) {
-  const { domain, types } = getVoteStepDomainDefinition(
-    verifyingContract,
-    actionId,
-    chainId
-  );
-  const msgParams = {
-    domain,
-    message: leaf,
-    primaryType: "Message",
-    types,
-  };
-  return "0x" + sigUtil.TypedDataUtils.sign(msgParams).toString("hex");
-}
-
+// votes: 投票列表
+// dao: dao 地址
+// actionId: adapterId
+// chainId
 async function prepareVoteResult(votes, dao, actionId, chainId) {
   votes.forEach((vote, idx) => {
     vote.choice = vote.choice || vote.payload.choice;
@@ -443,18 +411,24 @@ async function prepareVoteResult(votes, dao, actionId, chainId) {
 
     vote.index = idx;
   });
+  
+  const elements = votes.map((vote) => buildVoteLeafHashForMerkleTree(vote, dao.address, actionId, chainId));
+  
+  const tree = new MerkleTree(elements);
 
-  const tree = new MerkleTree(
-    votes.map((vote) =>
-      buildVoteLeafHashForMerkleTree(vote, dao.address, actionId, chainId)
-    )
-  );
-
-  const result = votes.map((vote) =>
-    toStepNode(vote, dao.address, actionId, chainId, tree)
-  );
+  const result = votes.map((vote) => toStepNode(vote, dao.address, actionId, chainId, tree));
 
   return { voteResultTree: tree, result };
+}
+
+ // 构件 投票 叶子节点 的 merkle tree hash 
+ function buildVoteLeafHashForMerkleTree(leaf, verifyingContract, actionId, chainId) {
+
+  const { domain, types } = getVoteStepDomainDefinition(verifyingContract, actionId, chainId);
+  
+  const msgParams = {domain, message: leaf, primaryType: "Message", types};
+
+  return "0x" + sigUtil.TypedDataUtils.sign(msgParams).toString("hex");
 }
 
 function prepareVoteProposalData(data, web3) {

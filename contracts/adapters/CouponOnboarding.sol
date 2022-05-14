@@ -77,9 +77,9 @@ contract CouponOnboardingContract is Reimbursable, AdapterGuard, Signatures {
     }
 
     /**
-     * @notice Hashes the provided coupon as an ERC712 hash.
-     * @param dao is the DAO instance to be configured
-     * @param coupon is the coupon to hash
+     * @notice 将提供的 优惠券哈希 为 ERC712 哈希 
+     * @param dao 是要配置的 DAO 实例 
+     * @param coupon 是要散列的优惠券
      */
     function hashCouponMessage(DaoRegistry dao, Coupon memory coupon)
         public
@@ -87,27 +87,20 @@ contract CouponOnboardingContract is Reimbursable, AdapterGuard, Signatures {
         returns (bytes32)
     {
         bytes32 message = keccak256(
-            abi.encode(
-                COUPON_MESSAGE_TYPEHASH,
-                coupon.authorizedMember,
-                coupon.amount,
-                coupon.nonce
-            )
+            abi.encode(COUPON_MESSAGE_TYPEHASH, coupon.authorizedMember, coupon.amount, coupon.nonce)
         );
 
         return hashMessage(dao, address(this), message);
     }
 
     /**
-     * @notice Redeems a coupon to add a new member.
-     * @param dao is the DAO instance to be configured
-     * @param authorizedMember is the address that this coupon authorized to become a new member
-     * @param amount is the amount of units that this member will receive
-     * @param nonce is a unique identifier for this coupon request
-     * @param signature is message signature for verification
+     * @notice 兑换优惠券 以添加新成员
+     * @param dao 是要配置的 DAO 实例 
+     * @param authorizedMember 被授权成为新会员的地址 
+     * @param amount 此会员 将收到的 units 数量 
+     * @param nonce 唯一标识符 
+     * @param signature 签名是用于验证的消息签名
      */
-    // function is protected against reentrancy attack with the reentrancyGuard(dao)
-
     function redeemCoupon(
         DaoRegistry dao,
         address authorizedMember,
@@ -159,7 +152,7 @@ contract CouponOnboardingContract is Reimbursable, AdapterGuard, Signatures {
                 tokenAddressToMint,
                 amount
             );
-            // address needs to be added to the members mappings. ERC20 is doing it for us so no need to do it twice
+            // 地址需要添加到成员映射中。 ERC20 正在为我们做这件事， 所以不需要做两次
             DaoHelper.potentialNewMember(authorizedMember, dao, bank);
         } else {
             erc20.safeTransferFrom(DaoHelper.GUILD, authorizedMember, amount);

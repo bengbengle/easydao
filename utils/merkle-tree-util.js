@@ -7,6 +7,7 @@ const { keccak256, keccakFromString, bufferToHex } = require("ethereumjs-util");
 const { hexToBytes } = require("./contract-util");
 
 // Merkle tree called with 32 byte hex values
+// 使用 32 字节十六进制值调用 Merkle 树
 class MerkleTree {
   constructor(elements) {
     this.elements = elements
@@ -17,6 +18,9 @@ class MerkleTree {
     //this.elements.sort(Buffer.compare);
     // Deduplicate elements
     //this.elements = this.bufDedup(this.elements);
+
+    // 排序元素 this.elements.sort(Buffer.compare); 
+    // 去重元素 this.elements = this.bufDedup(this.elements);
 
     // Create layers
     this.layers = this.getLayers(this.elements);
@@ -29,10 +33,18 @@ class MerkleTree {
 
     const layers = [];
     layers.push(elements);
+    
+    // let reulsts = [];
+    // let idx = [reulsts.length - 1];
+    // let root = reulsts[idx];
 
     // Get next layer until we reach the root
+    // 获取下一层，直到我们到达根
     while (layers[layers.length - 1].length > 1) {
-      layers.push(this.getNextLayer(layers[layers.length - 1]));
+      
+      let nextLayer = this.getNextLayer(layers[layers.length - 1]);
+
+      layers.push(nextLayer);
     }
 
     return layers;
@@ -41,14 +53,17 @@ class MerkleTree {
   getNextLayer(elements) {
     return elements.reduce((layer, el, idx, arr) => {
       if (idx % 2 === 0) {
+        // 获取 当前元素及其 元素对 的 HASH值
         // Hash the current element with its pair element
         layer.push(this.combinedHash(el, arr[idx + 1]));
+
       }
 
       return layer;
     }, []);
   }
 
+  // 组合
   combinedHash(first, second) {
     if (!first) {
       return second;
@@ -88,6 +103,7 @@ class MerkleTree {
   }
 
   // external call - convert to buffer
+  // 外部调用 - 转换为缓冲区
   getHexProof(_el) {
     const el = Buffer.from(hexToBytes(_el));
 
@@ -110,6 +126,7 @@ class MerkleTree {
     let hash;
 
     // Convert element to 32 byte hash if it is not one already
+    // 如果元素还不是一个，则将元素转换为 32 字节散列
     if (el.length !== 32 || !Buffer.isBuffer(el)) {
       hash = keccakFromString(el);
     } else {

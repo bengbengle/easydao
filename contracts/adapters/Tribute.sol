@@ -104,11 +104,8 @@ contract TributeContract is Reimbursable, AdapterGuard {
         );
 
         dao.sponsorProposal(proposalId, sponsoredBy, address(votingContract));
-        DaoHelper.potentialNewMember(
-            applicant,
-            dao,
-            BankExtension(dao.getExtensionAddress(DaoHelper.BANK))
-        );
+
+        DaoHelper.potentialNewMember(applicant, dao, BankExtension(dao.getExtensionAddress(DaoHelper.BANK)));
 
         votingContract.startNewVotingForProposal(dao, proposalId, data);
 
@@ -124,14 +121,14 @@ contract TributeContract is Reimbursable, AdapterGuard {
     }
 
     /**
-     * @notice Processes a tribute proposal to handle minting and exchange of DAO internal tokens for tribute tokens (passed vote).
-     * @dev Proposal id must exist.
-     * @dev Only proposals that have not already been processed are accepted.
-     * @dev Only sponsored proposals with completed voting are accepted.
-     * @dev The owner of the ERC-20 tokens provided as tribute must first separately `approve` the adapter as spender of those tokens (so the tokens can be transferred for a passed vote).
-     * @dev ERC-20 tribute tokens must be registered with the DAO Bank (a passed proposal will check and register the token if needed).
-     * @param dao The DAO address.
-     * @param proposalId The proposal id.
+     * @notice 处理一个 tribute 提案，以处理 铸造和交换 DAO 内部代币以 换取贡品（通过投票）
+     * @dev 提案 ID 必须存在
+     * @dev 仅接受尚未处理的提案 
+     * @dev 仅接受已完成投票的赞助提案 
+     * @dev 作为贡品提供的 ERC-20 代币的所有者 必须 首先  “批准” 适配器作为这些代币的 spender（因此可以转移代币以获得通过的投票）
+     * @dev ERC-20 代币必须在 DAO 银行注册 （如果需要， 通过的提案将检查并注册代币） 
+     * @param dao DAO 地址
+     * @param proposalId 提案 ID
      */
     function processProposal(DaoRegistry dao, bytes32 proposalId)
         external
@@ -140,10 +137,7 @@ contract TributeContract is Reimbursable, AdapterGuard {
         ProposalDetails memory proposal = proposals[address(dao)][proposalId];
         require(proposal.id == proposalId, "proposal does not exist");
         require(
-            !dao.getProposalFlag(
-                proposalId,
-                DaoRegistry.ProposalFlag.PROCESSED
-            ),
+            !dao.getProposalFlag(proposalId, DaoRegistry.ProposalFlag.PROCESSED),
             "proposal already processed"
         );
 

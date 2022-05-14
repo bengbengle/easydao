@@ -75,12 +75,9 @@ contract OffchainVotingContract is
         bytes32 resultRoot
     );
 
-    bytes32 public constant VotingPeriod =
-        keccak256("offchainvoting.votingPeriod");
-    bytes32 public constant GracePeriod =
-        keccak256("offchainvoting.gracePeriod");
-    bytes32 public constant FallbackThreshold =
-        keccak256("offchainvoting.fallbackThreshold");
+    bytes32 public constant VotingPeriod = keccak256("offchainvoting.votingPeriod");
+    bytes32 public constant GracePeriod = keccak256("offchainvoting.gracePeriod");
+    bytes32 public constant FallbackThreshold = keccak256("offchainvoting.fallbackThreshold");
 
     SnapshotProposalContract private _snapshotContract;
     OffchainVotingHashContract public ovHash;
@@ -202,7 +199,7 @@ contract OffchainVotingContract is
     }
 
     /*
-     * @notice 返回给定提案的投票结果
+     * @notice 返回给定提案的 投票结果
      * possible results:
      * 0: has not started
      * 1: tie
@@ -277,6 +274,7 @@ contract OffchainVotingContract is
         OffchainVotingHashContract.VoteResultNode memory result,
         bytes memory rootSig
     ) external reimbursable(dao) {
+
         Voting storage vote = votes[address(dao)][proposalId];
 
         require(vote.snapshot > 0, "vote:not started");
@@ -296,12 +294,9 @@ contract OffchainVotingContract is
                 "vote:notReadyToSubmitResult"
             );
         }
-
+        // 如果宽限期结束，什么也不做 
         require(
-            vote.gracePeriodStartingTime == 0 ||
-                vote.gracePeriodStartingTime +
-                    dao.getConfiguration(VotingPeriod) <=
-                block.timestamp,
+            vote.gracePeriodStartingTime == 0 || vote.gracePeriodStartingTime + dao.getConfiguration(VotingPeriod) <= block.timestamp,
             "graceperiod finished!"
         );
 
@@ -341,10 +336,9 @@ contract OffchainVotingContract is
             "result weight too low"
         );
 
-        // 检查新结果是否改变结果
+        // 检查新结果 是否 改变结果
         if (
-            vote.gracePeriodStartingTime == 0 ||
-            vote.nbNo > vote.nbYes != result.nbNo > result.nbYes
+            vote.gracePeriodStartingTime == 0 || vote.nbNo > vote.nbYes != result.nbNo > result.nbYes
         ) {
             vote.gracePeriodStartingTime = uint64(block.timestamp);
         }
@@ -366,11 +360,12 @@ contract OffchainVotingContract is
         );
     }
 
-    function requestStep(
-        DaoRegistry dao,
-        bytes32 proposalId,
-        uint256 index
-    ) external reimbursable(dao) onlyMember(dao) {
+    // 请求步骤 ??
+    function requestStep(DaoRegistry dao, bytes32 proposalId, uint256 index) 
+        external 
+        reimbursable(dao) 
+        onlyMember(dao) 
+    {
         Voting storage vote = votes[address(dao)][proposalId];
         require(index < vote.nbMembers, "index out of bound");
 
@@ -381,13 +376,10 @@ contract OffchainVotingContract is
             "step already requested"
         );
 
-        retrievedStepsFlags[vote.resultRoot][index / 256] = DaoHelper.setFlag(
-            currentFlag,
-            index % 256,
-            true
-        );
+        retrievedStepsFlags[vote.resultRoot][index / 256] = DaoHelper.setFlag(currentFlag, index % 256, true);
 
         require(vote.stepRequested == 0, "other step already requested");
+        
         require(
             voteResult(dao, proposalId) == VotingState.GRACE_PERIOD,
             "should be grace period"
@@ -415,7 +407,7 @@ contract OffchainVotingContract is
             block.timestamp >= vote.gracePeriodStartingTime + gracePeriod,
             "grace period"
         );
-
+        // 标记提案收到挑战
         _challengeResult(dao, proposalId);
     }
 

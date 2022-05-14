@@ -92,7 +92,10 @@ contract BankExtension is IExtension, ERC165 {
      * @dev 涉及初始化可用令牌、检查点和创建者的成员资格 ，只能调用一次
      * @param creator DAO 的创建者，他将成为初始成员
      */
-    function initialize(DaoRegistry _dao, address creator) external override {
+    function initialize(DaoRegistry _dao, address creator) 
+        external
+        override 
+    {
         require(!initialized, "bank already initialized");
         require(_dao.isMember(creator), "bank::not member");
         dao = _dao;
@@ -124,11 +127,10 @@ contract BankExtension is IExtension, ERC165 {
         address tokenAddr,
         uint256 amount
     ) external hasExtensionAccess(_dao, AclFlag.WITHDRAW) {
-        require(
-            balanceOf(member, tokenAddr) >= amount,
-            "bank::withdraw::not enough funds"
-        );
+        require(balanceOf(member, tokenAddr) >= amount, "bank::withdraw::not enough funds");
+        
         subtractFromBalance(_dao, member, tokenAddr, amount);
+        
         if (tokenAddr == DaoHelper.ETH_TOKEN) {
             member.sendValue(amount);
         } else {
@@ -193,7 +195,7 @@ contract BankExtension is IExtension, ERC165 {
      */
 
     /**
-     * @notice 在银行注册一个潜在的新代币
+     * @notice 在银行 注册 一个 新代币
      * @dev 不能是保留令牌或可用的内部令牌
      * @param token 代币地址
      */
@@ -249,29 +251,22 @@ contract BankExtension is IExtension, ERC165 {
         }
 
         if (totalBalance < realBalance) {
-            addToBalance(
-                _dao,
-                DaoHelper.GUILD,
-                tokenAddr,
-                realBalance - totalBalance
-            );
+
+            addToBalance(_dao, DaoHelper.GUILD, tokenAddr, realBalance - totalBalance);
+        
         } else if (totalBalance > realBalance) {
+
             uint256 tokensToRemove = totalBalance - realBalance;
+
             uint256 guildBalance = balanceOf(DaoHelper.GUILD, tokenAddr);
+            
             if (guildBalance > tokensToRemove) {
-                subtractFromBalance(
-                    _dao,
-                    DaoHelper.GUILD,
-                    tokenAddr,
-                    tokensToRemove
-                );
+                
+                subtractFromBalance(_dao, DaoHelper.GUILD, tokenAddr, tokensToRemove);
+            
             } else {
-                subtractFromBalance(
-                    _dao,
-                    DaoHelper.GUILD,
-                    tokenAddr,
-                    guildBalance
-                );
+
+                subtractFromBalance(_dao, DaoHelper.GUILD, tokenAddr, guildBalance);
             }
         }
     }
@@ -371,13 +366,10 @@ contract BankExtension is IExtension, ERC165 {
      * @param to 接收代币的成员
      * @param amount 新的转账金额
      */
-    function internalTransfer(
-        DaoRegistry _dao,
-        address from,
-        address to,
-        address token,
-        uint256 amount
-    ) external hasExtensionAccess(_dao, AclFlag.INTERNAL_TRANSFER) {
+    function internalTransfer(DaoRegistry _dao, address from, address to, address token, uint256 amount) 
+        external 
+        hasExtensionAccess(_dao, AclFlag.INTERNAL_TRANSFER) 
+    {
         uint256 newAmount = balanceOf(from, token) - amount;
         uint256 newAmount2 = balanceOf(to, token) + amount;
 
@@ -520,16 +512,12 @@ contract BankExtension is IExtension, ERC165 {
         // 当 block.number 与 fromBlock 值完全匹配时，允许数量更新， 否则 应该生成一个新的检查点
         // checkpoints[token][member][nCheckpoints - 1].fromBlock, 最后检查点对应的区块号
         if (
-            nCheckpoints > 0 &&
-            checkpoints[token][member][nCheckpoints - 1].fromBlock ==
-            block.number
+            nCheckpoints > 0 && checkpoints[token][member][nCheckpoints - 1].fromBlock == block.number
         ) {
             checkpoints[token][member][nCheckpoints - 1].amount = newAmount;
         } else {
-            checkpoints[token][member][nCheckpoints] = Checkpoint(
-                uint96(block.number),
-                newAmount
-            );
+            checkpoints[token][member][nCheckpoints] = Checkpoint(uint96(block.number), newAmount);
+            
             numCheckpoints[token][member] = nCheckpoints + 1;
         }
 

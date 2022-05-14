@@ -108,11 +108,7 @@ contract LendNFTContract is
         );
         dao.sponsorProposal(proposalId, sponsoredBy, address(votingContract));
 
-        DaoHelper.potentialNewMember(
-            applicant,
-            dao,
-            BankExtension(dao.getExtensionAddress(DaoHelper.BANK))
-        );
+        DaoHelper.potentialNewMember(applicant, dao, BankExtension(dao.getExtensionAddress(DaoHelper.BANK)));
 
         votingContract.startNewVotingForProposal(dao, proposalId, data);
 
@@ -384,9 +380,8 @@ contract LendNFTContract is
 
         // Strict matching is expect to ensure the vote has passed
         if (voteResult == IVoting.VotingState.PASS) {
-            NFTExtension nftExt = NFTExtension(
-                dao.getExtensionAddress(DaoHelper.NFT)
-            );
+            NFTExtension nftExt = NFTExtension(dao.getExtensionAddress(DaoHelper.NFT));
+            
             erc721.approve(address(nftExt), proposal.nftTokenId);
             nftExt.collect(dao, proposal.nftAddr, proposal.nftTokenId);
         } else {

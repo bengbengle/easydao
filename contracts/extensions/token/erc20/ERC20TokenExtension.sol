@@ -11,21 +11,19 @@ import "../../../guards/AdapterGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
- *
- * The ERC20Extension is a contract to give erc20 functionality
- * to the internal token units held by DAO members inside the DAO itself.
+ * ERC20Extension 为 内部代币 units 提供 erc20 合约功能
  */
 contract ERC20Extension is AdapterGuard, IExtension, IERC20 {
-    // The DAO address that this extension belongs to
+    // 该扩展所属的 DAO 地址 
     DaoRegistry public dao;
 
-    // Internally tracks deployment under eip-1167 proxy pattern
+    // 在 eip-1167 代理模式下 内部跟踪 部署
     bool public initialized = false;
 
-    // The token address managed by the DAO that tracks the internal transfers
+    // 由 DAO 管理的用于跟踪 内部转账 的 代币地址
     address public tokenAddress;
 
-    // The name of the token managed by the DAO
+    // DAO 管理的代币名称 
     string public tokenName;
 
     // The symbol of the token managed by the DAO
@@ -57,8 +55,7 @@ contract ERC20Extension is AdapterGuard, IExtension, IERC20 {
     }
 
     /**
-     * @dev Returns the token address managed by the DAO that tracks the
-     * internal transfers.
+     * @dev 返回由跟踪内部传输的 DAO 管理的令牌地址。
      */
     function token() external view virtual returns (address) {
         return tokenAddress;
@@ -127,7 +124,7 @@ contract ERC20Extension is AdapterGuard, IExtension, IERC20 {
     }
 
     /**
-     * @dev Returns the amount of tokens in existence.
+     * @dev 返回总令牌数量 `TOTAL`
      */
     function totalSupply() public view override returns (uint256) {
         BankExtension bank = BankExtension(
@@ -137,7 +134,7 @@ contract ERC20Extension is AdapterGuard, IExtension, IERC20 {
     }
 
     /**
-     * @dev Returns the amount of tokens owned by `account`.
+     * @dev 返回某账户下 `account` 拥有的 代币数量
      */
     function balanceOf(address account) public view override returns (uint256) {
         BankExtension bank = BankExtension(
@@ -174,10 +171,10 @@ contract ERC20Extension is AdapterGuard, IExtension, IERC20 {
     }
 
     /**
-     * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.
-     * @param spender The address account that will have the units decremented.
-     * @param amount The amount to decrement from the spender account.
-     * @return a boolean value indicating whether the operation succeeded.
+     * @dev 将 `amount` 设置为 `spender` 在调用者代币上的限额 
+     * @param spender 将减少单位的地址帐户
+     * @param amount 从消费账户中减少的金额 
+     * @return 一个布尔值，指示操作是否成功
      *
      * Emits an {Approval} event.
      */
@@ -214,12 +211,11 @@ contract ERC20Extension is AdapterGuard, IExtension, IERC20 {
     }
 
     /**
-     * @dev Moves `amount` tokens from the caller's account to `recipient`.
-     * @dev The transfer operation follows the DAO configuration specified
-     * by the ERC20_EXT_TRANSFER_TYPE property.
-     * @param recipient The address account that will have the units incremented.
-     * @param amount The amount to increment in the recipient account.
-     * @return a boolean value indicating whether the operation succeeded.
+     * @dev 将 `amount` 令牌从调用者的账户转移到 `recipient`
+     * @dev 传输操作遵循 ERC20_EXT_TRANSFER_TYPE 属性指定的 DAO 配置 
+     * @param recipient 接收代币的地址帐户 
+     * @param amount 代币的金额 
+     * @return 一个布尔值，指示操作是否成功   
      *
      * Emits a {Transfer} event.
      */
@@ -233,27 +229,13 @@ contract ERC20Extension is AdapterGuard, IExtension, IERC20 {
         return transferFrom(senderAddr, recipient, amount);
     }
 
-    function _transferInternal(
-        address senderAddr,
-        address recipient,
-        uint256 amount,
-        BankExtension bank
-    ) internal {
-        DaoHelper.potentialNewMember(recipient, dao, bank);
-
-        bank.internalTransfer(dao, senderAddr, recipient, tokenAddress, amount);
-    }
-
     /**
-     * @dev Moves `amount` tokens from `sender` to `recipient` using the
-     * allowance mechanism. `amount` is then deducted from the caller's
-     * allowance.
-     * @dev The transfer operation follows the DAO configuration specified
-     * by the ERC20_EXT_TRANSFER_TYPE property.
-     * @param sender The address account that will have the units decremented.
-     * @param recipient The address account that will have the units incremented.
-     * @param amount The amount to decrement from the sender account.
-     * @return a boolean value indicating whether the operation succeeded.
+     * @dev 使用 allowance mechanism 将 `amount` 令牌从 `sender` 转移到 `recipient`。然后从 caller 的 "allowance" 扣除 "amount" 
+     * @dev 传输操作遵循 ERC20_EXT_TRANSFER_TYPE 属性指定的 DAO 配置
+     * @param sender 将减少 units 的地址帐户
+     * @param recipient 将接收 units 的地址帐户 
+     * @param amount 金额 
+     * @return 一个布尔值，指示操作是否成功
      *
      * Emits a {Transfer} event.
      */
@@ -262,29 +244,30 @@ contract ERC20Extension is AdapterGuard, IExtension, IERC20 {
         address recipient,
         uint256 amount
     ) public override returns (bool) {
-        require(
-            DaoHelper.isNotZeroAddress(recipient),
-            "ERC20: transfer to the zero address"
-        );
+
+        require(DaoHelper.isNotZeroAddress(recipient), "ERC20: transfer to the zero address");
 
         address adapter = dao.getAdapterAddress(DaoHelper.TRANSFER_STRATEGY);
 
         IERC20TransferStrategy strategy = IERC20TransferStrategy(adapter);
-
+        
+        // allowedAmount： 允许转账的金额
+        // approvalType： 授权类型
         (
-            IERC20TransferStrategy.ApprovalType approvalType,
-            uint256 allowedAmount
+            IERC20TransferStrategy.ApprovalType approvalType, uint256 allowedAmount
         ) = strategy.evaluateTransfer(
-                dao,
-                tokenAddress,
-                sender,
-                recipient,
-                amount,
-                msg.sender
-            );
+            dao,
+            tokenAddress,
+            sender,
+            recipient,
+            amount,
+            msg.sender
+        );
 
-        address ext = dao.getExtensionAddress(DaoHelper.BANK);
-        BankExtension bank = BankExtension(ext);
+        // address ext = dao.getExtensionAddress(DaoHelper.BANK);
+        BankExtension bank = BankExtension(
+            dao.getExtensionAddress(DaoHelper.BANK)
+        );
 
         if (approvalType == IERC20TransferStrategy.ApprovalType.NONE) {
             revert("transfer not allowed");
@@ -318,5 +301,17 @@ contract ERC20Extension is AdapterGuard, IExtension, IERC20 {
         }
 
         return false;
+    }
+    // 转移 内部代币
+    // senderAddr 发送者
+    // recipient 接收者
+    // amount 金额
+    // bank 金库
+    function _transferInternal(address senderAddr, address recipient, uint256 amount, BankExtension bank) 
+        internal 
+    {
+        DaoHelper.potentialNewMember(recipient, dao, bank);
+
+        bank.internalTransfer(dao, senderAddr, recipient, tokenAddress, amount);
     }
 }

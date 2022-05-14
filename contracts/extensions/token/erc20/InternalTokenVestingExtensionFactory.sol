@@ -8,10 +8,7 @@ import "./InternalTokenVestingExtension.sol";
 
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract InternalTokenVestingExtensionFactory is
-    IFactory,
-    CloneFactory,
-    ReentrancyGuard
+contract InternalTokenVestingExtensionFactory is IFactory, CloneFactory, ReentrancyGuard
 {
     address public identityAddress;
 

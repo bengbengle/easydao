@@ -86,7 +86,10 @@ contract OnboardingContract is IOnboarding, AdapterGuard, Reimbursable {
             _configKey(unitsToMint, MaximumChunks),
             maximumChunks
         );
-        dao.setConfiguration(_configKey(unitsToMint, ChunkSize), chunkSize);
+        dao.setConfiguration(
+            _configKey(unitsToMint, ChunkSize), 
+            chunkSize
+        );
         dao.setConfiguration(
             _configKey(unitsToMint, UnitsPerChunk),
             unitsPerChunk
@@ -111,7 +114,6 @@ contract OnboardingContract is IOnboarding, AdapterGuard, Reimbursable {
      * @param tokenAmount 要铸造的代币数量
      * @param data 附加提案信息
      */
-
     function submitProposal(
         DaoRegistry dao,
         bytes32 proposalId,
@@ -126,8 +128,8 @@ contract OnboardingContract is IOnboarding, AdapterGuard, Reimbursable {
         );
 
         DaoHelper.potentialNewMember(
-            applicant,
-            dao,
+            applicant, 
+            dao, 
             BankExtension(dao.getExtensionAddress(DaoHelper.BANK))
         );
 
@@ -261,8 +263,8 @@ contract OnboardingContract is IOnboarding, AdapterGuard, Reimbursable {
     }
 
     /**
-     * @notice Marks the proposalId as submitted in the DAO and saves the information in the internal adapter state.
-     * @notice Updates the total of units issued in the DAO, and checks if it is within the limits.
+     * @notice 在 DAO 中将 proposalId 标记为已提交， 并将信息保存在内部适配器状态中 
+     * @notice 更新 DAO 中发行的单位总数， 并检查它是否在限制范围内
      */
     function _submitMembershipProposal(
         DaoRegistry dao,
@@ -288,13 +290,10 @@ contract OnboardingContract is IOnboarding, AdapterGuard, Reimbursable {
         require(details.unitsPerChunk > 0, "config unitsPerChunk missing");
         details.amount = details.numberOfChunks * details.chunkSize;
         details.unitsRequested = details.numberOfChunks * details.unitsPerChunk;
-        details.totalUnits =
-            _getUnits(dao, token, applicant) +
-            details.unitsRequested;
+        details.totalUnits = _getUnits(dao, token, applicant) + details.unitsRequested;
 
         require(
-            details.totalUnits / details.unitsPerChunk <
-                dao.getConfiguration(_configKey(tokenToMint, MaximumChunks)),
+            details.totalUnits / details.unitsPerChunk < dao.getConfiguration(_configKey(tokenToMint, MaximumChunks)),
             "total units for this member must be lower than the maximum"
         );
 

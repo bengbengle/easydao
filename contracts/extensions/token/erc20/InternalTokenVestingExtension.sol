@@ -53,11 +53,11 @@ contract InternalTokenVestingExtension is IExtension {
     }
 
     /**
-     * @notice Creates a new vesting schedule for a member based on the internal token, amount and end date.
-     * @param member The member address to update the balance.
-     * @param internalToken The internal DAO token in which the member will receive the funds.
-     * @param amount The amount staked.
-     * @param endDate The unix timestamp in which the vesting schedule ends.
+     * @notice 根据 内部代币、金额 和 结束日期 为成员创建新的 归属计划 
+     * @param member 更新余额的成员地址
+     * @param internalToken 成员接收资金的内部 DAO 代币 
+     * @param amount 质押金额
+     * @param endDate 归属计划结束的 unix 时间戳
      */
     function createNewVesting(
         DaoRegistry dao,
@@ -67,6 +67,7 @@ contract InternalTokenVestingExtension is IExtension {
         uint64 endDate
     ) external hasExtensionAccess(dao, AclFlag.NEW_VESTING) {
         require(endDate > block.timestamp, "vestingExt::end date in the past");
+        
         VestingSchedule storage schedule = vesting[member][internalToken];
         uint88 minBalance = getMinimumBalanceInternal(
             schedule.startDate,
@@ -75,7 +76,7 @@ contract InternalTokenVestingExtension is IExtension {
         );
 
         schedule.startDate = uint64(block.timestamp);
-        //get max value between endDate and previous one
+        // 获取上次质押过的时间， get max value between endDate and previous one
         if (endDate > schedule.endDate) {
             schedule.endDate = endDate;
         }
@@ -84,17 +85,15 @@ contract InternalTokenVestingExtension is IExtension {
     }
 
     /**
-     * @notice Updates a vesting schedule of a member based on the internal token, and amount.
-     * @param member The member address to update the balance.
-     * @param internalToken The internal DAO token in which the member will receive the funds.
-     * @param amountToRemove The amount to be removed.
+     * @notice 根据 内部代币 和 金额 更新成员的 归属时间表 
+     * @param member 成员地址 
+     * @param internalToken 内部 DAO 代币  
+     * @param amountToRemove 数量
      */
-    function removeVesting(
-        DaoRegistry dao,
-        address member,
-        address internalToken,
-        uint88 amountToRemove
-    ) external hasExtensionAccess(dao, AclFlag.REMOVE_VESTING) {
+    function removeVesting(DaoRegistry dao, address member, address internalToken, uint88 amountToRemove) 
+        external 
+        hasExtensionAccess(dao, AclFlag.REMOVE_VESTING) 
+    {
         VestingSchedule storage schedule = vesting[member][internalToken];
         uint88 blockedAmount = getMinimumBalanceInternal(
             schedule.startDate,
@@ -107,9 +106,9 @@ contract InternalTokenVestingExtension is IExtension {
     }
 
     /**
-     * @notice Returns the minimum balance of the vesting for a given member and internal token.
-     * @param member The member address to update the balance.
-     * @param internalToken The internal DAO token in which the member will receive the funds.
+     * @notice 返回 给定成员 和 内部代币 的最低 归属余额 
+     * @param member 更新余额的 成员地址 
+     * @param internalToken 成员 接收资金的 内部 DAO 代币
      */
     function getMinimumBalance(address member, address internalToken)
         external
@@ -126,27 +125,29 @@ contract InternalTokenVestingExtension is IExtension {
     }
 
     /**
-     * @notice Returns the minimum balance of the vesting for a given start date, end date, and amount.
-     * @param startDate The start date of the vesting to calculate the elapsed time.
-     * @param endDate The end date of the vesting to calculate the vesting period.
-     * @param amount The amount staked.
+     * @notice 返回给定 开始日期、结束日期 和 金额 的 最低归属余额 
+     * @param startDate 归属的开始日期 用于计算经过的时间 
+     * @param endDate 归属的结束日期， 用于计算归属期 
+     * @param amount 质押金额
      */
     function getMinimumBalanceInternal(
         uint64 startDate,
         uint64 endDate,
         uint88 amount
     ) public view returns (uint88) {
-        //
         if (block.timestamp > endDate) {
             return 0;
         }
-
+        // 质押期
         uint88 period = endDate - startDate;
-        //
+        
+        // 已质押的 时间
         uint88 elapsedTime = uint88(block.timestamp) - startDate;
-
+        
+        // 按比例 已归属金额
         uint88 vestedAmount = (amount * elapsedTime) / period;
 
+        // 待归属金额
         return amount - vestedAmount;
     }
 }

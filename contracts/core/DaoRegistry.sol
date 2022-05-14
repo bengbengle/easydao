@@ -229,11 +229,7 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
                 "member address already taken as delegated key"
             );
 
-            member.flags = DaoHelper.setFlag(
-                member.flags,
-                uint8(MemberFlag.EXISTS),
-                true
-            );
+            member.flags = DaoHelper.setFlag(member.flags, uint8(MemberFlag.EXISTS), true);
 
             memberAddressesByDelegatedKey[memberAddress] = memberAddress;
             _members.push(memberAddress);
@@ -651,9 +647,7 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
         require(isExist, "member does not exist");
 
         // 重置当前的委托
-        memberAddressesByDelegatedKey[
-            getCurrentDelegateKey(memberAddr)
-        ] = address(0x0);
+        memberAddressesByDelegatedKey[getCurrentDelegateKey(memberAddr)] = address(0x0);
 
         memberAddressesByDelegatedKey[newDelegateKey] = memberAddr;
 
@@ -773,10 +767,8 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
         if (nCheckpoints > 0 && checkpoints[member][nCheckpoints - 1].fromBlock == block.number) {
             checkpoints[member][nCheckpoints - 1].delegateKey = newDelegateKey;
         } else {
-            checkpoints[member][nCheckpoints] = DelegateCheckpoint(
-                uint96(block.number),
-                newDelegateKey
-            );
+            checkpoints[member][nCheckpoints] = DelegateCheckpoint(uint96(block.number), newDelegateKey);
+            
             numCheckpoints[member] = nCheckpoints + 1;
         }
     }

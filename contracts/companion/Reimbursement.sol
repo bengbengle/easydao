@@ -25,28 +25,22 @@ contract ReimbursementContract is IReimbursement, AdapterGuard, GelatoRelay {
 
     mapping(address => ReimbursementData) private _data;
 
-    bytes32 internal constant GasPriceLimit =
-        keccak256("reimbursement.gasPriceLimit");
-    bytes32 internal constant SpendLimitPeriod =
-        keccak256("reimbursement.spendLimitPeriod");
-    bytes32 internal constant SpendLimitEth =
-        keccak256("reimbursement.spendLimitEth");
+    bytes32 internal constant GasPriceLimit = keccak256("reimbursement.gasPriceLimit");
+    bytes32 internal constant SpendLimitPeriod = keccak256("reimbursement.spendLimitPeriod");
+    bytes32 internal constant SpendLimitEth = keccak256("reimbursement.spendLimitEth");
     bytes32 internal constant EthUsed = keccak256("reimbursement.ethUsed");
-    bytes32 internal constant RateLimitStart =
-        keccak256("reimbursement.rateLimitStart");
+    bytes32 internal constant RateLimitStart = keccak256("reimbursement.rateLimitStart");
 
     /**
-     * @param dao the dao to configure
-     * @param gasPriceLimit the max gas price allowed for reimbursement. This is used to avoid someone draining the DAO by putting crazy gas price
-     * @param spendLimitPeriod how many seconds constitute a period (a way to define a period as 1 day, 1 week, 1 hour etc ...)
-     * @param spendLimitEth how much ETH is reimbursable during the payment period
-     **/
-    function configureDao(
-        DaoRegistry dao,
-        uint256 gasPriceLimit,
-        uint256 spendLimitPeriod,
-        uint256 spendLimitEth
-    ) external onlyAdapter(dao) {
+      * @param dao 要配置的 dao 
+      * @param gasPriceLimit 允许报销的最高 gas 价格。这用于避免 有人通过设置疯狂的 gas 价格来消耗 DAO 
+      * @param spendLimitPeriod 多少​​秒构成一个周期（一种将周期定义为 1 天、1 周、1 小时等的方法...） 
+      * @param spendLimitEth 如何在付款期间 可以偿还很多 ETH
+    **/
+    function configureDao(DaoRegistry dao, uint256 gasPriceLimit, uint256 spendLimitPeriod, uint256 spendLimitEth) 
+        external 
+        onlyAdapter(dao) 
+    {
         require(gasPriceLimit > 0, "gasPriceLimit::invalid");
         require(spendLimitPeriod > 0, "spendLimitPeriod::invalid");
         require(spendLimitEth > 0, "spendLimitEth::invalid");
@@ -57,17 +51,17 @@ contract ReimbursementContract is IReimbursement, AdapterGuard, GelatoRelay {
     }
 
     /**
-     * @notice returns whether the current transaction should be reimbursed or not. It returns the spendLimitPeriod to avoid someone updating it during the execution.
-     * @param dao the dao that should reimburse
-     * @param gasLeft the maximum gas usable in this transaction
-     */
+      * @notice 返回当前交易是否应报销。它返回 spendLimitPeriod 以避免有人在执行期间对其进行更新。 
+      * @param dao 要检查的 dao 
+      * @param gasLeft 这笔交易中可用的最大 gas
+      */
     function shouldReimburse(DaoRegistry dao, uint256 gasLeft)
         external
         view
         override
         returns (bool, uint256)
     {
-        //if it is a gelato call, do nothing as it will be handled somewhere else
+        // if it is a gelato call, do nothing as it will be handled somewhere else
         if (msg.sender == address(this)) {
             return (false, 0);
         }
@@ -108,11 +102,11 @@ contract ReimbursementContract is IReimbursement, AdapterGuard, GelatoRelay {
     }
 
     /**
-     * @notice reimburse the transaction
-     * @param dao the dao that needs to reimburse
-     * @param caller who is the caller (the one who should be reimbursed)
-     * @param gasUsage how much gas has been used
-     * @param spendLimitPeriod the spend liimt period param read before executing the transaction
+     * @notice 报销交易 
+     * @param dao 需要报销的 dao 
+     * @param caller 谁是调用者（应该报销的人） 
+     * @param gasUsage 已经使用了多少 gas 
+     * @param spendLimitPeriod 花费限制期执行事务前读取的参数     
      */
     function reimburseTransaction(
         DaoRegistry dao,
@@ -126,8 +120,7 @@ contract ReimbursementContract is IReimbursement, AdapterGuard, GelatoRelay {
         uint256 payback = gasUsage * tx.gasprice;
         if (
             //
-            block.timestamp - _data[address(dao)].rateLimitStart <
-            spendLimitPeriod
+            block.timestamp - _data[address(dao)].rateLimitStart < spendLimitPeriod
         ) {
             _data[address(dao)].ethUsed = _data[address(dao)].ethUsed + payback;
         } else {

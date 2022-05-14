@@ -19,13 +19,13 @@ import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
 
 contract OffchainVotingHelperContract {
+
     uint256 private constant NB_CHOICES = 2;
-    bytes32 public constant VotingPeriod =
-        keccak256("offchainvoting.votingPeriod"); // 投票期
-    bytes32 public constant GracePeriod =
-        keccak256("offchainvoting.gracePeriod"); // 宽限期
-    bytes32 public constant FallbackThreshold =
-        keccak256("offchainvoting.fallbackThreshold"); // 回退阈值
+    
+    // 投票期，宽限期，回退阈值
+    bytes32 public constant VotingPeriod = keccak256("offchainvoting.votingPeriod"); 
+    bytes32 public constant GracePeriod = keccak256("offchainvoting.gracePeriod"); 
+    bytes32 public constant FallbackThreshold = keccak256("offchainvoting.fallbackThreshold"); 
 
     enum BadNodeError {
         OK,
@@ -184,8 +184,8 @@ contract OffchainVotingHelperContract {
         DaoRegistry dao,
         uint256 fallbackVotesCount
     ) external view returns (bool) {
-        uint256 count = dao.getNbMembers() *
-            dao.getConfiguration(FallbackThreshold);
+        // 成员数量 * 
+        uint256 count = dao.getNbMembers() * dao.getConfiguration(FallbackThreshold);
 
         return fallbackVotesCount > count / 100;
     }

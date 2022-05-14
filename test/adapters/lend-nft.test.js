@@ -32,8 +32,7 @@ describe("Adapter - LendNFT", () => {
   };
 
   before("deploy dao", async () => {
-    const { dao, adapters, extensions, testContracts } =
-      await deployDefaultNFTDao({ owner: daoOwner });
+    const { dao, adapters, extensions, testContracts } = await deployDefaultNFTDao({ owner: daoOwner });
     this.dao = dao;
     this.adapters = adapters;
     this.extensions = extensions;
@@ -98,7 +97,7 @@ describe("Adapter - LendNFT", () => {
 
     await advanceTime(10000);
 
-    //approve each NFT to the NFT extension
+    // approve each NFT to the NFT extension
     await pixelNFT.methods["safeTransferFrom(address,address,uint256,bytes)"](
       nftOwner,
       lendNFT.address,
@@ -109,7 +108,7 @@ describe("Adapter - LendNFT", () => {
       }
     );
 
-    //we see that we have 10K units
+    // we see that we have 10K units
     let unitBalance = await bank.balanceOf(nftOwner, UNITS);
     expect(unitBalance.toString()).equal("10000");
 

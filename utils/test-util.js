@@ -28,10 +28,7 @@ const checkSignature = async (
   signature,
   magicValue
 ) => {
-  const returnedValue = await signatureExtension.isValidSignature(
-    permissionHash,
-    signature
-  );
+  const returnedValue = await signatureExtension.isValidSignature(permissionHash, signature);
 
   expect(returnedValue).equal(magicValue);
 };
@@ -72,8 +69,7 @@ const submitNewMemberProposal = async (
     unitPrice.mul(desiredUnits),
     [],
     {
-      from: member,
-      gasPrice: toBN("0"),
+      from: member, gasPrice: toBN("0"),
     }
   );
 };
@@ -101,17 +97,10 @@ const onboardingNewMember = async (
   );
 
   //vote and process it
-  await voting.submitVote(dao.address, proposalId, 1, {
-    from: sponsor,
-    gasPrice: toBN("0"),
-  });
+  await voting.submitVote(dao.address, proposalId, 1, { from: sponsor, gasPrice: toBN("0") });
   await advanceTime(10000);
 
-  await onboarding.processProposal(dao.address, proposalId, {
-    from: sponsor,
-    value: unitPrice.mul(desiredUnits),
-    gasPrice: toBN("0"),
-  });
+  await onboarding.processProposal(dao.address, proposalId, {from: sponsor, value: unitPrice.mul(desiredUnits), gasPrice: toBN("0") });
 };
 
 const guildKickProposal = async (
@@ -142,21 +131,12 @@ const submitConfigProposal = async (
   configs
 ) => {
   //Submit a new configuration proposal
-  await configuration.submitProposal(dao.address, proposalId, configs, [], {
-    from: sender,
-    gasPrice: toBN("0"),
-  });
+  await configuration.submitProposal(dao.address, proposalId, configs, [], {from: sender, gasPrice: toBN("0") });
 
-  await voting.submitVote(dao.address, proposalId, 1, {
-    from: sender,
-    gasPrice: toBN("0"),
-  });
+  await voting.submitVote(dao.address, proposalId, 1, {from: sender, gasPrice: toBN("0") });
 
   await advanceTime(10000);
-  await configuration.processProposal(dao.address, proposalId, {
-    from: sender,
-    gasPrice: toBN("0"),
-  });
+  await configuration.processProposal(dao.address, proposalId, {from: sender, gasPrice: toBN("0") });
 };
 
 module.exports = {

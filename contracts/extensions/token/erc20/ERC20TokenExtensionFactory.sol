@@ -34,12 +34,15 @@ contract ERC20TokenExtensionFactory is IFactory, CloneFactory, ReentrancyGuard {
     ) external nonReentrant {
         require(dao != address(0x0), "invalid dao addr");
         address payable extensionAddr = _createClone(identityAddress);
+
         _extensions[dao] = extensionAddr;
+        
         ERC20Extension ext = ERC20Extension(extensionAddr);
         ext.setName(tokenName);
         ext.setToken(tokenAddress);
         ext.setSymbol(tokenSymbol);
         ext.setDecimals(decimals);
+        
         emit ERC20TokenExtensionCreated(dao, address(ext));
     }
 
