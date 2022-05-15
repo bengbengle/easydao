@@ -188,14 +188,8 @@ contract OffchainVotingContract is
         bytes memory data,
         address addr
     ) external view override returns (address) {
-        return
-            _ovHelper.getSenderAddress(
-                dao,
-                actionId,
-                data,
-                addr,
-                _snapshotContract
-            );
+        return 
+            _ovHelper.getSenderAddress(dao, actionId, data, addr, _snapshotContract);
     }
 
     /*
@@ -294,7 +288,7 @@ contract OffchainVotingContract is
                 "vote:notReadyToSubmitResult"
             );
         }
-        // 如果宽限期结束，什么也不做 
+        // 如果宽限期结束 
         require(
             vote.gracePeriodStartingTime == 0 || vote.gracePeriodStartingTime + dao.getConfiguration(VotingPeriod) <= block.timestamp,
             "graceperiod finished!"
@@ -321,6 +315,7 @@ contract OffchainVotingContract is
 
         (address adapterAddress, ) = dao.proposals(proposalId);
 
+        // 检查签名是否有效
         bool isvalid = SignatureChecker.isValidSignatureNow(
             reporter,
             ovHash.hashResultRoot(dao, adapterAddress, resultRoot),
@@ -332,8 +327,7 @@ contract OffchainVotingContract is
         _verifyNode(dao, adapterAddress, result, resultRoot);
 
         require(
-            vote.nbYes + vote.nbNo < result.nbYes + result.nbNo,
-            "result weight too low"
+            vote.nbYes + vote.nbNo < result.nbYes + result.nbNo, "result weight too low"
         );
 
         // 检查新结果 是否 改变结果
@@ -378,7 +372,10 @@ contract OffchainVotingContract is
 
         retrievedStepsFlags[vote.resultRoot][index / 256] = DaoHelper.setFlag(currentFlag, index % 256, true);
 
-        require(vote.stepRequested == 0, "other step already requested");
+        require(
+            vote.stepRequested == 0, 
+            "other step already requested"
+        );
         
         require(
             voteResult(dao, proposalId) == VotingState.GRACE_PERIOD,
@@ -403,6 +400,7 @@ contract OffchainVotingContract is
 
         // 如果投票已经开始 但投票期还没有过去，它正在进行中
         require(vote.stepRequested > 0, "no step request");
+        // 时间过了 宽限期
         require(
             block.timestamp >= vote.gracePeriodStartingTime + gracePeriod,
             "grace period"
@@ -490,11 +488,10 @@ contract OffchainVotingContract is
         }
     }
 
-    function challengeBadNode(
-        DaoRegistry dao,
-        bytes32 proposalId,
-        OffchainVotingHashContract.VoteResultNode memory node
-    ) external reimbursable(dao) {
+    function challengeBadNode(DaoRegistry dao, bytes32 proposalId, OffchainVotingHashContract.VoteResultNode memory node) 
+        external 
+        reimbursable(dao) 
+    {
         Voting storage vote = votes[address(dao)][proposalId];
         if (
             _ovHelper.getBadNodeError(
@@ -578,14 +575,16 @@ contract OffchainVotingContract is
         }
     }
 
-    function sponsorChallengeProposal(
-        DaoRegistry dao,
-        bytes32 proposalId,
-        address sponsoredBy
-    ) external reentrancyGuard(dao) onlyBadReporterAdapter {
+    // 赞助 挑战 提案
+    function sponsorChallengeProposal(DaoRegistry dao, bytes32 proposalId, address sponsoredBy) 
+        external 
+        reentrancyGuard(dao) 
+        onlyBadReporterAdapter 
+    {
         dao.sponsorProposal(proposalId, sponsoredBy, address(this));
     }
 
+    // 处理 挑战 提案
     function processChallengeProposal(DaoRegistry dao, bytes32 proposalId)
         external
         reentrancyGuard(dao)
@@ -594,7 +593,9 @@ contract OffchainVotingContract is
         dao.processProposal(proposalId);
     }
 
-    function _challengeResult(DaoRegistry dao, bytes32 proposalId) internal {
+    function _challengeResult(DaoRegistry dao, bytes32 proposalId) 
+        internal 
+    {
         votes[address(dao)][proposalId].isChallenged = true;
         address challengedReporter = votes[address(dao)][proposalId].reporter;
         bytes32 challengeProposalId = keccak256(
@@ -604,9 +605,7 @@ contract OffchainVotingContract is
             )
         );
 
-        challengeProposals[address(dao)][
-            challengeProposalId
-        ] = ProposalChallenge(
+        challengeProposals[address(dao)][challengeProposalId] = ProposalChallenge(
             challengedReporter,
             _getBank(dao).balanceOf(challengedReporter, DaoHelper.UNITS)
         );
@@ -622,6 +621,7 @@ contract OffchainVotingContract is
         );
     }
 
+    // 验证 节点
     function _verifyNode(
         DaoRegistry dao,
         address adapterAddress,

@@ -3,11 +3,11 @@ pragma solidity ^0.8.0;
 // SPDX-License-Identifier: MIT
 
 import "../../core/DaoRegistry.sol";
-import "../../extensions/bank/Bank.sol";
-import "../../guards/MemberGuard.sol";
-import "../../guards/AdapterGuard.sol";
-import "../interfaces/IVoting.sol";
-import "./Voting.sol";
+// import "../../extensions/bank/Bank.sol";
+// import "../../guards/MemberGuard.sol";
+// import "../../guards/AdapterGuard.sol";
+// import "../interfaces/IVoting.sol";
+// import "./Voting.sol";
 
 contract SnapshotProposalContract {
     string public constant EIP712_DOMAIN = "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract,address actionId)";
@@ -67,11 +67,11 @@ contract SnapshotProposalContract {
             );
     }
 
-    function hashMessage(
-        DaoRegistry dao,
-        address actionId,
-        ProposalMessage memory message
-    ) external view returns (bytes32) {
+    function hashMessage(DaoRegistry dao, address actionId, ProposalMessage memory message) 
+        external 
+        view 
+        returns (bytes32) 
+    {
         return
             keccak256(
                 abi.encodePacked("\x19\x01", DOMAIN_SEPARATOR(dao, actionId), hashProposalMessage(message))
@@ -113,11 +113,11 @@ contract SnapshotProposalContract {
             );
     }
 
-    function hashVote(
-        DaoRegistry dao,
-        address actionId,
-        VoteMessage memory message
-    ) external view returns (bytes32) {
+    function hashVote(DaoRegistry dao, address actionId, VoteMessage memory message) 
+        external 
+        view 
+        returns (bytes32) 
+    {
         return
             keccak256(
                 abi.encodePacked("\x19\x01", DOMAIN_SEPARATOR(dao, actionId), hashVoteInternal(message))

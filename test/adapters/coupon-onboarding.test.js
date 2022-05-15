@@ -51,6 +51,13 @@ describe("Adapter - Coupon Onboarding", () => {
     this.snapshotId = await takeChainSnapshot();
   });
 
+  // 1. 检查优惠券是否尚未兑换
+  // 2. 检查签名哈希是否与兑换参数的哈希匹配
+  // 3. 检查优惠券的签名者是否与配置的签名者匹配
+  // 4. 将配置的令牌铸造给新成员
+  // 5. 标记已兑换的优惠券
+
+  // 应该可以使用有效的优惠券加入 DAO
   it("should be possible to join a DAO with a valid coupon", async () => {
     const otherAccount = accounts[2];
 
@@ -59,9 +66,8 @@ describe("Adapter - Coupon Onboarding", () => {
     const dao = this.dao;
     const bank = this.extensions.bankExt;
 
-    let signerAddr = await dao.getAddressConfiguration(
-      sha3("coupon-onboarding.signerAddress")
-    );
+    let signerAddr = await dao.getAddressConfiguration(sha3("coupon-onboarding.signerAddress"));
+
     expect(signerAddr).equal(signer.address);
 
     const couponOnboarding = this.adapters.couponOnboarding;
@@ -91,7 +97,9 @@ describe("Adapter - Coupon Onboarding", () => {
       couponOnboarding.address,
       1
     );
-
+    
+    // 2. 检查签名哈希是否与兑换参数的哈希匹配
+    // 3. 检查优惠券的签名者是否与配置的签名者匹配
     const isValid = await couponOnboarding.isValidSignature(
       signer.address,
       jsHash,
@@ -103,6 +111,7 @@ describe("Adapter - Coupon Onboarding", () => {
     let balance = await bank.balanceOf(otherAccount, UNITS);
     expect(balance.toString()).equal("0");
 
+    // 4. 将配置的令牌铸造给新成员
     await couponOnboarding.redeemCoupon(
       dao.address,
       otherAccount,
@@ -120,6 +129,7 @@ describe("Adapter - Coupon Onboarding", () => {
     await checkBalance(bank, GUILD, ETH_TOKEN, toBN("0"));
   });
 
+  // 应该不可能加入 优惠券价值不匹配的 DAO
   it("should not be possible to join a DAO with mismatched coupon values", async () => {
     const otherAccount = accounts[2];
 
@@ -138,7 +148,7 @@ describe("Adapter - Coupon Onboarding", () => {
     const couponData = {
       type: "coupon",
       authorizedMember: otherAccount,
-      amount: 10,
+      amount: 100,
       nonce: 1,
     };
 
@@ -187,6 +197,7 @@ describe("Adapter - Coupon Onboarding", () => {
     await checkBalance(bank, GUILD, ETH_TOKEN, toBN("0"));
   });
 
+  // 应该不可能使用 无效的优惠券 加入 DAO
   it("should not be possible to join a DAO with an invalid coupon", async () => {
     const otherAccount = accounts[2];
 
@@ -247,6 +258,7 @@ describe("Adapter - Coupon Onboarding", () => {
     await checkBalance(bank, GUILD, ETH_TOKEN, toBN("0"));
   });
 
+  // 应该不可能通过 receive function 向适配器发送 ETH
   it("should not be possible to send ETH to the adapter via receive function", async () => {
     const adapter = this.adapters.couponOnboarding;
     await expectRevert(
@@ -260,6 +272,7 @@ describe("Adapter - Coupon Onboarding", () => {
     );
   });
 
+  // 应该不可能通过 fallback function 将 ETH 发送到适配器
   it("should not be possible to send ETH to the adapter via fallback function", async () => {
     const adapter = this.adapters.couponOnboarding;
     await expectRevert(

@@ -255,6 +255,7 @@ const updateConfiguration = async (
     await advanceTime(10000);
 
     // The maintainer processes on the new proposal
+    // 维护者处理新提案
     await configuration.processProposal(dao.address, proposalId);
   }
 
@@ -694,12 +695,7 @@ describe("Adapter - Offchain Voting", () => {
     const bank = extensions.bankExt;
     const voting = adapters.voting; //这是链下投票适配器
     const configuration = adapters.configuration;
-    const configKey = sha3(
-      web3.utils.encodePacked(
-        "governance.role.",
-        utils.getAddress(configuration.address)
-      )
-    );
+    const configKey = sha3(web3.utils.encodePacked("governance.role.", utils.getAddress(configuration.address)));
 
     // 确保已创建 治理令牌的配置
     const governanceToken = await dao.getAddressConfiguration(configKey);
@@ -741,18 +737,12 @@ describe("Adapter - Offchain Voting", () => {
       // 添加了新成员，但不持有 OLT
       newMember: members[accountIndex].address,
       // 仅 OLT 代币的持有者 是 维护者
-      // 仅 OLT 代币的持有者 是 维护者
       maintainerTokenAddress: oltContract.address,
     });
     const bank = extensions.bankExt;
     const voting = adapters.voting; //这是链下投票适配器
     const configuration = adapters.configuration;
-    const configKey = sha3(
-      web3.utils.encodePacked(
-        "governance.role.",
-        utils.getAddress(configuration.address)
-      )
-    );
+    const configKey = sha3(web3.utils.encodePacked("governance.role.", utils.getAddress(configuration.address)));
 
     // 确保已创建 治理令牌的配置
     const governanceToken = await dao.getAddressConfiguration(configKey);

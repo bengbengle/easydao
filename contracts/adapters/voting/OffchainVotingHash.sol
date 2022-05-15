@@ -8,12 +8,8 @@ import "../../extensions/token/erc20/ERC20TokenExtension.sol";
 import "../../utils/Signatures.sol";
 import "../interfaces/IVoting.sol";
 import "./Voting.sol";
-import "./KickBadReporterAdapter.sol";
 import "./SnapshotProposalContract.sol";
-import "../../helpers/DaoHelper.sol";
 import "../../helpers/GovernanceHelper.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
 
 contract OffchainVotingHashContract {
@@ -150,6 +146,7 @@ contract OffchainVotingHashContract {
         return (success, result);
     }
 
+    // 检查是否应改 受到挑战
     function checkStep(
         DaoRegistry dao,
         address actionId,
@@ -157,11 +154,10 @@ contract OffchainVotingHashContract {
         uint256 snapshot,
         VoteStepParams memory params
     ) external view returns (bool) {
-        address voter = dao.getPriorDelegateKey(
-            dao.getMemberAddress(node.index),
-            snapshot
-        );
+        // 获取成员地址 dao.getMemberAddress
+        address voter = dao.getPriorDelegateKey(dao.getMemberAddress(node.index), snapshot);
         
+        // 获取 投票权
         uint256 weight = GovernanceHelper.getVotingWeight(dao, voter, node.proposalId, snapshot);
 
         if (node.choice == 0) {

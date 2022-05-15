@@ -57,9 +57,9 @@ describe("Adapter - Onboarding", () => {
   it("should not be possible onboard when the token amount exceeds the external token limits", async () => {
     const applicant = accounts[2];
 
-    // Issue OpenLaw ERC20 Basic Token for tests
-    // Token supply higher than the limit for external tokens
-    // defined in Bank._createNewAmountCheckpoint function (2**160-1).
+    // 为测试颁发 OpenLaw ERC20 基本令牌 
+    // 令牌供应量 高于 外部令牌的限制 
+    // 在 Bank._createNewAmountCheckpoint 函数 (2**160-1) 中定义。
     const supply = toBN(2).pow(toBN(180));
     const oltContract = await OLToken.new(supply, { from: daoOwner });
     const nbOfERC20Units = 100000000;
@@ -76,6 +76,7 @@ describe("Adapter - Onboarding", () => {
 
     // Transfer OLTs to myAccount
     // Use an amount that will cause an overflow 2**161 > 2**160-1 for external tokens
+    // 将 OLT 转移到 myAccount 使用会导致溢出的金额 2**161 > 2**160-1 用于外部代币
     const initialTokenBalance = toBN(2).pow(toBN(161)).toString();
     await oltContract.approve.sendTransaction(applicant, initialTokenBalance, {
       from: daoOwner,

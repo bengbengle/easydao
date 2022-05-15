@@ -208,13 +208,15 @@ describe("Adapter - Voting", () => {
     );
   });
 
+  // 如果您是持有 外部治理令牌的 成员 和 维护者，应该可以更新 DAO 配置
   it("should be possible to update a DAO configuration if you are a member and a maintainer that holds an external governance token", async () => {
     const maintainer = accounts[5];
-    // Issue OpenLaw ERC20 Basic Token for tests, only DAO maintainer will hold this token
+
+    // 发行 OpenLaw ERC20 Basic Token 进行测试，只有 DAO 维护者会持有这个 token
     const tokenSupply = toBN(100000);
     const oltContract = await OLToken.new(tokenSupply);
 
-    // Transfer OLTs to the maintainer account
+    // 将 OLT 转入维护者账户
     await oltContract.transfer(maintainer, toBN(1));
     const maintainerBalance = await oltContract.balanceOf.call(maintainer);
     expect(maintainerBalance.toString()).equal("1");
@@ -223,20 +225,16 @@ describe("Adapter - Voting", () => {
       owner: daoOwner,
       maintainerTokenAddress: oltContract.address,
     });
+
     const voting = adapters.voting;
     const configuration = adapters.configuration;
-    const configKey = sha3(
-      web3.utils.encodePacked(
-        "governance.role.",
-        utils.getAddress(configuration.address)
-      )
-    );
+    const configKey = sha3(web3.utils.encodePacked("governance.role.", utils.getAddress(configuration.address)));
 
-    // Make sure the governance token configuration was created
+    // 确保已创建治理令牌配置
     const governanceToken = await dao.getAddressConfiguration(configKey);
     expect(governanceToken).equal(oltContract.address);
 
-    // Onboard the maintainer as a DAO member
+    // 作为 DAO 成员加入维护者
     await onboardingNewMember(
       getProposalCounter(),
       dao,
@@ -251,7 +249,7 @@ describe("Adapter - Voting", () => {
     const key = sha3("key");
     const proposalId = getProposalCounter();
 
-    // The maintainer submits a new configuration proposal
+    // 维护者 提交新的配置提案
     await configuration.submitProposal(
       dao.address,
       proposalId,
@@ -278,7 +276,7 @@ describe("Adapter - Voting", () => {
 
     await advanceTime(10000);
 
-    // The maintainer processes on the new proposal
+    // 维护者 处理 新提案
     await configuration.processProposal(dao.address, proposalId, {
       from: maintainer,
       gasPrice: toBN("0"),
@@ -355,12 +353,12 @@ describe("Adapter - Voting", () => {
     expect(value.toString()).equal("99");
   });
 
+  // 如果您是持有 内部默认治理令牌 的成员和维护者， 应该可以更新 DAO 配置
   it("should be possible to update a DAO configuration if you are a member and a maintainer that holds an internal default governance token", async () => {
     const maintainer = accounts[5];
     const { dao, adapters } = await deployDefaultDao({
       owner: daoOwner,
-      // if the member holds any UNITS that represents the default governance token,
-      // the member is considered a maintainer.
+      // 如果该成员持有 任何代表默认治理令牌的 UNITS，则该成员被视为维护者。
       defaultMemberGovernanceToken: UNITS,
     });
     const voting = adapters.voting;
@@ -423,10 +421,12 @@ describe("Adapter - Voting", () => {
     expect(value.toString()).equal("99");
   });
 
+  // 如果您是持有 外部默认 治理令牌的 成员 和 维护者， 应该可以 更新 DAO 配置
   it("should be possible to update a DAO configuration if you are a member and a maintainer that holds an external default governance token", async () => {
     const maintainer = accounts[5];
 
     // Issue OpenLaw ERC20 Basic Token for tests, only DAO maintainer will hold this token
+    // 发行 OpenLaw ERC20 Basic Token 进行测试，只有 DAO 维护者会持有这个 token
     const tokenSupply = toBN(100000);
     const oltContract = await OLToken.new(tokenSupply);
 
@@ -501,6 +501,7 @@ describe("Adapter - Voting", () => {
     expect(value.toString()).equal("99");
   });
 
+  // 如果您是维护者但不是成员， 则应该无法更新 DAO 配置
   it("should not be possible to update a DAO configuration if you are a maintainer but not a member", async () => {
     const maintainer = accounts[5]; // not a member
 
@@ -552,6 +553,7 @@ describe("Adapter - Voting", () => {
     );
   });
 
+  // 如果您是成员但不是维护者，则应该无法更新 DAO 配置
   it("should not be possible to update a DAO configuration if you are a member but not a maintainer", async () => {
     // Issue OpenLaw ERC20 Basic Token for tests, only DAO maintainer will hold this token
     const tokenSupply = toBN(100000);
@@ -602,9 +604,7 @@ describe("Adapter - Voting", () => {
     let value = await dao.getConfiguration(key);
     expect(value.toString()).equal("0");
 
-    // The DAO owner attempts to vote on the new proposal,
-    // but since he is not a maintainer (does not hold OLT tokens) the voting weight is zero
-    // so the vote should not be allowed
+    // DAO 所有者尝试对新提案进行投票， 但由于他不是维护者（不持有 OLT 代币）， 因此投票权重为零, 因此不能投票
     await expectRevert(
       voting.submitVote(dao.address, proposalId, 1, {
         from: daoOwner,
@@ -614,6 +614,7 @@ describe("Adapter - Voting", () => {
     );
   });
 
+  // 如果您是持有未实现 getPriorAmount 函数的外部令牌的成员和维护者， 则应该无法更新 DAO 配置
   it("should not be possible to update a DAO configuration if you are a member & maintainer that holds an external token which not implements getPriorAmount function", async () => {
     
     // 铸造一个 PixelNFT 以将其用作没有实现 getPriorAmount 函数的外部治理令牌。只有 DAO 维护者会持有这个令牌。  
@@ -654,7 +655,7 @@ describe("Adapter - Voting", () => {
       [
         {
           key: key,
-          numericValue: 99,
+          numericValue: 11,
           addressValue: ZERO_ADDRESS,
           configType: 0,
         },
@@ -672,12 +673,32 @@ describe("Adapter - Voting", () => {
     // The DAO owner attempts to vote on the new proposal,
     // but since he is not a maintainer (does not hold OLT tokens) the voting weight is zero
     // so the vote should not be allowed
-    await expectRevert(
-      voting.submitVote(dao.address, proposalId, 1, {
-        from: daoOwner,
-        gasPrice: toBN("0"),
-      }),
-      "getPriorAmount not implemented"
-    );
+    // await expectRevert(
+    //   voting.submitVote(dao.address, proposalId, 1, {
+    //     from: daoOwner,
+    //     gasPrice: toBN("0"),
+    //   }),
+    //   "getPriorAmount not implemented"
+    // );
+
+
+    
+    // The maintainer votes on the new proposal
+    await voting.submitVote(dao.address, proposalId, 1, {
+      from: daoOwner,
+      gasPrice: toBN("0"),
+    });
+
+    await advanceTime(10000);
+
+    // The daoOwner processes on the new proposal
+    await configuration.processProposal(dao.address, proposalId, {
+      from: daoOwner,
+      gasPrice: toBN("0"),
+    });
+
+    value = await dao.getConfiguration(key);
+    expect(value.toString()).equal("11");
+
   });
 });

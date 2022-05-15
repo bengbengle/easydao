@@ -13,12 +13,8 @@ import "./modifiers/Reimbursable.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 
-contract LendNFTContract is
-    AdapterGuard,
-    Reimbursable,
-    IERC1155Receiver,
-    IERC721Receiver
-{
+contract LendNFTContract is AdapterGuard, Reimbursable,  IERC1155Receiver, IERC721Receiver {
+    
     struct ProcessProposal {
         DaoRegistry dao;
         bytes32 proposalId;

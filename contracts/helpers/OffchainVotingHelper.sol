@@ -43,6 +43,7 @@ contract OffchainVotingHelperContract {
         _ovHash = _contract;
     }
 
+    // 检查成员数量 
     function checkMemberCount(
         DaoRegistry dao,
         uint256 resultIndex,
@@ -57,6 +58,7 @@ contract OffchainVotingHelperContract {
         require(membersCount - 1 == resultIndex, "index:member_count mismatch");
     }
 
+    // 检查是否通过
     function checkBadNodeError(
         DaoRegistry dao,
         bytes32 proposalId,
@@ -160,10 +162,9 @@ contract OffchainVotingHelperContract {
         address,
         SnapshotProposalContract snapshotContract
     ) external view returns (address) {
-        SnapshotProposalContract.ProposalMessage memory proposal = abi.decode(
-            data,
-            (SnapshotProposalContract.ProposalMessage)
-        );
+        
+        SnapshotProposalContract.ProposalMessage memory proposal = abi.decode(data, (SnapshotProposalContract.ProposalMessage));
+
         require(
             SignatureChecker.isValidSignatureNow(
                 proposal.submitter,

@@ -386,7 +386,7 @@ describe("Adapter - Ragequit", () => {
     guildBalance = await bank.balanceOf(GUILD, oltContract.address);
     expect(guildBalance.toString()).equal("10");
 
-    //Ragequit - Advisor ragequits
+    // Ragequit - Advisor ragequits
     await adapters.ragequit.ragequit(
       dao.address,
       toBN(0),
@@ -398,7 +398,7 @@ describe("Adapter - Ragequit", () => {
       }
     );
 
-    //Check Guild Bank Balance
+    // Check Guild Bank Balance
     const newGuildBalance = await bank.balanceOf(GUILD, oltContract.address);
     expect(newGuildBalance.toString()).equal("2"); //must be close to zero
   });

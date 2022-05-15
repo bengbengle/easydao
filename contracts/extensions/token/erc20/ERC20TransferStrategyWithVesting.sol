@@ -12,8 +12,8 @@ import "./InternalTokenVestingExtension.sol";
  * ERC20Extension 是为 DAO 成员在 DAO 内部持有的内部代币
  */
 contract ERC20TransferStrategy is IERC20TransferStrategy {
-    bytes32 public constant ERC20_EXT_TRANSFER_TYPE =
-        keccak256("erc20.transfer.type");
+
+    bytes32 public constant ERC20_EXT_TRANSFER_TYPE = keccak256("erc20.transfer.type");
 
     /// @notice Clonable contract must have an empty constructor
     // constructor() {}
@@ -31,15 +31,13 @@ contract ERC20TransferStrategy is IERC20TransferStrategy {
             );
     }
 
-    function evaluateTransfer(
-        DaoRegistry dao,
-        address tokenAddr,
-        address from,
-        address to,
-        uint256 amount,
-        address caller
-    ) external view override returns (ApprovalType, uint256) {
-        //如果转账是内部转账，则设置为无限制
+    function evaluateTransfer(DaoRegistry dao, address tokenAddr, address from, address to, uint256 amount, address caller) 
+        external 
+        view 
+        override 
+        returns (ApprovalType, uint256) 
+    {
+        // 如果转账是内部转账，则设置为无限制
         if (hasBankAccess(dao, caller)) {
             return (ApprovalType.SPECIAL, amount);
         }
@@ -48,30 +46,29 @@ contract ERC20TransferStrategy is IERC20TransferStrategy {
 
         // member only
         if (transferType == 0 && dao.isMember(to)) {
+
             // members only transfer
-            return (
-                ApprovalType.STANDARD,
-                evaluateStandardTransfer(dao, from, tokenAddr)
-            );
+            return (ApprovalType.STANDARD, evaluateStandardTransfer(dao, from, tokenAddr));
+            
             // open transfer
         } else if (transferType == 1) {
-            return (
-                ApprovalType.STANDARD,
-                evaluateStandardTransfer(dao, from, tokenAddr)
-            );
+            
+            return (ApprovalType.STANDARD, evaluateStandardTransfer(dao, from, tokenAddr));
         }
+
         //transfer not allowed
         return (ApprovalType.NONE, 0);
     }
 
-    function evaluateStandardTransfer(
-        DaoRegistry dao,
-        address from,
-        address tokenAddr
-    ) public view returns (uint160) {
+    function evaluateStandardTransfer(DaoRegistry dao, address from, address tokenAddr) 
+        public 
+        view 
+        returns (uint160) 
+    {
         InternalTokenVestingExtension vesting = InternalTokenVestingExtension(
             dao.getExtensionAddress(DaoHelper.INTERNAL_TOKEN_VESTING_EXT)
         );
+
         BankExtension bank = BankExtension(
             dao.getExtensionAddress(DaoHelper.BANK)
         );

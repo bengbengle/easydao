@@ -431,6 +431,7 @@ describe("Extension - ERC20", () => {
     );
   });
 
+  // 当传输类型  2 时, 可以 pause 所有传输（暂停所有传输）
   it("should be possible to pause all transfers when the transfer type is equals 2 (paused all transfers)", async () => {
     const dao = this.dao;
     //onboarded members A & B
@@ -517,6 +518,7 @@ describe("Extension - ERC20", () => {
     );
   });
 
+  // 当转账类型 1 时（外部转账），可以 transfer units  到 外部账户
   it("should be possible to transfer units from a member to an external account when the transfer type is equals 1 (external transfer)", async () => {
     // transfer to external
     const dao = this.dao;
@@ -548,7 +550,8 @@ describe("Extension - ERC20", () => {
     );
     let transferType = await dao.getConfiguration(sha3("erc20.transfer.type"));
     expect(transferType.toString()).equal("1");
-    //onboard memberA
+    
+    // onboard memberA
     await onboardingNewMember(
       getProposalCounter(),
       dao,
@@ -560,6 +563,7 @@ describe("Extension - ERC20", () => {
       UNITS,
       toBN("3")
     );
+    
     //member A units
     let applicantAUnits = await erc20Ext.balanceOf(applicantA);
     expect(applicantAUnits.toString()).equal(
@@ -591,6 +595,7 @@ describe("Extension - ERC20", () => {
     );
   });
 
+  // 当转账类型 1 时（外部转账），可以 approve 和 transferFrom units 从 成员 到 外部账户
   it("should be possible to approve and transferFrom units from a member to an external account when the transfer type is equals 1 (external transfer)", async () => {
     // transfer to external
     const dao = this.dao;
@@ -720,16 +725,19 @@ describe("Extension - ERC20", () => {
       toBN("3")
     );
 
+    // 保存区块号 以便稍后 查看历史余额
     // save the block number to check the historical balance later on
     const blockNumber = await web3.eth.getBlockNumber();
 
     // check A's current balance
+    // 查看 A 的 当前余额
     const currentUnits = await erc20Ext.balanceOf(applicantA);
     expect(currentUnits.toString()).equal(
       numberOfUnits.mul(toBN("3")).toString()
     );
 
     // Onboard another member to create more blocks
+    // 加入 另一个成员 以创建更多块
     await onboardingNewMember(
       getProposalCounter(),
       dao,
@@ -743,6 +751,7 @@ describe("Extension - ERC20", () => {
     );
 
     // Check the A's historical balance using the saved block number
+    // 使用保存的 区块号 查看 A 的 历史余额
     const historicalUnits = await erc20Ext.getPriorAmount(applicantA, blockNumber);
     
     expect(historicalUnits.toString()).equal(

@@ -72,4 +72,12 @@ contract PixelNFT is ERC721 {
     function _baseURI() internal view virtual override returns (string memory) {
         return "https://www.openlaw.io/nfts/pix/";
     }
+
+    function getPriorAmount(address account, uint256)
+        public
+        view
+        returns (uint256)
+    {
+        return balanceOf(account);
+    }
 }

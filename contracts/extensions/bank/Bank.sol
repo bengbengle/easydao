@@ -322,12 +322,11 @@ contract BankExtension is IExtension, ERC165 {
      * @param token 要更新的令牌
      * @param amount 新余额
      */
-    function addToBalance(
-        DaoRegistry _dao,
-        address member,
-        address token,
-        uint256 amount
-    ) public payable hasExtensionAccess(_dao, AclFlag.ADD_TO_BALANCE) {
+    function addToBalance(DaoRegistry _dao, address member, address token, uint256 amount) 
+        public 
+        payable 
+        hasExtensionAccess(_dao, AclFlag.ADD_TO_BALANCE) 
+    {
         require(
             availableTokens[token] || availableInternalTokens[token],
             "unknown token address"
@@ -396,16 +395,15 @@ contract BankExtension is IExtension, ERC165 {
     }
 
     /**
-     * @notice 确定一个账户在某区块号之前的投票数， 区块编号必须是最终区块，否则此功能将恢复以防止错误信息  
+     * @notice 确定 一个账户 在 某区块号之前 的 投票数， 区块号必须是确定的区块， 否则此功能将 恢复以防止错误信息  
      * @param account 要检查的账户地址 
      * @param blockNumber 获得投票余额的区块号 
-     * @return 账户在给定区块中的投票数
+     * @return 账户在给定区块中的 投票数
      */
-    function getPriorAmount(
-        address account,
-        address tokenAddr,
-        uint256 blockNumber
-    ) external view returns (uint256) {
+    function getPriorAmount(address account, address tokenAddr, uint256 blockNumber) 
+        external 
+        view returns (uint256) 
+    {
         require(
             blockNumber < block.number,
             "Uni::getPriorAmount: not yet determined"
@@ -423,7 +421,7 @@ contract BankExtension is IExtension, ERC165 {
             return checkpoints[tokenAddr][account][nCheckpoints - 1].amount;
         }
 
-        // 接下来检查隐式零余额
+        // 接下来检查 隐式 零余额
         if (checkpoints[tokenAddr][account][0].fromBlock > blockNumber) {
             return 0;
         }

@@ -3,27 +3,20 @@ pragma solidity ^0.8.0;
 // SPDX-License-Identifier: MIT
 
 import "../../core/DaoRegistry.sol";
-import "../../extensions/bank/Bank.sol";
-import "../../helpers/GuildKickHelper.sol";
 import "../../guards/MemberGuard.sol";
-import "../../guards/AdapterGuard.sol";
 import "../interfaces/IVoting.sol";
 import "./OffchainVoting.sol";
-import "../../utils/Signatures.sol";
+
+import "../../helpers/GuildKickHelper.sol";
 
 contract KickBadReporterAdapter is MemberGuard {
-    function sponsorProposal(
-        DaoRegistry dao,
-        bytes32 proposalId,
-        bytes calldata data
-    ) external {
+    
+    function sponsorProposal(DaoRegistry dao, bytes32 proposalId, bytes calldata data) 
+        external 
+    {
         OffchainVotingContract votingContract = _getVotingContract(dao);
-        address sponsoredBy = votingContract.getSenderAddress(
-            dao,
-            address(this),
-            data,
-            msg.sender
-        );
+        address sponsoredBy = votingContract.getSenderAddress(dao, address(this), data, msg.sender);
+
         votingContract.sponsorChallengeProposal(dao, proposalId, sponsoredBy);
         votingContract.startNewVotingForProposal(dao, proposalId, data);
     }
@@ -32,10 +25,8 @@ contract KickBadReporterAdapter is MemberGuard {
         OffchainVotingContract votingContract = _getVotingContract(dao);
         votingContract.processChallengeProposal(dao, proposalId);
 
-        IVoting.VotingState votingState = votingContract.voteResult(
-            dao,
-            proposalId
-        );
+        IVoting.VotingState votingState = votingContract.voteResult(dao, proposalId);
+
         // the person has been kicked out
         if (votingState == IVoting.VotingState.PASS) {
             (, address challengeAddress) = votingContract.getChallengeDetails(

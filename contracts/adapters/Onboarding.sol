@@ -40,13 +40,11 @@ contract OnboardingContract is IOnboarding, AdapterGuard, Reimbursable {
         uint160 amount;
     }
 
-    // proposals per dao
-    mapping(DaoRegistry => mapping(bytes32 => ProposalDetails))
-        public proposals;
+    // 每个 dao 的 提案 proposals
+    mapping(DaoRegistry => mapping(bytes32 => ProposalDetails)) public proposals;
 
-    // minted units per dao, per token, per applicant
-    mapping(DaoRegistry => mapping(address => mapping(address => uint88)))
-        public units;
+    // 每个 dao、每个代币、每个申请人的铸造单位
+    mapping(DaoRegistry => mapping(address => mapping(address => uint88))) public units;
 
     /**
      * @notice 使用新配置更新 DAO 注册表

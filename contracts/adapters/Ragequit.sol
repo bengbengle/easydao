@@ -22,17 +22,17 @@ contract RagequitContract is IRagequit, AdapterGuard {
     );
 
     /**
-     * @notice Allows a member or advisor of the DAO to opt out by burning the proportional amount of units/loot of the member.
-     * @notice Anyone is allowed to call this function, but only members and advisors that have units are able to execute the entire ragequit process.
-     * @notice The array of token needs to be sorted in ascending order before executing this call, otherwise the transaction will fail.
-     * @dev The sum of unitsToBurn and lootToBurn have to be greater than zero.
-     * @dev The member becomes an inactive member of the DAO once all the units/loot are burned.
-     * @dev If the member provides an invalid/not allowed token, the entire processed is reverted.
-     * @dev If no tokens are informed, the transaction is reverted.
-     * @param dao The dao address that the member is part of.
-     * @param unitsToBurn The amount of units of the member that must be converted into funds.
-     * @param lootToBurn The amount of loot of the member that must be converted into funds.
-     * @param tokens The array of tokens that the funds should be sent to.
+     * @notice 允许 DAO 的成员或顾问通过按比例销毁成员的单位/战利品来选择退出
+     * @notice 任何人都可以调用此函数，但只有拥有单位的成员和顾问才能执行整个 ragequit 过程 
+     * @notice 执行本次调用前需要对token数组进行升序排序，否则交易会失败
+     * @dev unitsToBurn 和 lootToBurn 之和必须大于零
+     * @dev 一旦所有单位/战利品都被烧毁，该成员将成为 DAO 的非活动成员 
+     * @dev 如果成员提供了无效/不允许的令牌，则整个处理的都将被还原
+     * @dev 如果没有通知令牌，则交易被还原
+     * @param dao 成员所属的 dao 地址
+     * @param unitsToBurn 必须转换为资金的成员单位数量 
+     * @param lootToBurn 必须转换为资金的成员战利品数量 
+     * @param tokens 资金应该发送到的令牌数组
      */
     function ragequit(
         DaoRegistry dao,

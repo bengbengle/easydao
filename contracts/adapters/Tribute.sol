@@ -61,19 +61,22 @@ contract TributeContract is Reimbursable, AdapterGuard {
     }
 
     /**
-     * @notice Creates and sponsors a tribute proposal to start the voting process.
-     * @dev Applicant address must not be reserved.
-     * @dev Only members of the DAO can sponsor a tribute proposal.
-     * @param dao The DAO address.
-     * @param proposalId The proposal id (managed by the client).
-     * @param applicant The applicant address (who will receive the DAO internal tokens and become a member).
-     * @param tokenToMint The address of the DAO internal token to be minted to the applicant.
-     * @param requestAmount The amount requested of DAO internal tokens.
-     * @param tokenAddr The address of the ERC-20 tokens that will be transferred to the DAO in exchange for DAO internal tokens.
-     * @param tributeAmount The amount of tribute tokens.
-     * @param tributeTokenOwner The owner of the ERC-20 tokens being provided as tribute.
-     * @param data Additional information related to the tribute proposal.
-     */
+      * @notice 创建并赞助一个致敬提案以启动投票过程 
+      * @dev 申请人地址不得是 保留地址 
+      * @dev 只有 DAO 的成员才能发起致敬提案 
+      * @param dao DAO 地址 
+      * @param proposalId 提案ID（由客户端管理）
+
+      * @param applicant 申请人地址（将收到 DAO 内部代币并成为会员） 
+      * @param tokenToMint 要铸造给申请人的 DAO 内部代币的地址 
+      * @param requestAmount DAO 内部代币的请求数量 
+      
+      * @param tokenAddr 将转移到 DAO 以换取 DAO 内部代币的 ERC-20 代币的地址 
+      * @param tributeAmount 贡品数量 
+      * @param tributeTokenOwner 作为贡品提供的 ERC-20 代币的所有者 
+
+      * @param data 与致敬提案相关的附加信息
+      */
     function submitProposal(
         DaoRegistry dao,
         bytes32 proposalId,
@@ -111,9 +114,11 @@ contract TributeContract is Reimbursable, AdapterGuard {
 
         proposals[address(dao)][proposalId] = ProposalDetails(
             proposalId,
+            
             applicant,
             tokenToMint,
             requestAmount,
+
             tokenAddr,
             tributeAmount,
             tributeTokenOwner

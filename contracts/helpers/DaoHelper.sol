@@ -8,8 +8,7 @@ library DaoHelper {
     // Adapters
     bytes32 internal constant VOTING = keccak256("voting");
     bytes32 internal constant ONBOARDING = keccak256("onboarding");
-    bytes32 internal constant NONVOTING_ONBOARDING =
-        keccak256("nonvoting-onboarding");
+    bytes32 internal constant NONVOTING_ONBOARDING = keccak256("nonvoting-onboarding");
     bytes32 internal constant TRIBUTE = keccak256("tribute");
     bytes32 internal constant FINANCING = keccak256("financing");
     bytes32 internal constant MANAGING = keccak256("managing");
@@ -156,12 +155,10 @@ library DaoHelper {
         return addr != address(0x0);
     }
 
-    // 
-    function potentialNewMember(
-        address memberAddress,
-        DaoRegistry dao,
-        BankExtension bank
-    ) internal {
+    // 注册 潜在 会员
+    function potentialNewMember(address memberAddress, DaoRegistry dao, BankExtension bank) 
+        internal
+    {
         dao.potentialNewMember(memberAddress);
         require(memberAddress != address(0x0), "invalid member address");
         if (address(bank) != address(0x0)) {

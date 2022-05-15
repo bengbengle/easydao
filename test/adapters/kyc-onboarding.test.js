@@ -53,11 +53,13 @@ describe("Adapter - KYC Onboarding", () => {
     this.snapshotId = await takeChainSnapshot();
   });
 
+  // 当 代币数量 超过 外部代币 限制时， 应该无法加入
   it("should not be possible onboard when the token amount exceeds the external token limits", async () => {
     const applicant = accounts[2];
 
     // Issue OpenLaw ERC20 Basic Token for tests
     // Token supply higher than the limit for external tokens
+    // 为测试发行 OpenLaw ERC20 基本代币， 代币 供应量 高于 外部代币的限制
 
     const nbOfERC20Units = 100000000;
     const erc20UnitPrice = toBN("10");
@@ -82,13 +84,16 @@ describe("Adapter - KYC Onboarding", () => {
     );
 
     // In case of failures the funds must be in the applicant account
+    // 如果失败，资金必须在申请人账户中
     const applicantTokenBalance = await getBalance(applicant);
     // "applicant account should contain 2**161 OLT Tokens when the onboard fails"
+    // “加入失败时，申请账户应包含 2**161 个 OLT Tokens”
     expect(initialTokenBalance.toString()).equal(
       applicantTokenBalance.toString()
     );
   });
 
+  // 可以加入 具有 ERC-20 贡献的 DAO
   it("should be possible to join a DAO with ERC-20 contribution", async () => {
     const applicant = accounts[2];
     const nonMemberAccount = accounts[3];
@@ -105,6 +110,7 @@ describe("Adapter - KYC Onboarding", () => {
 
     const myAccountInitialBalance = await getBalance(applicant);
     // remaining amount to test sending back to proposer
+    // 用于测试的 剩余金额 发送回 提议者
     const ethAmount = unitPrice.mul(toBN(3)).add(remaining);
 
     const signerUtil = SigUtilSigner(signer.privKey);
@@ -176,6 +182,7 @@ describe("Adapter - KYC Onboarding", () => {
     expect(nonMemberAccountIsActiveMember).equal(false);
   });
 
+  // 应该可以加入一个有 ETH 贡献的 DAO
   it("should be possible to join a DAO with ETH contribution", async () => {
     const applicant = accounts[2];
     const nonMemberAccount = accounts[3];
@@ -310,6 +317,7 @@ describe("Adapter - KYC Onboarding", () => {
     );
   });
 
+  // 不应超过 最大单位数
   it("should not be possible to have more than the maximum number of units", async () => {
     const applicant = accounts[2];
     const dao = this.dao;

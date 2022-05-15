@@ -239,11 +239,11 @@ contract ERC20Extension is AdapterGuard, IExtension, IERC20 {
      *
      * Emits a {Transfer} event.
      */
-    function transferFrom(
-        address sender,
-        address recipient,
-        uint256 amount
-    ) public override returns (bool) {
+    function transferFrom(address sender, address recipient, uint256 amount) 
+        public 
+        override 
+        returns (bool) 
+    {
 
         require(DaoHelper.isNotZeroAddress(recipient), "ERC20: transfer to the zero address");
 
@@ -264,7 +264,6 @@ contract ERC20Extension is AdapterGuard, IExtension, IERC20 {
             msg.sender
         );
 
-        // address ext = dao.getExtensionAddress(DaoHelper.BANK);
         BankExtension bank = BankExtension(
             dao.getExtensionAddress(DaoHelper.BANK)
         );

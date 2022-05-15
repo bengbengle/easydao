@@ -35,19 +35,15 @@ contract KycOnboardingContract is
     }
 
     string public constant COUPON_MESSAGE_TYPE = "Message(address kycedMember)";
-    bytes32 public constant COUPON_MESSAGE_TYPEHASH =
-        keccak256(abi.encodePacked(COUPON_MESSAGE_TYPE));
+    bytes32 public constant COUPON_MESSAGE_TYPEHASH = keccak256(abi.encodePacked(COUPON_MESSAGE_TYPE));
 
-    bytes32 constant SignerAddressConfig =
-        keccak256("kyc-onboarding.signerAddress");
+    bytes32 constant SignerAddressConfig = keccak256("kyc-onboarding.signerAddress");
     bytes32 constant ChunkSize = keccak256("kyc-onboarding.chunkSize");
     bytes32 constant UnitsPerChunk = keccak256("kyc-onboarding.unitsPerChunk");
     bytes32 constant MaximumChunks = keccak256("kyc-onboarding.maximumChunks");
-    bytes32 constant MaximumUnits =
-        keccak256("kyc-onboarding.maximumTotalUnits");
+    bytes32 constant MaximumUnits = keccak256("kyc-onboarding.maximumTotalUnits");
     bytes32 constant MaxMembers = keccak256("kyc-onboarding.maxMembers");
-    bytes32 constant FundTargetAddress =
-        keccak256("kyc-onboarding.fundTargetAddress");
+    bytes32 constant FundTargetAddress = keccak256("kyc-onboarding.fundTargetAddress");
     bytes32 constant TokensToMint = keccak256("kyc-onboarding.tokensToMint");
 
     WETH private _weth;
@@ -61,17 +57,17 @@ contract KycOnboardingContract is
     }
 
     /**
-     * @notice Configures the Adapter with the coupon signer address and token to mint.
-     * @param dao the dao to configure
-     * @param signerAddress is the DAO instance to be configured
-     * @param chunkSize how many wei per chunk
-     * @param unitsPerChunk how many units do we get per chunk
-     * @param maximumChunks maximum number of chunks allowed
-     * @param maxUnits how many internal tokens can be minted
-     * @param maxMembers maximum number of members allowed to join
-     * @param fundTargetAddress multisig address to transfer the money from, set it to address(0) if you dont want to use a multisig
-     * @param tokenAddr the token in which the onboarding can take place
-     * @param internalTokensToMint the token that will be minted when the member joins the DAO
+     * @notice 使用 优惠券 签名者地址 和 要铸造的令牌配置适配器
+     * @param dao 要配置的 dao 
+     * @param signerAddress 是要配置的 DAO 实例 
+     * @param chunkSize 每个块有多少 wei 
+     * @param unitsPerChunk 我们每个块有多少单位 
+     * @param maximumChunks 允许的最大块数 
+     * @param maxUnits 可以铸造多少内部代币 
+     * @param maxMembers 允许加入的最大成员数 
+     * @param fundTargetAddress 用于转账的多重签名地址，如果您不想使用多重签名，请将其设置为 address(0) 
+     * @param tokenAddr 可以进行入职的代币 
+     * @param internalTokensToMint 成员加入 DAO 时将被铸造的代币
      */
     function configureDao(
         DaoRegistry dao,
@@ -128,7 +124,10 @@ contract KycOnboardingContract is
             _configKey(tokenAddr, FundTargetAddress),
             fundTargetAddress
         );
-        dao.setConfiguration(_configKey(tokenAddr, ChunkSize), chunkSize);
+        dao.setConfiguration(
+            _configKey(tokenAddr, ChunkSize), 
+            chunkSize
+        );
         dao.setConfiguration(
             _configKey(tokenAddr, UnitsPerChunk),
             unitsPerChunk
@@ -137,8 +136,14 @@ contract KycOnboardingContract is
             _configKey(tokenAddr, MaximumChunks),
             maximumChunks
         );
-        dao.setConfiguration(_configKey(tokenAddr, MaximumUnits), maxUnits);
-        dao.setConfiguration(_configKey(tokenAddr, MaxMembers), maxMembers);
+        dao.setConfiguration(
+            _configKey(tokenAddr, MaximumUnits), 
+            maxUnits
+        );
+        dao.setConfiguration(
+            _configKey(tokenAddr, MaxMembers), 
+            maxMembers
+        );
         dao.setAddressConfiguration(
             _configKey(tokenAddr, TokensToMint),
             internalTokensToMint
@@ -152,9 +157,9 @@ contract KycOnboardingContract is
     }
 
     /**
-     * @notice Hashes the provided coupon as an ERC712 hash.
-     * @param dao is the DAO instance to be configured
-     * @param coupon is the coupon to hash
+     * @notice 将提供的 优惠券哈希为 ERC712 哈希 
+     * @param dao 是要配置的 DAO 实例 
+     * @param coupon 是要 散列 的优惠券
      */
     function hashCouponMessage(DaoRegistry dao, Coupon memory coupon)
         public
@@ -169,10 +174,10 @@ contract KycOnboardingContract is
     }
 
     /**
-     * @notice Starts the onboarding propocess of a kyc member that is using ETH to join the DAO.
-     * @param kycedMember The address of the kyced member that wants to join the DAO.
-     * @param signature The signature that will be verified to redeem the coupon.
-     */
+    * @notice 使用 ETH 加入 DAO 的 kyc 成员的入职流程 
+    * @param kycedMember 想要加入 DAO 的 kyced 成员的地址 
+    * @param signature 将被验证以兑换优惠券的签名
+    */
     function onboardEth(
         DaoRegistry dao,
         address kycedMember,
@@ -199,16 +204,15 @@ contract KycOnboardingContract is
     }
 
     /**
-     * @notice Redeems a coupon to add a new member
-     * @param dao is the DAO instance to be configured
-     * @param kycedMember is the address that this coupon authorized to become a new member
-     * @param tokenAddr is the address the ETH address(0) or an ERC20 Token address
-     * @param signature is message signature for verification
+     * @notice 兑换优惠券以添加新成员 
+     * @param dao 是要配置的 DAO 实例 
+     * @param kycedMember 是该优惠券授权成为新成员的地址 
+     * @param tokenAddr 是 ETH 地址（ 0 ) 或 ERC20 Token 地址 
+     * @param signature 是用于验证的消息签名
      */
-    // The function is protected against reentrancy with the reentrancyGuard(dao)
-    // so it is fine to change some state after the reentrancyGuard(dao) external call
-    // because it calls the dao contract to lock the session/transaction flow.
-
+    // 该函数使用 reentrancyGuard(dao) 来防止重入 
+    // 所以在 reentrancyGuard(dao) 外部调用之后改变一些状态是很好的 
+    // 因为它调用 dao 合约来锁定会话/事务流。
     function _onboard(
         DaoRegistry dao,
         address kycedMember,
@@ -241,58 +245,29 @@ contract KycOnboardingContract is
         );
         if (multisigAddress == address(0x0)) {
             if (tokenAddr == DaoHelper.ETH_TOKEN) {
-                // The bank address is loaded from the DAO registry,
-                // hence even if we change that, it belongs to the DAO,
-                // so it is fine to send eth to it.
 
-                bank.addToBalance{value: details.amount}(
-                    dao,
-                    DaoHelper.GUILD,
-                    DaoHelper.ETH_TOKEN,
-                    details.amount
-                );
+                // 银行地址是从 DAO 注册表中加载的， 因此即使我们改变它，它也属于 DAO， 所以可以向它发送 eth。
+
+                bank.addToBalance{value: details.amount}(dao, DaoHelper.GUILD, DaoHelper.ETH_TOKEN, details.amount);
+
             } else {
-                bank.addToBalance(
-                    dao,
-                    DaoHelper.GUILD,
-                    tokenAddr,
-                    details.amount
-                );
+                bank.addToBalance(dao, DaoHelper.GUILD, tokenAddr, details.amount);
+                
                 IERC20 erc20 = IERC20(tokenAddr);
-                erc20.safeTransferFrom(
-                    msg.sender,
-                    address(bank),
-                    details.amount
-                );
+                erc20.safeTransferFrom(msg.sender, address(bank), details.amount);
             }
         } else {
             if (tokenAddr == DaoHelper.ETH_TOKEN) {
-                // The _weth address is defined during the deployment of the contract
-                // There is no way to change it once it has been deployed,
-                // so it is fine to send eth to it.
-
+                // weth 地址是在合约部署期间定义的，一旦部署后就无法更改它， 所以发送 eth 给它就可以了。
                 _weth.deposit{value: details.amount}();
-                _weth20.safeTransferFrom(
-                    address(this),
-                    multisigAddress,
-                    details.amount
-                );
+                _weth20.safeTransferFrom(address(this), multisigAddress, details.amount);
             } else {
                 IERC20 erc20 = IERC20(tokenAddr);
-                erc20.safeTransferFrom(
-                    msg.sender,
-                    multisigAddress,
-                    details.amount
-                );
+                erc20.safeTransferFrom(msg.sender, multisigAddress, details.amount);
             }
         }
 
-        bank.addToBalance(
-            dao,
-            kycedMember,
-            DaoHelper.UNITS,
-            details.unitsRequested
-        );
+        bank.addToBalance(dao, kycedMember, DaoHelper.UNITS, details.unitsRequested);
 
         if (amount > details.amount && tokenAddr == DaoHelper.ETH_TOKEN) {
             payable(msg.sender).sendValue(msg.value - details.amount);
@@ -302,7 +277,7 @@ contract KycOnboardingContract is
     }
 
     /**
-     * @notice Verifies if the given amount is enough to join the DAO
+     * @notice 验证给定的金额是否足以加入 DAO
      */
     function _checkData(
         DaoRegistry dao,
@@ -314,10 +289,10 @@ contract KycOnboardingContract is
         );
         require(details.chunkSize > 0, "config chunkSize missing");
         details.numberOfChunks = uint88(amount / details.chunkSize);
+        
         require(details.numberOfChunks > 0, "insufficient funds");
         require(
-            details.numberOfChunks <=
-                dao.getConfiguration(_configKey(tokenAddr, MaximumChunks)),
+            details.numberOfChunks <= dao.getConfiguration(_configKey(tokenAddr, MaximumChunks)),
             "too much funds"
         );
 
@@ -333,18 +308,17 @@ contract KycOnboardingContract is
         );
 
         require(
-            details.unitsRequested + totalUnits[dao][tokenAddr] <=
-                details.maximumTotalUnits,
+            details.unitsRequested + totalUnits[dao][tokenAddr] <= details.maximumTotalUnits,
             "over max total units"
         );
     }
 
     /**
-     * @notice Checks if the given signature is valid, if so the member is allowed to reedem the coupon and join the DAO.
-     * @param kycedMember is the address that this coupon authorized to become a new member
-     * @param tokenAddr is the address the ETH address(0) or an ERC20 Token address.
-     * @param signature is message signature for verification
-     */
+      * @notice 检查给定的签名是否有效，如果有效，则允许会员 兑换 优惠券 并加入 DAO 
+      * @param kycedMember 是此优惠券授权成为新会员的地址 
+      * @param tokenAddr 是 ETH 地址（0）或 ERC20 Token 地址。 
+      * @param signature 是消息签名，用于验证   
+      */
     function _checkKycCoupon(
         DaoRegistry dao,
         address kycedMember,

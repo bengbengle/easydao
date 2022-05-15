@@ -14,12 +14,12 @@ contract ConfigurationContract is IConfiguration, AdapterGuard, Reimbursable {
         private _configurations;
 
     /**
-     * @notice Creates and sponsors a configuration proposal.
-     * @param dao The DAO Address.
-     * @param proposalId The proposal id.
-     * @param configs The keys, type, numeric and address config values.
-     * @param data Additional details about the financing proposal.
-     */
+    * @notice 创建并发起配置提案 
+    * @param dao DAO 地址
+    * @param proposalId 提案 ID 
+    * @param configs 键、类型、数字和地址配置值 
+    * @param data 有关融资提案的其他详细信息 
+    */
 
     function submitProposal(
         DaoRegistry dao,
@@ -76,8 +76,7 @@ contract ConfigurationContract is IConfiguration, AdapterGuard, Reimbursable {
         IVoting votingContract = IVoting(dao.votingAdapter(proposalId));
         require(address(votingContract) != address(0), "adapter not found");
         require(
-            votingContract.voteResult(dao, proposalId) ==
-                IVoting.VotingState.PASS,
+            votingContract.voteResult(dao, proposalId) == IVoting.VotingState.PASS,
             "proposal did not pass"
         );
 

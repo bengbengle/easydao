@@ -8,7 +8,6 @@ import "./modifiers/Reimbursable.sol";
 import "./interfaces/IGuildKick.sol";
 import "../helpers/GuildKickHelper.sol";
 import "../adapters/interfaces/IVoting.sol";
-import "../helpers/FairShareHelper.sol";
 import "../extensions/bank/Bank.sol";
 
 contract GuildKickContract is IGuildKick, AdapterGuard, Reimbursable {
