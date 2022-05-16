@@ -31,6 +31,7 @@ contract ERC20TransferStrategy is IERC20TransferStrategy {
             );
     }
 
+    
     function evaluateTransfer(DaoRegistry dao, address tokenAddr, address from, address to, uint256 amount, address caller) 
         external 
         view 

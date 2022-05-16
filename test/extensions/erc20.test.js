@@ -59,6 +59,7 @@ describe("Extension - ERC20", () => {
     expect(erc20Ext).to.not.be.null;
   });
 
+  // 当转移类型等于 0 时， 应该可以将单位从一个成员转移到另一个成员（仅限成员转移）
   it("should be possible to transfer units from one member to another when the transfer type is equals 0 (member transfer only)", async () => {
     const dao = this.dao;
     const applicantA = accounts[2];
@@ -139,6 +140,7 @@ describe("Extension - ERC20", () => {
     );
   });
 
+  // 当传输类型等于 0 时， 应该可以批准和 transferFrom 单位从一个成员到另一个成员（仅限成员转移）
   it("should be possible to approve and transferFrom units from a member to another member when the transfer type is equals 0 (member transfer only)", async () => {
     const dao = this.dao;
     //onboarded member A & B
@@ -244,6 +246,7 @@ describe("Extension - ERC20", () => {
     );
   });
 
+  // 转账类型为 0 时，不能将单位从会员转移到外部账户（仅限会员转移）
   it("should not be possible to transfer units from a member to an external account when the transfer type is equals 0 (member transfer only)", async () => {
     // transferFrom to external
     // transfer to external
@@ -320,6 +323,7 @@ describe("Extension - ERC20", () => {
     );
   });
 
+  // 当转移类型等于 0 时，应该不能 批准从成员到外部帐户的 transferFrom 单位（仅限成员转移）
   it("should not be possible to approve a transferFrom units from a member to an external account when the transfer type is equals 0 (member transfer only)", async () => {
     // transfer to external
     const dao = this.dao;
@@ -532,7 +536,7 @@ describe("Extension - ERC20", () => {
     const configuration = this.adapters.configuration;
     const voting = this.adapters.voting;
     const erc20Ext = this.extensions.erc20Ext;
-    //configure to pause all transfers
+    
     await submitConfigProposal(
       dao,
       getProposalCounter(),
@@ -588,11 +592,17 @@ describe("Extension - ERC20", () => {
     expect(externalAddressAUnits.toString()).equal(
       numberOfUnits.mul(toBN("1")).toString()
     );
+
+    //externalAddressA
+    expect(await isMember(bank, externalAddressA)).equal(true);
+
     //applicantA should have -1 unit
     applicantAUnits = await erc20Ext.balanceOf(applicantA);
     expect(applicantAUnits.toString()).equal(
       numberOfUnits.mul(toBN("2")).toString()
     );
+
+
   });
 
   // 当转账类型 1 时（外部转账），可以 approve 和 transferFrom units 从 成员 到 外部账户
@@ -706,6 +716,7 @@ describe("Extension - ERC20", () => {
     expect(await isMember(bank, externalAddressB)).equal(true);
   });
 
+  // 应该可以读取代币持有者的历史余额
   it("should be possible to read the historical balance of a token holder", async () => {
     const dao = this.dao;
     const applicantA = accounts[2];

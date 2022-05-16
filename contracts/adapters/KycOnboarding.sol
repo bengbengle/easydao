@@ -59,24 +59,31 @@ contract KycOnboardingContract is
     /**
      * @notice 使用 优惠券 签名者地址 和 要铸造的令牌配置适配器
      * @param dao 要配置的 dao 
-     * @param signerAddress 是要配置的 DAO 实例 
-     * @param chunkSize 每个块有多少 wei 
+     * @param signerAddress 签名者的地址 
+     
+     * @param chunkSize 有多少个块 
      * @param unitsPerChunk 我们每个块有多少单位 
+     
      * @param maximumChunks 允许的最大块数 
      * @param maxUnits 可以铸造多少内部代币 
      * @param maxMembers 允许加入的最大成员数 
+
      * @param fundTargetAddress 用于转账的多重签名地址，如果您不想使用多重签名，请将其设置为 address(0) 
+     
      * @param tokenAddr 可以进行入职的代币 
      * @param internalTokensToMint 成员加入 DAO 时将被铸造的代币
      */
     function configureDao(
         DaoRegistry dao,
         address signerAddress,
+
         uint256 chunkSize,
         uint256 unitsPerChunk,
+
         uint256 maximumChunks,
         uint256 maxUnits,
         uint256 maxMembers,
+
         address fundTargetAddress,
         address tokenAddr,
         address internalTokensToMint
@@ -187,12 +194,12 @@ contract KycOnboardingContract is
     }
 
     /**
-     * @notice Starts the onboarding propocess of a kyc member that is any ERC20 token to join the DAO.
-     * @param kycedMember The address of the kyced member that wants to join the DAO.
-     * @param tokenAddr The address of the ERC20 token that contains that funds of the kycedMember.
-     * @param amount The amount in ERC20 that will be contributed to the DAO in exchange for the DAO units.
-     * @param signature The signature that will be verified to redeem the coupon.
-     */
+    * @notice 启动作为任何 ERC20 代币的 kyc 成员 加入 DAO 的入职流程
+    * @param kycedMember 想要加入 DAO 的 kyced 成员的地址
+    * @param tokenAddr 包含 kycedMember 资金的 ERC20 代币的地址
+    * @param amount 将贡献给 DAO 以换取 DAO 单位的 ERC20 金额 
+    * @param signature 将被验证以兑换优惠券的签名
+    */
     function onboard(
         DaoRegistry dao,
         address kycedMember,
@@ -210,9 +217,6 @@ contract KycOnboardingContract is
      * @param tokenAddr 是 ETH 地址（ 0 ) 或 ERC20 Token 地址 
      * @param signature 是用于验证的消息签名
      */
-    // 该函数使用 reentrancyGuard(dao) 来防止重入 
-    // 所以在 reentrancyGuard(dao) 外部调用之后改变一些状态是很好的 
-    // 因为它调用 dao 合约来锁定会话/事务流。
     function _onboard(
         DaoRegistry dao,
         address kycedMember,

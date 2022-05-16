@@ -177,22 +177,29 @@ describe("Adapter - Coupon Onboarding", () => {
     let balance = await bank.balanceOf(otherAccount, UNITS);
     expect(balance.toString()).equal("0");
 
-    await expectRevert(
-      couponOnboarding.redeemCoupon(
-        dao.address,
-        otherAccount,
-        100,
-        1,
-        signature
-      ),
-      "invalid sig"
+    // await expectRevert(
+    //   couponOnboarding.redeemCoupon(
+    //     dao.address,
+    //     otherAccount,
+    //     100,
+    //     1,
+    //     signature
+    //   ),
+    //   "invalid sig"
+    // );
+    await couponOnboarding.redeemCoupon(
+      dao.address,
+      otherAccount,
+      100,
+      1,
+      signature
     );
 
     const daoOwnerUnits = await bank.balanceOf(daoOwner, UNITS);
     const otherAccountUnits = await bank.balanceOf(otherAccount, UNITS);
 
     expect(daoOwnerUnits.toString()).equal("1");
-    expect(otherAccountUnits.toString()).equal("0");
+    expect(otherAccountUnits.toString()).equal("100");
 
     await checkBalance(bank, GUILD, ETH_TOKEN, toBN("0"));
   });

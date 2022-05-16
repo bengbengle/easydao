@@ -53,46 +53,6 @@ describe("Adapter - KYC Onboarding", () => {
     this.snapshotId = await takeChainSnapshot();
   });
 
-  // 当 代币数量 超过 外部代币 限制时， 应该无法加入
-  it("should not be possible onboard when the token amount exceeds the external token limits", async () => {
-    const applicant = accounts[2];
-
-    // Issue OpenLaw ERC20 Basic Token for tests
-    // Token supply higher than the limit for external tokens
-    // 为测试发行 OpenLaw ERC20 基本代币， 代币 供应量 高于 外部代币的限制
-
-    const nbOfERC20Units = 100000000;
-    const erc20UnitPrice = toBN("10");
-
-    const { dao, adapters } = await deployDefaultDao({
-      owner: daoOwner,
-      unitPrice: erc20UnitPrice,
-      nbUnits: nbOfERC20Units,
-      tokenAddr: ETH_TOKEN,
-    });
-
-    const onboarding = adapters.kycOnboarding;
-
-    const initialTokenBalance = await getBalance(applicant);
-
-    await expectRevert(
-      onboarding.onboardEth(dao.address, applicant, [], {
-        from: applicant,
-        gasPrice: toBN("0"),
-      }),
-      "Returned error: VM Exception while processing transaction: revert"
-    );
-
-    // In case of failures the funds must be in the applicant account
-    // 如果失败，资金必须在申请人账户中
-    const applicantTokenBalance = await getBalance(applicant);
-    // "applicant account should contain 2**161 OLT Tokens when the onboard fails"
-    // “加入失败时，申请账户应包含 2**161 个 OLT Tokens”
-    expect(initialTokenBalance.toString()).equal(
-      applicantTokenBalance.toString()
-    );
-  });
-
   // 可以加入 具有 ERC-20 贡献的 DAO
   it("should be possible to join a DAO with ERC-20 contribution", async () => {
     const applicant = accounts[2];
@@ -254,6 +214,47 @@ describe("Adapter - KYC Onboarding", () => {
     expect(nonMemberAccountIsActiveMember).equal(false);
   });
 
+  // 当 代币数量 超过 外部代币 限制时， 应该无法加入
+  it("should not be possible onboard when the token amount exceeds the external token limits", async () => {
+    const applicant = accounts[2];
+
+    // Issue OpenLaw ERC20 Basic Token for tests
+    // Token supply higher than the limit for external tokens
+    // 为测试发行 OpenLaw ERC20 基本代币， 代币 供应量 高于 外部代币的限制
+
+    const nbOfERC20Units = 100000000;
+    const erc20UnitPrice = toBN("10");
+
+    const { dao, adapters } = await deployDefaultDao({
+      owner: daoOwner,
+      unitPrice: erc20UnitPrice,
+      nbUnits: nbOfERC20Units,
+      tokenAddr: ETH_TOKEN,
+    });
+
+    const onboarding = adapters.kycOnboarding;
+
+    const initialTokenBalance = await getBalance(applicant);
+
+    await expectRevert(
+      onboarding.onboardEth(dao.address, applicant, [], {
+        from: applicant,
+        gasPrice: toBN("0"),
+      }),
+      "Returned error: VM Exception while processing transaction: revert"
+    );
+
+    // In case of failures the funds must be in the applicant account
+    // 如果失败，资金必须在申请人账户中
+    const applicantTokenBalance = await getBalance(applicant);
+    // "applicant account should contain 2**161 OLT Tokens when the onboard fails"
+    // “加入失败时，申请账户应包含 2**161 个 OLT Tokens”
+    expect(initialTokenBalance.toString()).equal(
+      applicantTokenBalance.toString()
+    );
+  });
+
+  // 他将其会员资格委托给另一个地址后， 他应该不可能加入 同一会员
   it("should not be possible to join the same member after he delegates his membership to another address", async () => {
     const applicant = accounts[2];
     const delegateKey = accounts[3];

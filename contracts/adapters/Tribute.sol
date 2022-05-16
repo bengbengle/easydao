@@ -42,14 +42,13 @@ contract TributeContract is Reimbursable, AdapterGuard {
     mapping(address => mapping(bytes32 => ProposalDetails)) public proposals;
 
     /**
-     * @notice Configures the adapter for a particular DAO.
-     * @notice Registers the DAO internal token with the DAO Bank.
-     * @dev Only adapters registered to the DAO can execute the function call (or if the DAO is in creation mode).
-     * @dev A DAO Bank extension must exist and be configured with proper access for this adapter.
-     * @param dao The DAO address.
-     * @param tokenAddrToMint The internal token address to be registered with the DAO Bank.
-     * @param tokenAddrToMint 要在 DAO 银行注册的内部代币地址 
-     */
+      * @notice 为特定 DAO 配置适配器
+      * @notice 向 DAO 银行注册 DAO 内部令牌
+      * @dev 只有注册到 DAO 的适配器才能执行函数调用（或者如果 DAO 处于创建模式）
+      * @dev A DAO Bank 扩展必须存在并且配置为对该适配器具有适当的访问权限
+      * @param dao DAO 地址
+      * @param tokenAddrToMint 要在 DAO 银行注册的内部代币地址     
+      */
     function configureDao(DaoRegistry dao, address tokenAddrToMint)
         external
         onlyAdapter(dao)
@@ -108,7 +107,11 @@ contract TributeContract is Reimbursable, AdapterGuard {
 
         dao.sponsorProposal(proposalId, sponsoredBy, address(votingContract));
 
-        DaoHelper.potentialNewMember(applicant, dao, BankExtension(dao.getExtensionAddress(DaoHelper.BANK)));
+        DaoHelper.potentialNewMember(
+            applicant, 
+            dao, 
+            BankExtension(dao.getExtensionAddress(DaoHelper.BANK))
+        );
 
         votingContract.startNewVotingForProposal(dao, proposalId, data);
 

@@ -54,6 +54,7 @@ describe("Adapter - Onboarding", () => {
     this.snapshotId = await takeChainSnapshot();
   });
 
+  // 当代币数量超过外部代币限制时，应该无法上线
   it("should not be possible onboard when the token amount exceeds the external token limits", async () => {
     const applicant = accounts[2];
 
@@ -92,6 +93,9 @@ describe("Adapter - Onboarding", () => {
 
     // Pre-approve spender (onboarding adapter) to transfer proposer tokens
     // Higher than the current limit for external tokens: 2^160-1
+
+    // 预先批准支出者（入职适配器）转移提议者令牌 
+    // 高于外部令牌的当前限制：2^160-1
     const tokenAmount = initialTokenBalance;
     await oltContract.approve.sendTransaction(
       onboarding.address,
@@ -120,13 +124,16 @@ describe("Adapter - Onboarding", () => {
     );
 
     // In case of failures the funds must be in the applicant account
+    // 如果失败，资金必须在申请人账户中
     applicantTokenBalance = await oltContract.balanceOf.call(applicant);
     // "applicant account should contain 2**161 OLT Tokens when the onboard fails"
+    // “入网失败时，申请账户应包含2**161个OLT Tokens”
     expect(initialTokenBalance.toString()).equal(
       applicantTokenBalance.toString()
     );
   });
 
+  // 应该可以加入一个有 ETH 贡献的 DAO
   it("should be possible to join a DAO with ETH contribution", async () => {
     const applicant = accounts[2];
     const nonMemberAccount = accounts[3];
@@ -203,6 +210,7 @@ describe("Adapter - Onboarding", () => {
     expect(nonMemberAccountIsActiveMember).equal(false);
   });
 
+  // 应该可以加入具有 ERC20 贡献的 DAO
   it("should be possible to join a DAO with ERC20 contribution", async () => {
     const applicant = accounts[2];
     const nonMemberAccount = accounts[3];
@@ -236,6 +244,7 @@ describe("Adapter - Onboarding", () => {
 
     // Total of OLTs to be sent to the DAO in order to get the units
     // (remaining amount to test sending back to proposer)
+    // 发送给 DAO 以获取单位的 OLT 总数 （用于测试发送回提议者的剩余数量）
     const tokenAmount = erc20UnitPrice.add(toBN(erc20Remaining));
 
     const proposalId = getProposalCounter();
@@ -287,6 +296,7 @@ describe("Adapter - Onboarding", () => {
     });
 
     // test return of remaining amount in excess of multiple of unitsPerChunk
+    // 剩余金额超过 unitsPerChunk 倍数的测试 返回
     myAccountTokenBalance = await oltContract.balanceOf.call(daoOwner);
     // "myAccount did not receive remaining amount in excess of multiple of unitsPerChunk"
     expect(myAccountTokenBalance.toString()).equal(

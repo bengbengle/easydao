@@ -89,6 +89,7 @@ describe("Adapter - Managing", () => {
     );
   });
 
+  // 应该不可能提出一个键多于值的新适配器
   it("should not be possible to propose a new adapter with more keys than values", async () => {
     const dao = this.dao;
     const managing = this.adapters.managing;
@@ -120,6 +121,7 @@ describe("Adapter - Managing", () => {
     );
   });
 
+  // 提出一个值多于键的新适配器
   it("should not be possible to propose a new adapter with more values than keys", async () => {
     const dao = this.dao;
     const managing = this.adapters.managing;
@@ -146,6 +148,7 @@ describe("Adapter - Managing", () => {
     );
   });
 
+  // 应该不可能使用保留地址提出新的适配器
   it("should not be possible to propose a new adapter using a reserved address", async () => {
     const dao = this.dao;
     const managing = this.adapters.managing;
@@ -193,6 +196,7 @@ describe("Adapter - Managing", () => {
     );
   });
 
+  // 如果使用 0x0 作为适配器地址，应该可以删除适配器
   it("should be possible to remove an adapter if 0x0 is used as the adapter address", async () => {
     const dao = this.dao;
     const managing = this.adapters.managing;
@@ -242,6 +246,7 @@ describe("Adapter - Managing", () => {
     expect(tx[1].returnValues.adapterId).equal(adapterIdToRemove);
   });
 
+  // 应该可以提出一个带有委托密钥的新 DAO 适配器
   it("should be possible to propose a new DAO adapter with a delegate key", async () => {
     const delegateKey = accounts[3];
     const dao = this.dao;
@@ -319,6 +324,7 @@ describe("Adapter - Managing", () => {
     expect(newOnboardingAddress.toString()).equal(newAdapterAddress.toString());
   });
 
+  // 应该不可能 重复使用提案 ID
   it("should not be possible to reuse a proposal id", async () => {
     const dao = this.dao;
     const managing = this.adapters.managing;
@@ -371,6 +377,7 @@ describe("Adapter - Managing", () => {
     );
   });
 
+  // 应该可以 更换管理适配器
   it("should be possible to replace the managing adapter", async () => {
     const dao = this.dao;
     const managing = this.adapters.managing;
@@ -472,6 +479,7 @@ describe("Adapter - Managing", () => {
     );
   });
 
+  // 如果未使用权限 标志配置适配器，则不应使用适配器
   it("should not be possible to use an adapter if it is not configured with the permission flags", async () => {
     const dao = this.dao;
     const managing = this.adapters.managing;
@@ -543,6 +551,7 @@ describe("Adapter - Managing", () => {
     );
   });
 
+  // 非成员应该不可能提出 新的适配器
   it("should not be possible for a non member to propose a new adapter", async () => {
     const dao = this.dao;
     const managing = this.adapters.managing;
@@ -573,6 +582,7 @@ describe("Adapter - Managing", () => {
     );
   });
 
+  // 非成员应该不可能提交提案
   it("should not be possible for a non member to submit a proposal", async () => {
     const dao = this.dao;
     const managing = this.adapters.managing;
@@ -606,6 +616,7 @@ describe("Adapter - Managing", () => {
     );
   });
 
+  // 非成员应该可以处理提案
   it("should be possible for a non member to process a proposal", async () => {
     const dao = this.dao;
     const managing = this.adapters.managing;
@@ -651,6 +662,7 @@ describe("Adapter - Managing", () => {
     expect(await dao.getProposalFlag(proposalId, processedFlag)).equal(true);
   });
 
+  // 如果投票未通过，则不应处理提案
   it("should not be possible to process a proposal if the voting did not pass", async () => {
     const dao = this.dao;
     const managing = this.adapters.managing;
@@ -694,6 +706,7 @@ describe("Adapter - Managing", () => {
     );
   });
 
+  // 如果用于删除的适配器 ID 无效，则不应失败
   it("should not fail if the adapter id used for removal is not valid", async () => {
     const dao = this.dao;
     const managing = this.adapters.managing;
@@ -734,6 +747,7 @@ describe("Adapter - Managing", () => {
     });
   });
 
+  // 应该不可能 使用已注册的地址添加新适配器
   it("should not be possible to add a new adapter using an address that is already registered", async () => {
     const dao = this.dao;
     const managing = this.adapters.managing;
@@ -777,6 +791,7 @@ describe("Adapter - Managing", () => {
     );
   });
 
+  // 应该可以添加 新适配器 并为 某些扩展 设置 acl 标志
   it("should be possible to add a new adapter and set the acl flags for some extension", async () => {
     const dao = this.dao;
     const managing = this.adapters.managing;
@@ -836,7 +851,10 @@ describe("Adapter - Managing", () => {
     // At this point the adapter should be able access the Bank Extension
     // We check that by verifying if the ACL flag in the DAO matches the one
     // submitted in the proposal.
-
+    
+    // 此时适配器应该能够访问 银行扩展 
+    // 我们通过验证 DAO 中的 ACL 标志 是否 与提案中提交的相匹配 来检查这一点。
+    
     /**
      * Bank flags
      * 0: ADD_TO_BALANCE
@@ -903,6 +921,7 @@ describe("Adapter - Managing", () => {
     ).equal(false);
   });
 
+  // 应该可以使用 DAO 配置添加新适配器
   it("should be possible to add a new adapter with DAO configs", async () => {
     const dao = this.dao;
     const managing = this.adapters.managing;
@@ -979,6 +998,7 @@ describe("Adapter - Managing", () => {
     expect(addressConfig.toLowerCase()).equal(DAI_TOKEN);
   });
 
+  // 应该可以添加一个新的扩展
   it("should be possible to add a new extension", async () => {
     const dao = this.dao;
     const managing = this.adapters.managing;
@@ -1029,6 +1049,7 @@ describe("Adapter - Managing", () => {
     );
   });
 
+  // 应该可以使用 DAO 配置添加新扩展
   it("should be possible to add a new extension with DAO configs", async () => {
     const dao = this.dao;
     const managing = this.adapters.managing;
@@ -1100,6 +1121,7 @@ describe("Adapter - Managing", () => {
     expect(addressConfig.toLowerCase()).equal(DAI_TOKEN);
   });
 
+  // 应该可以删除扩展
   it("should be possible to remove an extension", async () => {
     const dao = this.dao;
     const managing = this.adapters.managing;
@@ -1152,6 +1174,7 @@ describe("Adapter - Managing", () => {
     );
   });
 
+  // 如果 UpdateType 未知，则应还原
   it("should revert if UpdateType is unknown", async () => {
     const dao = this.dao;
     const managing = this.adapters.managing;

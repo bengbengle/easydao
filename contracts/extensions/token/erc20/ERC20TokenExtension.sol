@@ -301,6 +301,7 @@ contract ERC20Extension is AdapterGuard, IExtension, IERC20 {
 
         return false;
     }
+    
     // 转移 内部代币
     // senderAddr 发送者
     // recipient 接收者

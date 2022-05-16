@@ -232,11 +232,10 @@ export const getEnabledExtensionFlags = (
 };
 
 /**
- * Each position in the array represents a flag, if its true it means the flag is enabled, hence
- * the access should be granted.
- * To grant the access it calculates the integer value that represents that tag in the 2**68 space.
- * @param values An array of boolean which indicate the flags that are enabled.
- * @returns a value
+* 数组中的每个位置都代表一个标志，如果它为真，则表示该标志已启用，因此应授予访问权限
+* 要授予访问权限， 它会计算 2**68 空间中表示该标记的整数值
+* @param values 一个布尔数组，指示启用的标志
+* @return 一个值
  */
 export const calculateFlagValue = (values: Array<boolean>): number => {
   return values

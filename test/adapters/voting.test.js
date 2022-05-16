@@ -437,8 +437,7 @@ describe("Adapter - Voting", () => {
 
     const { dao, adapters } = await deployDefaultDao({
       owner: daoOwner,
-      // if the member holds any OLTs that represents an external default
-      // governance token, the member is considered a maintainer.
+      // 如果该成员持有任何代表外部默认治理令牌的 OLT，则该成员被视为维护者。
       defaultMemberGovernanceToken: oltContract.address,
     });
     const voting = adapters.voting;

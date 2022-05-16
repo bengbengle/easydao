@@ -29,11 +29,14 @@ contract LendNFTContract is AdapterGuard, Reimbursable,  IERC1155Receiver, IERC7
         address nftAddr;
         // nft 令牌标识符
         uint256 nftTokenId;
+
         // 捐赠数额
         uint256 tributeAmount;
-        // DAO 内部代币（UNITS）的请求数量
+
+        // 请求数量 ( DAO 内部代币（UNITS）)
         uint88 requestAmount;
         uint64 lendingPeriod;
+
         bool sentBack;
         uint64 lendingStart;
         address previousOwner;
@@ -53,11 +56,6 @@ contract LendNFTContract is AdapterGuard, Reimbursable,  IERC1155Receiver, IERC7
         external
         onlyAdapter(dao)
     {
-        // address ext = dao.getExtensionAddress(DaoHelper.BANK);
-        // BankExtension bank = BankExtension(ext);
-
-        // bank.registerPotentialNewInternalToken(dao, token);
-
         BankExtension(dao.getExtensionAddress(DaoHelper.BANK))
             .registerPotentialNewInternalToken(dao, token);
     }
@@ -104,7 +102,11 @@ contract LendNFTContract is AdapterGuard, Reimbursable,  IERC1155Receiver, IERC7
         );
         dao.sponsorProposal(proposalId, sponsoredBy, address(votingContract));
 
-        DaoHelper.potentialNewMember(applicant, dao, BankExtension(dao.getExtensionAddress(DaoHelper.BANK)));
+        DaoHelper.potentialNewMember(
+            applicant, 
+            dao, 
+            BankExtension(dao.getExtensionAddress(DaoHelper.BANK))
+        );
 
         votingContract.startNewVotingForProposal(dao, proposalId, data);
 
@@ -122,84 +124,6 @@ contract LendNFTContract is AdapterGuard, Reimbursable,  IERC1155Receiver, IERC7
         );
     }
 
-    /**
-    * @notice 处理提案以处理 DAO 内部代币的 铸造 和 交换 以获取贡品代币（通过投票） 
-    * @dev 提案 ID 必须存在
-    * @dev 仅接受 尚未处理的提案 
-    * @dev 仅接受 已完成投票的赞助提案 
-    * @dev 作为贡品提供的 ERC-721 代币的所有者必须首先单独 “批准” NFT 扩展作 为该代币的花费者 （以便 NFT 可以转移以获得通过的投票）     
-    * @param dao The DAO address.
-    * @param proposalId The proposal id.
-    */
-    // 该函数只能从 _onERC1155Received 和 _onERC721Received 函数中调用 , 可以防止重入攻击 
-    function _processProposal(DaoRegistry dao, bytes32 proposalId)
-        internal
-        returns (
-            ProposalDetails storage proposal,
-            IVoting.VotingState voteResult
-        )
-    {
-        proposal = proposals[address(dao)][proposalId];
-
-        bool is_processed = dao.getProposalFlag(
-            proposalId,
-            DaoRegistry.ProposalFlag.PROCESSED
-        );
-
-        require(proposal.id == proposalId, "proposal does not exist");
-
-        require(!is_processed, "proposal already processed");
-
-        IVoting votingContract = IVoting(dao.votingAdapter(proposalId));
-        require(address(votingContract) != address(0), "adapter not found");
-
-        voteResult = votingContract.voteResult(dao, proposalId);
-
-        dao.processProposal(proposalId);
-        // if proposal passes and its an erc721 token - use NFT Extension
-        // 如果提案通过并且它是一个 erc721 令牌 - 使用 NFT 扩展
-        if (voteResult == IVoting.VotingState.PASS) {
-            BankExtension bank = BankExtension(
-                dao.getExtensionAddress(DaoHelper.BANK)
-            );
-
-            require(
-                bank.isInternalToken(DaoHelper.UNITS),
-                "UNITS token is not an internal token"
-            );
-
-            bank.addToBalance(
-                dao,
-                proposal.applicant,
-                DaoHelper.UNITS,
-                proposal.requestAmount
-            );
-
-            InternalTokenVestingExtension vesting = InternalTokenVestingExtension(
-                    dao.getExtensionAddress(
-                        DaoHelper.INTERNAL_TOKEN_VESTING_EXT
-                    )
-                );
-            proposal.lendingStart = uint64(block.timestamp);
-            //add vesting here
-            vesting.createNewVesting(
-                dao,
-                proposal.applicant,
-                DaoHelper.UNITS,
-                proposal.requestAmount,
-                proposal.lendingStart + proposal.lendingPeriod
-            );
-
-            return (proposal, voteResult);
-        } else if (
-            voteResult == IVoting.VotingState.NOT_PASS ||
-            voteResult == IVoting.VotingState.TIE
-        ) {
-            return (proposal, voteResult);
-        } else {
-            revert("proposal has not been voted on yet");
-        }
-    }
 
     /**
      * @notice 将 NFT 发回给原始所有者.
@@ -252,7 +176,7 @@ contract LendNFTContract is AdapterGuard, Reimbursable,  IERC1155Receiver, IERC7
             );
         }
 
-        // 只有 ERC-721 代币将包含贡品金额 == 0
+        // 如果 ERC-721 代币， 判断 tributeAmount == 0
         if (proposal.tributeAmount == 0) {
             NFTExtension nftExt = NFTExtension(
                 dao.getExtensionAddress(DaoHelper.NFT)
@@ -368,13 +292,15 @@ contract LendNFTContract is AdapterGuard, Reimbursable,  IERC1155Receiver, IERC7
             ProposalDetails storage proposal,
             IVoting.VotingState voteResult
         ) = _processProposal(dao, proposalId);
+
         require(proposal.nftTokenId == tokenId, "wrong NFT");
         require(proposal.nftAddr == msg.sender, "wrong NFT addr");
+        
         proposal.tributeAmount = 0;
         proposal.previousOwner = from;
         IERC721 erc721 = IERC721(msg.sender);
 
-        // Strict matching is expect to ensure the vote has passed
+        // 投票通过 Strict matching is expect to ensure the vote has passed
         if (voteResult == IVoting.VotingState.PASS) {
             NFTExtension nftExt = NFTExtension(dao.getExtensionAddress(DaoHelper.NFT));
             
@@ -385,6 +311,89 @@ contract LendNFTContract is AdapterGuard, Reimbursable,  IERC1155Receiver, IERC7
         }
 
         return this.onERC721Received.selector;
+    }
+    
+    /**
+    * @notice 处理提案以处理 DAO 内部代币的 铸造 和 交换 以获取贡品代币（通过投票） 
+    * @dev 提案 ID 必须存在
+    * @dev 仅接受 尚未处理的提案 
+    * @dev 仅接受 已完成投票的赞助提案 
+    * @dev 作为贡品提供的 ERC-721 代币的 所有者必须首先 “批准” NFT 扩展作 为该代币的花费者 （以便 NFT 可以转移）     
+    * @param dao The DAO address.
+    * @param proposalId The proposal id.
+    */
+    // 该函数只能从 _onERC1155Received 和 _onERC721Received 函数中调用 , 可以防止重入攻击 
+    function _processProposal(DaoRegistry dao, bytes32 proposalId)
+        internal
+        returns (
+            ProposalDetails storage proposal,
+            IVoting.VotingState voteResult
+        )
+    {
+        proposal = proposals[address(dao)][proposalId];
+
+        bool is_processed = dao.getProposalFlag(
+            proposalId,
+            DaoRegistry.ProposalFlag.PROCESSED
+        );
+
+        require(proposal.id == proposalId, "proposal does not exist");
+
+        require(!is_processed, "proposal already processed");
+
+        // 把提案 标记为 已处理
+        dao.processProposal(proposalId);
+
+
+        IVoting votingContract = IVoting(dao.votingAdapter(proposalId));
+        require(address(votingContract) != address(0), "adapter not found");
+
+        voteResult = votingContract.voteResult(dao, proposalId);
+
+        // 如果提案通过 并且 它是一个 erc721 令牌 - 使用 NFT Extension
+        if (voteResult == IVoting.VotingState.PASS) {
+            BankExtension bank = BankExtension(
+                dao.getExtensionAddress(DaoHelper.BANK)
+            );
+
+            require(
+                bank.isInternalToken(DaoHelper.UNITS),
+                "UNITS token is not an internal token"
+            );
+
+            bank.addToBalance(
+                dao,
+                proposal.applicant,
+                DaoHelper.UNITS,
+                proposal.requestAmount
+            );
+
+            InternalTokenVestingExtension vesting = InternalTokenVestingExtension(
+                    dao.getExtensionAddress(
+                        DaoHelper.INTERNAL_TOKEN_VESTING_EXT
+                    )
+                );
+
+            proposal.lendingStart = uint64(block.timestamp);
+
+            // add vesting here
+            vesting.createNewVesting(
+                dao,
+                proposal.applicant,
+                DaoHelper.UNITS,
+                proposal.requestAmount,
+                proposal.lendingStart + proposal.lendingPeriod
+            );
+
+            return (proposal, voteResult);
+        } else if (
+            voteResult == IVoting.VotingState.NOT_PASS ||
+            voteResult == IVoting.VotingState.TIE
+        ) {
+            return (proposal, voteResult);
+        } else {
+            revert("proposal has not been voted on yet");
+        }
     }
 
     /**

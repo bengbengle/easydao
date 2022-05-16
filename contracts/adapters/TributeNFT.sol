@@ -33,16 +33,13 @@ contract TributeNFTContract is
     struct ProposalDetails {
         // The proposal id.
         bytes32 id;
-        // The applicant address (who will receive the DAO internal tokens and
-        // become a member; this address may be different than the actual owner
-        // of the ERC-721 token being provided as tribute).
+        // 申请者地址（将接收 DAO 内部代币并 成为成员；此地址可能 与 作为贡品的 ERC-721 代币的 实际所有者 不同）
         address applicant;
-        // The address of the ERC-721 token that will be transferred to the DAO
-        // in exchange for DAO internal tokens.
+        // ERC-721 代币的地址
         address nftAddr;
         // The nft token identifier.
         uint256 nftTokenId;
-        // The amount requested of DAO internal tokens (UNITS).
+        // DAO 内部代币（UNITS）的请求数量。
         uint256 requestAmount;
     }
 
@@ -50,12 +47,13 @@ contract TributeNFTContract is
     mapping(address => mapping(bytes32 => ProposalDetails)) public proposals;
 
     /**
-     * @notice Configures the adapter for a particular DAO.
-     * @notice Registers the DAO internal token UNITS with the DAO Bank.
-     * @dev Only adapters registered to the DAO can execute the function call (or if the DAO is in creation mode).
-     * @dev A DAO Bank extension must exist and be configured with proper access for this adapter.
-     * @param dao The DAO address.
-     */
+      * @notice 为特定 DAO 配置适配器 
+      * @notice 向 DAO 银行注册 DAO 内部代币 UNITS 
+      * @dev 只有注册到 DAO 的适配器才能执行函数调用（或者如果 DAO 处于创建模式） 
+      * @dev A DAO Bank 扩展必须 存在 并且 配置为对该适配器具有适当的访问权限
+      * @param dao DAO 地址
+      * @param tokenAddrToMint DAO 用于 铸造 的代币地址
+      */
     function configureDao(DaoRegistry dao, address tokenAddrToMint)
         external
         onlyAdapter(dao)
@@ -67,23 +65,28 @@ contract TributeNFTContract is
     }
 
     /**
-     * @notice Creates and sponsors a tribute proposal to start the voting process.
-     * @dev Applicant address must not be reserved.
-     * @dev Only members of the DAO can sponsor a tribute proposal.
-     * @param dao The DAO address.
-     * @param proposalId The proposal id (managed by the client).
-     * @param applicant The applicant address (who will receive the DAO internal tokens and become a member).
-     * @param nftAddr The address of the ERC-721 or ERC 1155 token that will be transferred to the DAO in exchange for DAO internal tokens.
-     * @param nftTokenId The NFT token id.
-     * @param requestAmount The amount requested of DAO internal tokens (UNITS).
-     * @param data Additional information related to the tribute proposal.
-     */
+      * @notice 创建并赞助一个 tribute 提案 以启动投票过程 
+      * @dev 申请人地址不得是 保留地址 
+      * @dev 只有 DAO 的成员才能 sponsor 致敬提案 
+      * @param dao DAO 地址 
+      * @param proposalId 提案ID（由客户端管理）
+
+      * @param applicant 申请人地址（会收到 DAO 内部代币 并且 会成为会员） 
+      * @param nftAddr 将转移到 DAO 以换取 DAO 内部代币的 ERC-721 或 ERC 1155 代币的地址
+      * @param nftTokenId NFT 代币 ID
+      
+      * @param requestAmount DAO 内部代币的请求数量 
+    
+      * @param data 与致敬提案相关的附加信息
+      */
     function submitProposal(
         DaoRegistry dao,
         bytes32 proposalId,
         address applicant,
+
         address nftAddr,
         uint256 nftTokenId,
+        
         uint256 requestAmount,
         bytes memory data
     ) external reimbursable(dao) {
@@ -102,7 +105,11 @@ contract TributeNFTContract is
             msg.sender
         );
         dao.sponsorProposal(proposalId, sponsoredBy, address(votingContract));
-        DaoHelper.potentialNewMember(applicant, dao, BankExtension(dao.getExtensionAddress(DaoHelper.BANK)));
+        DaoHelper.potentialNewMember(
+            applicant,
+            dao, 
+            BankExtension(dao.getExtensionAddress(DaoHelper.BANK))
+        );
 
         votingContract.startNewVotingForProposal(dao, proposalId, data);
 
@@ -113,6 +120,99 @@ contract TributeNFTContract is
             nftTokenId,
             requestAmount
         );
+    }
+
+    /**
+     * @notice IERC1155 标准所需的功能，以便能够接收令牌
+     */
+    function onERC1155Received(
+        address,
+        address from,
+        uint256 id,
+        uint256 value,
+        bytes calldata data
+    ) external override returns (bytes4) {
+        ProcessProposal memory ppS = abi.decode(data, (ProcessProposal));
+        
+        ReimbursementData memory rData = ReimbursableLib.beforeExecution(ppS.dao);
+
+        (
+            ProposalDetails storage proposal,
+            IVoting.VotingState voteResult
+        ) = _processProposal(ppS.dao, ppS.proposalId);
+
+        require(proposal.nftTokenId == id, "wrong NFT");
+        require(proposal.nftAddr == msg.sender, "wrong NFT addr");
+
+        if (voteResult == IVoting.VotingState.PASS) {
+            address erc1155ExtAddr = ppS.dao.getExtensionAddress(
+                DaoHelper.ERC1155_EXT
+            );
+
+            IERC1155 erc1155 = IERC1155(msg.sender);
+            erc1155.safeTransferFrom(
+                address(this),
+                erc1155ExtAddr,
+                id,
+                value,
+                ""
+            );
+        } else {
+            IERC1155 erc1155 = IERC1155(msg.sender);
+            erc1155.safeTransferFrom(address(this), from, id, value, "");
+        }
+
+        ReimbursableLib.afterExecution2(ppS.dao, rData, payable(from));
+        return this.onERC1155Received.selector;
+    }
+
+    /**
+     *  @notice 来自 IERC1155 标准的必需功能，以便能够批量接收令牌
+     */
+    function onERC1155BatchReceived(
+        address,
+        address,
+        uint256[] calldata,
+        uint256[] calldata,
+        bytes calldata
+    ) external pure override returns (bytes4) {
+        revert("not supported");
+    }
+
+    function onERC721Received(
+        address,
+        address from,
+        uint256 tokenId,
+        bytes calldata data
+    ) external override returns (bytes4) {
+        ProcessProposal memory ppS = abi.decode(data, (ProcessProposal));
+
+        ReimbursementData memory rData = ReimbursableLib.beforeExecution(ppS.dao);
+
+        (
+            ProposalDetails storage proposal,
+            IVoting.VotingState voteResult
+        ) = _processProposal(ppS.dao, ppS.proposalId);
+
+        require(proposal.nftTokenId == tokenId, "wrong NFT");
+        require(proposal.nftAddr == msg.sender, "wrong NFT addr");
+        IERC721 erc721 = IERC721(msg.sender);
+
+        // 如果提案通过并且它是一个 erc721 令牌 - 使用 NFT 扩展
+        if (voteResult == IVoting.VotingState.PASS) {
+            NFTExtension nftExt = NFTExtension(
+                ppS.dao.getExtensionAddress(DaoHelper.NFT)
+            );
+            erc721.approve(address(nftExt), proposal.nftTokenId);
+
+            nftExt.collect(ppS.dao, proposal.nftAddr, proposal.nftTokenId);
+        } else {
+            erc721.safeTransferFrom(address(this), from, tokenId);
+        }
+
+        ReimbursableLib.afterExecution2(ppS.dao, rData, payable(from));
+        
+        return this.onERC721Received.selector;
     }
 
     function _processProposal(DaoRegistry dao, bytes32 proposalId)
@@ -165,65 +265,7 @@ contract TributeNFTContract is
             revert("proposal has not been voted on yet");
         }
     }
-
-    /**
-     * @notice required function from IERC1155 standard to be able to to receive tokens
-     * @notice IERC1155 标准所需的功能，以便能够接收令牌
-     */
-    function onERC1155Received(
-        address,
-        address from,
-        uint256 id,
-        uint256 value,
-        bytes calldata data
-    ) external override returns (bytes4) {
-        ProcessProposal memory ppS = abi.decode(data, (ProcessProposal));
-        ReimbursementData memory rData = ReimbursableLib.beforeExecution(
-            ppS.dao
-        );
-        (
-            ProposalDetails storage proposal,
-            IVoting.VotingState voteResult
-        ) = _processProposal(ppS.dao, ppS.proposalId);
-
-        require(proposal.nftTokenId == id, "wrong NFT");
-        require(proposal.nftAddr == msg.sender, "wrong NFT addr");
-
-        if (voteResult == IVoting.VotingState.PASS) {
-            address erc1155ExtAddr = ppS.dao.getExtensionAddress(
-                DaoHelper.ERC1155_EXT
-            );
-
-            IERC1155 erc1155 = IERC1155(msg.sender);
-            erc1155.safeTransferFrom(
-                address(this),
-                erc1155ExtAddr,
-                id,
-                value,
-                ""
-            );
-        } else {
-            IERC1155 erc1155 = IERC1155(msg.sender);
-            erc1155.safeTransferFrom(address(this), from, id, value, "");
-        }
-
-        ReimbursableLib.afterExecution2(ppS.dao, rData, payable(from));
-        return this.onERC1155Received.selector;
-    }
-
-    /**
-     *  @notice required function from IERC1155 standard to be able to to batch receive tokens
-     */
-    function onERC1155BatchReceived(
-        address,
-        address,
-        uint256[] calldata,
-        uint256[] calldata,
-        bytes calldata
-    ) external pure override returns (bytes4) {
-        revert("not supported");
-    }
-
+    
     /**
      * @notice Supports ERC-165 & ERC-1155 interfaces only.
      * @dev https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1155.md
@@ -238,40 +280,5 @@ contract TributeNFTContract is
             interfaceID == this.supportsInterface.selector ||
             interfaceID == this.onERC1155Received.selector ||
             interfaceID == this.onERC721Received.selector;
-    }
-
-    function onERC721Received(
-        address,
-        address from,
-        uint256 tokenId,
-        bytes calldata data
-    ) external override returns (bytes4) {
-        ProcessProposal memory ppS = abi.decode(data, (ProcessProposal));
-        ReimbursementData memory rData = ReimbursableLib.beforeExecution(
-            ppS.dao
-        );
-
-        (
-            ProposalDetails storage proposal,
-            IVoting.VotingState voteResult
-        ) = _processProposal(ppS.dao, ppS.proposalId);
-
-        require(proposal.nftTokenId == tokenId, "wrong NFT");
-        require(proposal.nftAddr == msg.sender, "wrong NFT addr");
-        IERC721 erc721 = IERC721(msg.sender);
-        //if proposal passes and its an erc721 token - use NFT Extension
-        if (voteResult == IVoting.VotingState.PASS) {
-            NFTExtension nftExt = NFTExtension(
-                ppS.dao.getExtensionAddress(DaoHelper.NFT)
-            );
-            erc721.approve(address(nftExt), proposal.nftTokenId);
-
-            nftExt.collect(ppS.dao, proposal.nftAddr, proposal.nftTokenId);
-        } else {
-            erc721.safeTransferFrom(address(this), from, tokenId);
-        }
-
-        ReimbursableLib.afterExecution2(ppS.dao, rData, payable(from));
-        return this.onERC721Received.selector;
     }
 }

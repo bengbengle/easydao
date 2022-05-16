@@ -517,7 +517,7 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     }
 
     /**
-     * @notice 在 DAO 注册表中将提案标记为已处理
+     * @notice 在 DAO 注册表中 将 提案 标记为 已处理
      * @param proposalId 正在处理的提案的 ID
      */
     function processProposal(bytes32 proposalId) external {
@@ -596,12 +596,12 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
      * @param memberAddress 成员地址
      * @param flag 成员标志
      */
-    function getMemberFlag(address memberAddress, MemberFlag flag)
-        public
-        view
-        returns (bool)
-    {
-        return DaoHelper.getFlag(members[memberAddress].flags, uint8(flag));
+    function getMemberFlag(address memberAddress, MemberFlag flag) public view returns (bool) {
+
+        return 
+            DaoHelper.getFlag(
+                members[memberAddress].flags, uint8(flag)
+            );
     }
 
     /**
