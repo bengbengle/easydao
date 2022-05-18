@@ -1,17 +1,15 @@
 module.exports = {
   deployConfigs: {
     /**
-     * Directory where the deployment script stores the metadata
-     * about the created contracts for failure recover.
+     * 部署脚本存储 有关已创建 故障恢复 合同的元数据的目录
      */
     checkpointDir: "./build",
     /**
-     * Directory where the deployment logs will be stored in plain text format.
+     * 部署日志将以纯文本格式存储的目录
      */
     deployLogsDir: "./logs",
     /**
-     * Directory where the addresses and names of all deployed contracts will
-     * be stored in json format.
+     * 所有已部署合约的 地址 和 名称将以 json 格式存储的目录
      */
     deployedContractsDir: "./build/deployed",
   },

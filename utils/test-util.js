@@ -61,11 +61,8 @@ const submitNewMemberProposal = async (
   token,
   desiredUnits = toBN("10")
 ) => {
-  await onboarding.submitProposal(
-    dao.address,
-    proposalId,
-    newMember,
-    token,
+  
+  await onboarding.submitProposal(dao.address, proposalId, newMember, token,
     unitPrice.mul(desiredUnits),
     [],
     {
@@ -85,19 +82,11 @@ const onboardingNewMember = async (
   token,
   desiredUnits = toBN("10")
 ) => {
-  await submitNewMemberProposal(
-    proposalId,
-    sponsor,
-    onboarding,
-    dao,
-    newMember,
-    unitPrice,
-    token,
-    desiredUnits
-  );
+  await submitNewMemberProposal(proposalId, sponsor, onboarding, dao, newMember, unitPrice, token, desiredUnits);
 
-  //vote and process it
+  // vote and process it
   await voting.submitVote(dao.address, proposalId, 1, { from: sponsor, gasPrice: toBN("0") });
+
   await advanceTime(10000);
 
   await onboarding.processProposal(dao.address, proposalId, {from: sponsor, value: unitPrice.mul(desiredUnits), gasPrice: toBN("0") });

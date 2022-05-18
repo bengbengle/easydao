@@ -191,6 +191,17 @@ contract OffchainVotingHelperContract {
         return fallbackVotesCount > count / 100;
     }
 
+    /**
+     * @return 是否可以提交投票结果（nbYes - nbNo > 50 % total vote weight）
+     * @param dao dao 地址
+     * @param forceFailed 是否强制失败
+     * @param snapshot 快照号
+     * @param startingTime 投票开始时间
+     * @param votingPeriod 投票期
+     * @param nbYes 投 Yes 票数
+     * @param nbNo 投 No 票数
+     * @param blockTs 当前时间
+     */
     function isReadyToSubmitResult(
         DaoRegistry dao,
         bool forceFailed,

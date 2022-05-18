@@ -34,6 +34,7 @@ export const bankExtensionAclFlagsMap: Record<string, string> = {
   SUB_FROM_BALANCE: "SUB_FROM_BALANCE",
   INTERNAL_TRANSFER: "INTERNAL_TRANSFER",
   WITHDRAW: "WITHDRAW",
+  
   REGISTER_NEW_TOKEN: "REGISTER_NEW_TOKEN",
   REGISTER_NEW_INTERNAL_TOKEN: "REGISTER_NEW_INTERNAL_TOKEN",
   UPDATE_TOKEN: "UPDATE_TOKEN",
@@ -198,9 +199,8 @@ export const entryDao = (
   contractAddress: string,
   selectedAcls: SelectedACLs
 ): ACLValue => {
-  const flags = daoAccessFlags.flatMap((flag) => {
-    return selectedAcls.dao.some((f) => f === flag);
-  });
+
+  const flags = daoAccessFlags.flatMap((flag) =>  selectedAcls.dao.some((f) => f === flag) );
 
   return {
     id: sha3(contractId) as string,
@@ -218,9 +218,7 @@ export const getEnabledExtensionFlags = (
   const enabledFlags = acls.flatMap((flag: string) => {
     const extensionsAcls = selectedAcls.extensions;
     return (
-      extensionsAcls &&
-      Object.keys(extensionsAcls).length > 0 &&
-      extensionsAcls[extensionId].some((f) => f === flag)
+      extensionsAcls && Object.keys(extensionsAcls).length > 0 && extensionsAcls[extensionId].some((f) => f === flag)
     );
   });
 

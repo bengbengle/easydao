@@ -121,20 +121,21 @@ contract ExecutorExtension is IExtension {
     }
 
     /**
-     * @dev Fallback function that delegates calls to the sender address. Will run if no other
-     * function in the contract matches the call data.
+     * @dev 将调用委托给 发件人地址的 fallback function。 如果合约中没有其他函数与调用数据匹配，则将运行。
      */
-    // Only senders with the EXECUTE ACL Flag enabled is allowed to send eth.
+    // 只有启用了 EXECUTE ACL 标志的发送者才被允许发送 eth
+    // Only senders with the EXECUTE ACL Flag enabled is allowed to send eth
 
     fallback() external payable {
         _fallback();
     }
 
     /**
-     * @dev Fallback function that delegates calls to the address returned by `_implementation()`. Will run if call data
-     * is empty.
+     * @dev 将调用委托给`_implementation()`返回的地址的后备函数。如果呼叫数据 为空，将运行。
+     * Fallback function that delegates calls to the address returned by `_implementation()`  Will run if call data is empty
      */
-    // Only senders with the EXECUTE ACL Flag enabled is allowed to send eth.
+    // 只有启用了 EXECUTE ACL 标志的发送者才被允许发送 eth
+    // Only senders with the EXECUTE ACL Flag enabled is allowed to send eth
 
     receive() external payable {
         _fallback();

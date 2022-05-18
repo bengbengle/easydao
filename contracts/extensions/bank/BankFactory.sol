@@ -2,17 +2,18 @@ pragma solidity ^0.8.0;
 
 // SPDX-License-Identifier: MIT
 
-// import "../../core/DaoRegistry.sol";
 import "../../core/CloneFactory.sol";
 import "../IFactory.sol";
 import "./Bank.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 contract BankFactory is IFactory, CloneFactory, ReentrancyGuard {
+    
     address public identityAddress;
 
     event BankCreated(address daoAddress, address extensionAddress);
 
+    // dao addr --> ext addr
     mapping(address => address) private _extensions;
 
     constructor(address _identityAddress) {
@@ -37,7 +38,7 @@ contract BankFactory is IFactory, CloneFactory, ReentrancyGuard {
     }
 
     /**
-     * @notice Returns the extension address created for that DAO, or 0x0... if it does not exist.
+     * @notice 返回为该 DAO 创建的 扩展地址， 如果不存在，则返回 0x0...
      */
     function getExtensionAddress(address dao)
         external

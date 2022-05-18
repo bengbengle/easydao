@@ -182,6 +182,7 @@ contract OffchainVotingContract is
         );
     }
 
+    // * @notice 返回发件人地址，
     function getSenderAddress(
         DaoRegistry dao,
         address actionId,
@@ -251,14 +252,14 @@ contract OffchainVotingContract is
 
     /*
      *  如果 resultNode (vote) 有效，则将投票结果保存到存储中  
-     * 一个有效的投票节点必须满足函数中的所有条件，所以它可以被存储 
-     * 提交投票结果前需要检查的内容： 
+     *  
+     *  需要检查的内容： 
      * - 如果宽限期结束，什么也不做 
      * - 如果是第一个结果（投票），现在是提交它的合适时间吗？ 
-     * - nbYes 和 nbNo 之间的差异是 +50% 的选票吗？ 
+     * - nbYes 和 nbNo 之间的差异大于 50% 的选票吗？ 
      * - 这是在投票期之后吗？ 
      * - 如果我们已经有一个被挑战的结果，就像还没有结果一样 
-     * - 如果我们已经有一个未被质疑的结果， 新的比旧的重吗？
+     * - 如果我们已经有一个未被质疑的结果， 新的比旧的重吗
      */
     function submitVoteResult(
         DaoRegistry dao,
@@ -273,6 +274,7 @@ contract OffchainVotingContract is
 
         require(vote.snapshot > 0, "vote:not started");
 
+        // 如果是第一个结果，现在是提交它的合适时间吗？
         if (vote.resultRoot == bytes32(0) || vote.isChallenged) {
             require(
                 _ovHelper.isReadyToSubmitResult(
@@ -288,6 +290,7 @@ contract OffchainVotingContract is
                 "vote:notReadyToSubmitResult"
             );
         }
+        
         // 如果宽限期结束 
         require(
             vote.gracePeriodStartingTime == 0 || vote.gracePeriodStartingTime + dao.getConfiguration(VotingPeriod) <= block.timestamp,

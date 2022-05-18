@@ -28,16 +28,16 @@ contract VotingContract is IVoting, MemberGuard, AdapterGuard, Reimbursable {
     string public constant ADAPTER_NAME = "VotingContract";
 
     /**
-     * @notice returns the adapter name. Useful to identify wich voting adapter is actually configurated in the DAO.
+     * @notice 返回适配器名称 ， 有助于识别 在 DAO 中 配置的投票适配器
      */
     function getAdapterName() external pure override returns (string memory) {
         return ADAPTER_NAME;
     }
 
     /**
-     * @notice Configures the DAO with the Voting and Gracing periods.
-     * @param votingPeriod The voting period in seconds.
-     * @param gracePeriod The grace period in seconds.
+    * @notice 为 DAO 配置 投票期 和 宽限期
+    * @param votingPeriod 以秒为单位的 投票周期 
+    * @param gracePeriod 以秒为单位的 宽限期
      */
     function configureDao(
         DaoRegistry dao,
@@ -112,8 +112,7 @@ contract VotingContract is IVoting, MemberGuard, AdapterGuard, Reimbursable {
             "this proposalId has no vote going on at the moment"
         );
         require(
-            block.timestamp <
-                vote.startingTime + dao.getConfiguration(VotingPeriod),
+            block.timestamp < vote.startingTime + dao.getConfiguration(VotingPeriod),
             "vote has already ended"
         );
 

@@ -1,34 +1,19 @@
 // Whole-script strict mode syntax
 "use strict";
 
-const {
-  web3,
-  contract,
-  accounts,
-  provider,
-} = require("@openzeppelin/test-environment");
-
-const {
-  unitPrice,
-  numberOfUnits,
-  maximumChunks,
-  maxAmount,
-  maxUnits,
-  ETH_TOKEN,
-  UNITS,
-  toBN,
-} = require("./contract-util.js");
+const {web3, contract, accounts, provider } = require("@openzeppelin/test-environment");
 
 const chai = require("chai");
 const { solidity } = require("ethereum-waffle");
 chai.use(solidity);
+
 const { expect } = require("chai");
 const { expectRevert } = require("@openzeppelin/test-helpers");
 const { deployDao } = require("./deployment-util.js");
-const {
-  contracts: allContractConfigs,
-} = require("../configs/networks/test.config");
+const { contracts: allContractConfigs } = require("../configs/networks/test.config");
 const { ContractType } = require("../configs/contracts.config");
+const { unitPrice, numberOfUnits, maximumChunks, maxAmount, maxUnits, ETH_TOKEN, UNITS, toBN } = require("./contract-util.js");
+
 
 const getBalance = async (account) => {
   const balance = await web3.eth.getBalance(account);
@@ -81,30 +66,39 @@ const getDefaultOptions = (options) => {
   return {
     unitPrice: unitPrice,
     nbUnits: numberOfUnits,
+    
     votingPeriod: 10,
     gracePeriod: 1,
+    
     tokenAddr: ETH_TOKEN,
     maxChunks: maximumChunks,
     maxAmount,
     maxUnits,
+
     chainId: 1,
     maxExternalTokens: 100,
     couponCreatorAddress: "0x7D8cad0bbD68deb352C33e80fccd4D8e88b4aBb8",
+    
     kycMaxMembers: 1000,
     kycSignerAddress: "0x7D8cad0bbD68deb352C33e80fccd4D8e88b4aBb8",
     kycFundTargetAddress: "0x823A19521A76f80EC49670BE32950900E8Cd0ED3",
+    
     deployTestTokens: true,
+    
     erc20TokenName: "Test Token",
     erc20TokenSymbol: "TTK",
     erc20TokenDecimals: Number(0),
     erc20TokenAddress: UNITS,
+    
     supplyTestToken1: 1000000,
     supplyTestToken2: 1000000,
     supplyPixelNFT: 100,
     supplyOLToken: toBN("1000000000000000000000000"),
     erc1155TestTokenUri: "1155 test token",
+    
     maintainerTokenAddress: UNITS,
     finalize: options.finalize === undefined || !!options.finalize,
+
     ...options, // to make sure the options from the tests override the default ones
     gasPriceLimit: "2000000000000",
     spendLimitPeriod: "259200",
@@ -204,6 +198,26 @@ const proposalIdGenerator = () => {
 
 module.exports = (() => {
   const ozContracts = getOpenZeppelinContracts(allContractConfigs);
+
+  const deployMyDao = async (options) => {
+    const { WETH } = ozContracts;
+    const weth = await WETH.new();
+    const finalize = options.finalize === undefined ? true : options.finalize;
+
+    const result = await deployDao({
+      ...getDefaultOptions(options),
+      ...ozContracts,
+      deployFunction,
+      attachFunction: attach,
+      contractConfigs: allContractConfigs,
+      weth: weth.address,
+      finalize: false,
+    });
+
+    if (finalize) await result.dao.finalizeDao({ from: options.owner });
+
+    return { wethContract: weth, ...result };
+  };
 
   const deployDefaultDao = async (options) => {
     const { WETH } = ozContracts;
@@ -325,6 +339,7 @@ module.exports = (() => {
     expectRevert,
     getBalance,
     generateMembers,
+    deployMyDao,
     deployDefaultDao,
     deployDefaultNFTDao,
     deployDaoWithOffchainVoting,

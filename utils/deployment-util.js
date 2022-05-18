@@ -3,16 +3,7 @@
 
 const { entryDao, entryBank } = require("./access-control-util");
 const { adaptersIdsMap, extensionsIdsMap } = require("./dao-ids-util");
-const {
-  UNITS,
-  LOOT,
-  ZERO_ADDRESS,
-  sha3,
-  embedConfigs,
-  encodePacked,
-  getAddress,
-  waitTx,
-} = require("./contract-util.js");
+const { UNITS, LOOT, ZERO_ADDRESS, sha3, embedConfigs, encodePacked, getAddress, waitTx, } = require("./contract-util.js");
 const { debug, info, error } = require("./log-util");
 const { ContractType } = require("../configs/contracts.config");
 
@@ -83,7 +74,7 @@ const createFactories = async ({ options }) => {
 };
 
 /**
- * 为了部署扩展，它使用每个扩展的工厂合约，所以必须首先部署工厂 
+ * 为了部署 Extensions ，它使用每个 Extensions 的工厂合约， 所以必须首先部署工厂 
  */
 const createExtensions = async ({ dao, factories, options }) => {
   const extensions = {};
@@ -95,14 +86,10 @@ const createExtensions = async ({ dao, factories, options }) => {
       (c) => c.id === factoryConfigs.generatesExtensionId
     );
     if (!extensionConfigs)
-      throw new Error(
-        `Missing extension configuration <generatesExtensionId> for in ${factoryConfigs.name} configs`
-      );
+      throw new Error(`Missing extension configuration <generatesExtensionId> for in ${factoryConfigs.name} configs`);
 
-    if (
-      factoryConfigs.deploymentArgs &&
-      factoryConfigs.deploymentArgs.length > 0
-    ) {
+    if (factoryConfigs.deploymentArgs && factoryConfigs.deploymentArgs.length > 0) {
+
       const args = factoryConfigs.deploymentArgs.map((argName) => {
         const arg = options[argName];
         if (arg !== null && arg !== undefined) return arg;
@@ -115,14 +102,11 @@ const createExtensions = async ({ dao, factories, options }) => {
       await waitTx(factory.create());
     }
 
-    const extensionAddress = await factory.getExtensionAddress(
-      options.daoAddress
-    );
     const extensionInterface = options[extensionConfigs.name];
     if (!extensionInterface)
-      throw new Error(
-        `Extension contract not found for ${extensionConfigs.name}`
-      );
+      throw new Error(`Extension contract not found for ${extensionConfigs.name}`);
+
+    const extensionAddress = await factory.getExtensionAddress(options.daoAddress);
 
     const newExtension = embedConfigs(
       await options.attachFunction(extensionInterface, extensionAddress),
@@ -172,13 +156,11 @@ const createExtensions = async ({ dao, factories, options }) => {
   return extensions;
 };
 
-/**
- * Deploys all the contracts defined with Adapter type.
- * The contracts must be enabled in the configs/networks/*.config.ts,
- * and should not be skipped in the auto deploy process.
- * The adapter contract must be provided in the options object.
- * If the contract is not found in the options object the deployment reverts with an error.
- */
+/** 
+ * 部署所有使用适配器类型定义的合约。 
+ * 合约必须在 configs/networks/*.config.ts 中启用， 并且不应在自动部署过程中跳过。 
+ * 适配器合约必须在选项对象中提供。 
+ * 如果在选项对象中找不到合约，则部署将返回并出现错误。 */
 const createAdapters = async ({ options }) => {
   const adapters = {};
   const adapterList = Object.values(options.contractConfigs)
@@ -203,12 +185,11 @@ const createAdapters = async ({ options }) => {
 };
 
 /**
- * Deploys all the utility contracts defined with Util type.
- * The contracts must be enabled in the configs/networks/*.config.ts,
- * and should not be skipped in the auto deploy process.
- * The util contract must be provided in the options object.
- * If the contract is not found in the options object the deployment reverts with an error.
- */
+ * 部署使用 Util 类型定义的所有实用程序合同
+ * 合约必须在 configs/networks/*.config.ts 中启用， 并且不应在自动部署过程中跳过
+ * util 合约必须在 options 对象中提供
+ * 如果在选项对象中找不到合约，则部署将返回并出现错误
+*/
 const createUtilContracts = async ({ options }) => {
   const utilContracts = {};
 
@@ -233,12 +214,10 @@ const createUtilContracts = async ({ options }) => {
   return utilContracts;
 };
 
-/**
- * Deploys all the test contracts defined with Test type if flag `deployTestTokens`
- * is enabled in the options. The contracts must be enabled in the configs/networks/*.config.ts,
- * and should not be skipped in the auto deploy process.
- * The test contract must be provided in the options object.
- * If the contract is not found in the options object the deployment reverts with an error.
+/** 
+ * 如果选项中启用了标志 `deployTestTokens`，则部署所有使用测试类型定义的测试合约。合约必须在 configs/networks/*.config.ts 中启用， 并且不应在自动部署过程中跳过
+ * 测试合约必须在选项对象中提供
+ * 如果在选项对象中找不到合约，则部署将返回并出现错误
  */
 const createTestContracts = async ({ options }) => {
   const testContracts = {};
@@ -267,7 +246,7 @@ const createTestContracts = async ({ options }) => {
 };
 
 /**
- * Creates the governance config roles in the DAO Registry based on the contract configs.governanceRoles.
+ * 根据合约 configs.governanceRoles 在 DAO Registry 中创建治理配置角色
  */
 const createGovernanceRoles = async ({ options, dao, adapters }) => {
   const readConfigValue = (configName, contractName) => {
@@ -300,6 +279,7 @@ const createGovernanceRoles = async ({ options, dao, adapters }) => {
               const configValue = getAddress(
                 readConfigValue(c.governanceRoles[role], c.name)
               );
+              console.log('configKey:', configKey, 'configValue:', configValue);
               return await waitTx(
                 dao.setAddressConfiguration(configKey, configValue)
               );
@@ -312,7 +292,7 @@ const createGovernanceRoles = async ({ options, dao, adapters }) => {
   if (options.defaultMemberGovernanceToken) {
     const configKey = sha3(encodePacked("governance.role.default"));
     await waitTx(
-      dao.setAddressConfiguration(configKey, 
+      dao.setAddressConfiguration(configKey,
         getAddress(options.defaultMemberGovernanceToken)
       )
     );
@@ -348,15 +328,12 @@ const validateContractConfigs = (contractConfigs) => {
  *   
  * 仅当通过 options.offchainVoting 参数需要时才部署链下投票 
  *
- * 所有已部署的合约都将在映射中返回，其中别名在 ​​ configs/networks/.config.ts 中定义 
+ * 所有已部署的合约都将在映射中返回， 其中别名在 ​​configs/networks/.config.ts 中定义 
  */
 const deployDao = async (options) => {
   validateContractConfigs(options.contractConfigs);
 
-  const { dao, daoFactory } = await cloneDao({
-    ...options,
-    name: options.daoName || "test-dao",
-  });
+  const { dao, daoFactory } = await cloneDao({...options, name: options.daoName || "test-dao"});
 
   options = {
     ...options,
@@ -367,41 +344,24 @@ const deployDao = async (options) => {
 
   const factories = await createFactories({ options });
   const extensions = await createExtensions({ dao, factories, options });
-  const adapters = await createAdapters({
-    dao,
-    daoFactory,
-    extensions,
-    options,
-  });
+  const adapters = await createAdapters({ dao, daoFactory, extensions, options });
 
   await createGovernanceRoles({ options, dao, adapters });
 
-  await configureDao({
-    owner: options.owner,
-    dao,
-    daoFactory,
-    extensions,
-    adapters,
-    options,
-  });
+  await configureDao({owner: options.owner, dao, daoFactory, extensions, adapters, options});
 
-  const votingHelpers = await configureOffchainVoting({
-    ...options,
-    dao,
-    daoFactory,
-    extensions,
-  });
+  const votingHelpers = await configureOffchainVoting({ ...options, dao, daoFactory, extensions});
 
   // 如果创建了链下合约， 则使用别名将其设置为 适配器 映射
   if (votingHelpers.offchainVoting) {
-    adapters[votingHelpers.offchainVoting.configs.alias] =
-      votingHelpers.offchainVoting;
+    
+    adapters[votingHelpers.offchainVoting.configs.alias] = votingHelpers.offchainVoting;
   }
 
-  // deploy utility contracts
+  // 部署 utility 合同
   const utilContracts = await createUtilContracts({ options });
 
-  // deploy test token contracts for testing convenience
+  // 部署 测试代币 合约以方便测试
   const testContracts = await createTestContracts({ options });
 
   if (options.finalize) {
@@ -421,8 +381,8 @@ const deployDao = async (options) => {
 };
 
 /**
- * Creates an instance of the DAO based of the DaoFactory contract.
- * Returns the new DAO instance, and dao name.
+ * 创建基于 DaoFactory 合约的 DAO 实例 
+ * 返回新的 DAO 实例和 dao 名称
  */
 const cloneDao = async ({
   owner,
@@ -433,20 +393,22 @@ const cloneDao = async ({
   DaoFactory,
   name,
 }) => {
+
   const daoFactory = await deployFunction(DaoFactory, [DaoRegistry]);
   await waitTx(daoFactory.createDao(name, creator ? creator : owner));
+
   const daoAddress = await daoFactory.getDaoAddress(name);
   if (daoAddress === ZERO_ADDRESS) throw Error("Invalid dao address");
+  
   const daoInstance = await attachFunction(DaoRegistry, daoAddress);
   return { dao: daoInstance, daoFactory, daoName: name };
+
 };
 
 /**
- * Configures an instance of the DAO to work with the provided factories, extension, and adapters.
- * It ensures that every extension and adapter has the correct ACL Flags enabled to be able to communicate
- * with the DAO instance.
- * Adapters can communicate with the DAO registry, with different extensions or even other adapters.
- * Extensions can communicate with the DAO registry, other extensions and adapters.
+ * 配置 DAO 的实例以使用提供的工厂、扩展和适配器
+ * 它确保每个扩展和适配器都启用了正确的 ACL 标志，以便能够与 DAO 实例进行通信， 适配器可以与 DAO 注册表、不同的扩展甚至其他适配器进行通信
+ * 扩展可以与 DAO 注册表、其他扩展和适配器进行通信
  */
 const configureDao = async ({
   dao,
@@ -459,8 +421,7 @@ const configureDao = async ({
   const configureAdaptersWithDAOAccess = async () => {
     debug("configure adapters with access");
 
-    // If an adapter needs access to the DAO registry or to any enabled Extension,
-    // it needs to be added to the DAO with the correct ACL flags.
+    // 如果适配器需要访问 DAO 注册表或任何启用的扩展，则需要将其添加到具有正确 ACL 标志的 DAO
     const adaptersWithAccess = Object.values(adapters)
       .filter((a) => a.configs.enabled)
       .filter((a) => !a.configs.skipAutoDeploy)
@@ -483,9 +444,7 @@ const configureDao = async ({
       );
     }, Promise.resolve());
 
-    // If an extension needs access to other extension,
-    // that extension needs to be added to the DAO as an adapter contract,
-    // but without any ACL flag enabled.
+    // 如果一个扩展需要访问其他扩展， 该扩展需要作为适配器合约添加到 DAO， 但没有启用任何 ACL 标志
     const extensionsWithAccess = Object.values(extensions)
       .filter((e) => e.configs.enabled)
       .filter((a) => !a.configs.skipAutoDeploy)
@@ -582,7 +541,7 @@ const configureDao = async ({
   };
 
   /**
-   * Configures all the adapters that need access to the DAO and each enabled extension
+   * 配置所有需要访问 DAO 的适配器和每个启用的扩展
    */
   const configureAdapters = async () => {
     debug("configure adapters ...");
@@ -593,12 +552,12 @@ const configureDao = async ({
       .filter((targetExtension) => !targetExtension.configs.skipAutoDeploy);
 
     await extensionsList.reduce((p, targetExtension) => {
-      // Filters the enabled adapters that have access to the targetExtension
+      // 过滤可以访问 targetExtension 的已启用适配器
       const contracts = Object.values(adapters)
         .filter((a) => a.configs.enabled)
         .filter((a) => !a.configs.skipAutoDeploy)
         .filter((a) =>
-          // The adapters must have at least 1 ACL flag defined to access the targetExtension
+          // 适配器必须至少定义 1 个 ACL 标志才能访问 targetExtension
           Object.keys(a.configs.acls.extensions).some(
             (extId) => extId === targetExtension.configs.id
           )
@@ -617,8 +576,7 @@ const configureDao = async ({
   };
 
   /**
-   * Configures all the extensions that need access to
-   * other enabled extensions
+   * 配置所有需要访问 其他启用的扩展的扩展
    */
   const configureExtensions = async () => {
     debug("configure extensions ...");
@@ -654,8 +612,7 @@ const configureDao = async ({
 };
 
 /**
- * If the flag `flag options.offchainVoting` is enabled, it deploys and configures all the
- * contracts required to enable the Offchain voting adapter.
+ * 如果启用了标志 `flag options.offchainVoting`，会部署和配置 启用 Offchain 投票适配器 所需的所有合约
  */
 const configureOffchainVoting = async ({
   dao,
@@ -679,8 +636,9 @@ const configureOffchainVoting = async ({
     offchainVoting: null,
   };
 
-  // Offchain voting is disabled
+  // 链下投票 被禁用
   if (!offchainVoting) return votingHelpers;
+
   const currentVotingAdapterAddress = await dao.getAdapterAddress(
     sha3(adaptersIdsMap.VOTING_ADAPTER)
   );

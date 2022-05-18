@@ -1,5 +1,5 @@
 /**
- * @notice the ids defined in this file must match the ids added to DaoHelper.sol.
+ * @notice 此文件中定义的 id 必须与添加到 DaoHelper.sol 的 id 匹配
  */
 
 /** Adapters */

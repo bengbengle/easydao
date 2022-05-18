@@ -16,6 +16,7 @@ describe("Utils - DaoArtifacts", () => {
     );
   });
 
+  // 应该可以将新适配器添加到 dao 工件存储
   it("should be possible add a new adapter to the dao artifacts storage", async () => {
     const daoArtifacts = await DaoArtifacts.new();
     const owner = accounts[2];
@@ -36,6 +37,7 @@ describe("Utils - DaoArtifacts", () => {
     });
   });
 
+  // 应该可以从 dao 工件存储中获取适配器地址
   it("should be possible get the adapter address from the dao artifacts storage", async () => {
     const daoArtifacts = await DaoArtifacts.new();
     const owner = accounts[2];
@@ -58,6 +60,7 @@ describe("Utils - DaoArtifacts", () => {
     expect(address).to.be.equal(adapterAddress);
   });
 
+  // 应该可以在 dao 工件 存储中 添加一个新的 扩展工厂
   it("should be possible add a new extension factory to the dao artifacts storage", async () => {
     const daoArtifacts = await DaoArtifacts.new();
     const owner = accounts[2];
@@ -78,6 +81,7 @@ describe("Utils - DaoArtifacts", () => {
     });
   });
 
+  // 应该可以从 dao 工件存储中获取扩展工厂地址
   it("should be possible get the extension factory address from the dao artifacts storage", async () => {
     const daoArtifacts = await DaoArtifacts.new();
     const owner = accounts[2];
@@ -99,6 +103,7 @@ describe("Utils - DaoArtifacts", () => {
     expect(address).to.be.equal(extensionAddress);
   });
 
+  // 应该可以执行批量更新
   it("should be possible to execute a batch update", async () => {
     const owner = accounts[2];
     const daoArtifacts = await DaoArtifacts.new({ from: owner });
@@ -141,6 +146,7 @@ describe("Utils - DaoArtifacts", () => {
     ).to.be.equal(accounts[5]);
   });
 
+  // 如果您不是所有者，则应该无法执行批量更新
   it("should not be possible to execute a batch update if you are not the owner", async () => {
     const owner = accounts[2];
     const anotherUser = accounts[3];
@@ -169,6 +175,7 @@ describe("Utils - DaoArtifacts", () => {
     );
   });
 
+  // 应该可以使用多达 20 个工件执行批量更新
   it("should be possible to execute a batch update with up to 20 artifacts", async () => {
     const owner = accounts[2];
     const daoArtifacts = await DaoArtifacts.new({ from: owner });
@@ -186,6 +193,7 @@ describe("Utils - DaoArtifacts", () => {
     daoArtifacts.updateArtifacts(artifacts, { from: owner });
   });
 
+  // 应该不可能执行超过 20 个工件的批量更新
   it("should not be possible to execute a batch update with more than 20 artifacts", async () => {
     const owner = accounts[2];
     const daoArtifacts = await DaoArtifacts.new({ from: owner });

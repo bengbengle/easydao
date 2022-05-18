@@ -25,6 +25,7 @@ const { extensionsIdsMap } = require("../../utils/dao-ids-util");
 describe("Extension - Executor", () => {
   const daoOwner = accounts[0];
 
+  // 应该可以创建一个 预先配置了 执行器扩展的 dao
   it("should be possible to create a dao with an executor extension pre-configured", async () => {
     const { dao } = await deployDefaultDao({
       owner: daoOwner,
@@ -33,6 +34,7 @@ describe("Extension - Executor", () => {
     expect(executorAddress).to.not.be.null;
   });
 
+  // 应该可以通过 执行器扩展 使用 委托调用 来铸造代币
   it("should be possible to mint tokens using a delegated call via executor extension", async () => {
     const { dao, factories, extensions } = await deployDefaultDao({
       owner: daoOwner,
@@ -82,14 +84,12 @@ describe("Extension - Executor", () => {
       toBN("10000"),
       { from: daoOwner }
     );
-    // The adapter should call itself via proxy and mint the token
-    expectEvent(res.receipt, "Minted", {
-      owner: erc20Minter.address,
-      amount: "10000",
-    });
 
-    // The token mint call should be triggered from the adapter, but the
-    // sender is actually the proxy executor
+    // 适配器应通过代理 调用自身 并生成令牌
+    // The adapter should call itself via proxy and mint the token
+    expectEvent(res.receipt, "Minted", { owner: erc20Minter.address, amount: "10000" });
+
+    // 令牌铸币调用应该从适配器触发，但发送者实际上是代理执行者
     const pastEvents = await proxToken.getPastEvents();
     const event = pastEvents[1];
     const { owner, amount } = pastEvents[1].returnValues;
@@ -98,6 +98,7 @@ describe("Extension - Executor", () => {
     expect(amount).to.be.equal("10000");
   });
 
+  // 没有 ACL 权限应该不能执行委托调用
   it("should not be possible to execute a delegate call without the ACL permission", async () => {
     const { dao, factories, extensions } = await deployDefaultDao({
       owner: daoOwner,
@@ -145,7 +146,8 @@ describe("Extension - Executor", () => {
       "executorExt::accessDenied"
     );
   });
-
+  
+  // 在没有 ACL 权限的情况下，应该不可能向扩展发送 ETH
   it("should not be possible to send ETH to the extension without the ACL permission", async () => {
     const { dao, extensions } = await deployDefaultDao({
       owner: daoOwner,

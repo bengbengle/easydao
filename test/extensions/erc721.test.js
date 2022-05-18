@@ -19,8 +19,7 @@ describe("Extension - ERC721", () => {
   const daoOwner = accounts[0];
 
   before("deploy dao", async () => {
-    const { dao, adapters, extensions, testContracts } =
-      await deployDefaultNFTDao({ owner: daoOwner });
+    const { dao, adapters, extensions, testContracts } = await deployDefaultNFTDao({ owner: daoOwner });
     this.dao = dao;
     this.adapters = adapters;
     this.extensions = extensions;
@@ -35,11 +34,13 @@ describe("Extension - ERC721", () => {
     await revertChainSnapshot(this.snapshotId);
   });
 
+  // 应该可以创建一个预先配置了 nft 扩展的 dao
   it("should be possible to create a dao with a nft extension pre-configured", async () => {
     const nftExtension = this.extensions.erc721Ext;
     expect(nftExtension).to.not.be.null;
   });
 
+  // 应该可以检查集合中有多少 NFT
   it("should be possible check how many NFTs are in the collection", async () => {
     const nftExtension = this.extensions.erc721Ext;
     const pixelNFT = this.testContracts.pixelNFT;
@@ -47,12 +48,17 @@ describe("Extension - ERC721", () => {
     expect(total.toString()).equal("0");
   });
 
+  // 如果集合为空，则不可能在集合中获得 NFT
   it("should not be possible get an NFT in the collection if it is empty", async () => {
     const nftExtension = this.extensions.erc721Ext;
     const pixelNFT = this.testContracts.pixelNFT;
-    await expectRevert(nftExtension.getNFT(pixelNFT.address, 0), "revert");
+    await expectRevert(
+      nftExtension.getNFT(pixelNFT.address, 0), 
+      "revert"
+    );
   });
 
+  // 没有 RETURN 许可，应该不可能返回 NFT
   it("should not be possible to return a NFT without the RETURN permission", async () => {
     const nftExtension = this.extensions.erc721Ext;
     const pixelNFT = this.testContracts.pixelNFT;
@@ -67,12 +73,14 @@ describe("Extension - ERC721", () => {
     );
   });
 
+  // 应该可以 检查集合中有多少 NFT
   it("should be possible check how many NFTs are in the collection", async () => {
     const nftExtension = this.extensions.erc721Ext;
     const total = await nftExtension.nbNFTAddresses();
     expect(total.toString()).equal("0");
   });
 
+  // 如果扩展已经初始化， 则应该无法初始化它
   it("should not be possible to initialize the extension if it was already initialized", async () => {
     const nftExtension = this.extensions.erc721Ext;
     await expectRevert(
@@ -81,6 +89,7 @@ describe("Extension - ERC721", () => {
     );
   });
 
+  // 应该可以收集直接发送到扩展的 NFT
   it("should be possible to collect a NFT that is send directly to the extension", async () => {
     const nftOwner = accounts[2];
     const dao = this.dao;

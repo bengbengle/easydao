@@ -37,8 +37,7 @@ library DaoHelper {
     bytes32 internal constant ERC1271 = keccak256("erc1271");
     bytes32 internal constant NFT = keccak256("nft");
     bytes32 internal constant EXECUTOR_EXT = keccak256("executor-ext");
-    bytes32 internal constant INTERNAL_TOKEN_VESTING_EXT =
-        keccak256("internal-token-vesting-ext");
+    bytes32 internal constant INTERNAL_TOKEN_VESTING_EXT = keccak256("internal-token-vesting-ext");
     bytes32 internal constant ERC1155_EXT = keccak256("erc1155-ext");
     bytes32 internal constant ERC20_EXT = keccak256("erc20-ext");
 
@@ -46,11 +45,12 @@ library DaoHelper {
     address internal constant GUILD = address(0xdead);
     address internal constant ESCROW = address(0x4bec); // TOTAL 池子 账户地址 
     address internal constant TOTAL = address(0xbabe); // TOTAL 池子 账户地址
+    address internal constant ETH_TOKEN = address(0x0); // eth 代币地址
     address internal constant UNITS = address(0xFF1CE); // units 代币地址
     address internal constant LOCKED_UNITS = address(0xFFF1CE); // locked_units 代币地址
     address internal constant LOOT = address(0xB105F00D); // loot 代币地址 
     address internal constant LOCKED_LOOT = address(0xBB105F00D); //locked_loot 代币地址
-    address internal constant ETH_TOKEN = address(0x0); // eth 代币地址
+
 
     // DAO 成员的数量
     address internal constant MEMBER_COUNT = address(0xDECAFBAD);
@@ -71,8 +71,7 @@ library DaoHelper {
         returns (uint256)
     {
         return
-            priorMemberTokens(bank, TOTAL, at) -
-            priorMemberTokens(bank, GUILD, at);
+            priorMemberTokens(bank, TOTAL, at) - priorMemberTokens(bank, GUILD, at);
     }
 
     function memberTokens(BankExtension bank, address member)

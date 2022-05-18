@@ -57,13 +57,13 @@ contract GuildKickContract is IGuildKick, AdapterGuard, Reimbursable {
         BankExtension bank = BankExtension(
             dao.getExtensionAddress(DaoHelper.BANK)
         );
-        // Gets the number of units of the member
+        // 获取成员的 units 数量
         uint256 unitsToBurn = bank.balanceOf(memberToKick, DaoHelper.UNITS);
 
-        // Gets the number of loot of the member
+        // 获取成员的 loot 数量
         uint256 lootToBurn = bank.balanceOf(memberToKick, DaoHelper.LOOT);
 
-        // 检查成员是否有足够的单位转换为战利品， 不可能溢出，因为每个 var 的最大值是 2^64
+        // 检查成员是否有足够的 units 转换为 loot
         // 参见 bank._createNewAmountCheckpoint 函数
         require(unitsToBurn + lootToBurn > 0, "no units or loot");
 
@@ -83,10 +83,10 @@ contract GuildKickContract is IGuildKick, AdapterGuard, Reimbursable {
     }
 
     /**
-     * @notice Process the guild kick proposal
-     * @dev Only active members can be kicked out.
-     * @param dao The dao address.
-     * @param proposalId The guild kick proposal id.
+     * @notice 处理 guild kick 提案 
+     * @dev 只有活跃成员才能被踢出
+     * @param dao dao 地址
+     * @param proposalId 提案 ID
      */
     function processProposal(DaoRegistry dao, bytes32 proposalId)
         external
@@ -95,7 +95,7 @@ contract GuildKickContract is IGuildKick, AdapterGuard, Reimbursable {
     {
         dao.processProposal(proposalId);
 
-        // Checks if the proposal has passed.
+        // 检查提案是否通过
         IVoting votingContract = IVoting(dao.votingAdapter(proposalId));
         require(address(votingContract) != address(0), "adapter not found");
         IVoting.VotingState votingState = votingContract.voteResult(

@@ -263,6 +263,12 @@ contract OnboardingContract is IOnboarding, AdapterGuard, Reimbursable {
     /**
      * @notice 在 DAO 中将 proposalId 标记为已提交， 并将信息保存在内部适配器状态中 
      * @notice 更新 DAO 中发行的单位总数， 并检查它是否在限制范围内
+     * @param dao dao 地址
+     * @param proposalId 提案 id
+     * @param tokenToMint 要铸造的代币
+     * @param applicant 申请人
+     * @param value dao 地址
+      
      */
     function _submitMembershipProposal(
         DaoRegistry dao,
@@ -273,9 +279,7 @@ contract OnboardingContract is IOnboarding, AdapterGuard, Reimbursable {
         address token
     ) internal returns (uint160) {
         OnboardingDetails memory details = OnboardingDetails(0, 0, 0, 0, 0, 0);
-        details.chunkSize = uint88(
-            dao.getConfiguration(_configKey(tokenToMint, ChunkSize))
-        );
+        details.chunkSize = uint88(dao.getConfiguration(_configKey(tokenToMint, ChunkSize)));
         require(details.chunkSize > 0, "config chunkSize missing");
 
         details.numberOfChunks = uint88(value / details.chunkSize);

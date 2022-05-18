@@ -393,6 +393,7 @@ async function createVote(proposalId, weight, voteYes) {
   return vote;
 }
 
+// 
 // votes: 投票列表
 // dao: dao 地址
 // actionId: adapterId

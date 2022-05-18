@@ -3,8 +3,8 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract DaoArtifacts is Ownable {
-    // Types of artifacts that can be stored in this contract
-    // 可以存储在此合约中的工件类型
+
+    // 工件类型: 0 = Core， 1 = Factory， 2 = Extension， 3 = Adapter， 4 = Util
     enum ArtifactType {
         CORE,
         FACTORY,
@@ -14,8 +14,7 @@ contract DaoArtifacts is Ownable {
     }
 
     // Mapping from Artifact Name => (Owner Address => (Type => (Version => Adapters Address)))
-    mapping(bytes32 => mapping(address => mapping(ArtifactType => mapping(bytes32 => address))))
-        public artifacts;
+    mapping(bytes32 => mapping(address => mapping(ArtifactType => mapping(bytes32 => address)))) public artifacts;
 
     struct Artifact {
         bytes32 _id;
@@ -35,7 +34,7 @@ contract DaoArtifacts is Ownable {
 
     /**
      * @notice 将适配器地址添加到存储中 
-     * @param _id 适配器的 id (sha3)  
+     * @param _id adapter id (sha3)  
      * @param _version 适配器的版本  
      * @param _address 要存储的适配器的地址  
      * @param _type 工件类型：0 = Core，1 = Factory，2 = Extension，3 = Adapter，4 = Util
@@ -56,7 +55,7 @@ contract DaoArtifacts is Ownable {
      * @param _id 适配器/扩展工厂 (sha3) 的 id  
      * @param _owner 适配器/扩展工厂所有者的地址  
      * @param _version 适配器/扩展工厂的版本  
-     * @param _type 工件的类型：0 = 核心，1 = 工厂，2 = 扩展，3 = 适配器，4 = 实用程序  
+     * @param _type 工件的类型：0 = Core，1 = Factory，2 = Extension，3 = Adapter，4 = Util
      * @return 适配器/扩展工厂的地址（如果有） 
      */
     function getArtifactAddress(
@@ -70,7 +69,7 @@ contract DaoArtifacts is Ownable {
 
     /**
      * @notice 更新存储中的适配器/扩展工厂地址  
-     * @notice 每个事务最多更新 20 个工件， 只允许合约的所有者执行批量更新  
+     * @notice 每个事务最多更新 20 个工件， 只允许合约的所有者执行 批量更新  
      * @param _artifacts 要更新的工件数组 
      */
     function updateArtifacts(Artifact[] memory _artifacts) external onlyOwner {

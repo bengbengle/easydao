@@ -413,7 +413,7 @@ describe("Adapter - Offchain Voting", () => {
 
   // --------------------- should be possible -------------------------------------------
   
-  // 应该可能通过 签署提案哈希 来 提议新 的投票
+  // 应该可能通过 签署提案哈希 来 提议 新 的投票
   it("should be possible to propose a new voting by signing the proposal hash", async () => {
     const dao = this.dao;
     const onboarding = this.adapters.onboarding;
