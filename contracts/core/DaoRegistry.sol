@@ -1,6 +1,6 @@
 pragma solidity ^0.8.0;
 
-// SPDX-License-Identifier: MIT
+
 
 import "../guards/AdapterGuard.sol";
 import "../guards/MemberGuard.sol";
@@ -478,7 +478,7 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
 
         require(!is_exists, "proposalId must be unique");
 
-        // “1” 表示只设置了第一个标志，即 EXISTS
+        // “1” 表示只设置了第一个标志， 即 EXISTS
         proposals[proposalId] = Proposal(msg.sender, 1);
 
         emit SubmittedProposal(proposalId, 1);
@@ -567,7 +567,7 @@ contract DaoRegistry is MemberGuard, AdapterGuard {
     /*
      * MEMBERS
      */
-
+     
     /**
      * @return 给定地址是否是 DAO 的成员
      * @dev 它将通过委托密钥解决，而不是成员地址

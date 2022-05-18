@@ -1,9 +1,8 @@
 pragma solidity ^0.8.0;
 
-// SPDX-License-Identifier: MIT
+
 import "../../../core/DaoRegistry.sol";
 import "../../../helpers/DaoHelper.sol";
-import "../../../guards/AdapterGuard.sol";
 import "../../IExtension.sol";
 import "../../bank/Bank.sol";
 import "./IERC20TransferStrategy.sol";
@@ -26,23 +25,22 @@ contract ERC20Extension is AdapterGuard, IExtension, IERC20 {
     // DAO 管理的代币名称 
     string public tokenName;
 
-    // The symbol of the token managed by the DAO
+    // 由 DAO 管理的代币的符号
     string public tokenSymbol;
 
-    // The number of decimals of the token managed by the DAO
+    // DAO 管理的代币的小数位数
     uint8 public tokenDecimals;
 
     // Tracks all the token allowances: owner => spender => amount
     mapping(address => mapping(address => uint256)) private _allowances;
 
-    /// @notice Clonable contract must have an empty constructor
+    /// @notice 可克隆合约必须有一个空的构造函数
     constructor() {}
 
     /**
-     * @notice Initializes the extension with the DAO that it belongs to,
-     * and checks if the parameters were set.
-     * @param _dao The address of the DAO that owns the extension.
-     * @param creator The owner of the DAO and Extension that is also a member of the DAO.
+     * @notice 使用它所属的 DAO 初始化扩展 并检查是否设置了参数
+     * @param _dao 拥有扩展的 DAO 的地址
+     * @param creator DAO 和扩展的所有者， 也是 DAO 的成员  
      */
     function initialize(DaoRegistry _dao, address creator) external override {
         require(!initialized, "already initialized");
@@ -76,14 +74,14 @@ contract ERC20Extension is AdapterGuard, IExtension, IERC20 {
     }
 
     /**
-     * @dev Returns the name of the token.
+     * @dev 返回令牌的名称
      */
     function name() external view virtual returns (string memory) {
         return tokenName;
     }
 
     /**
-     * @dev Sets the name of the token if the extension is not initialized.
+     * @dev 如果扩展未初始化，则设置令牌的名称
      */
     function setName(string memory _name) external {
         require(!initialized, "already initialized");
@@ -91,15 +89,14 @@ contract ERC20Extension is AdapterGuard, IExtension, IERC20 {
     }
 
     /**
-     * @dev Returns the symbol of the token, usually a shorter version of the
-     * name.
+     * @dev 返回令牌的符号，通常是名称的较短版本
      */
     function symbol() external view virtual returns (string memory) {
         return tokenSymbol;
     }
 
     /**
-     * @dev Sets the token symbol if the extension is not initialized.
+     * @dev 如果扩展未初始化，则设置令牌符号
      */
     function setSymbol(string memory _symbol) external {
         require(!initialized, "already initialized");
@@ -107,16 +104,15 @@ contract ERC20Extension is AdapterGuard, IExtension, IERC20 {
     }
 
     /**
-     * @dev Returns the number of decimals used to get its user representation.
-     * For example, if `decimals` equals `2`, a balance of `505` tokens should
-     * be displayed to a user as `5,05` (`505 / 10 ** 2`).
+     * @dev 返回用于获取其用户表示的小数位数 
+     * 例如， 如果 `decimals` 等于 `2`， 则 `505` 代币的余额应该向用户显示为 `5,05` (`505 / 10 ** 2`)
      */
     function decimals() external view virtual returns (uint8) {
         return tokenDecimals;
     }
 
     /**
-     * @dev Sets the token decimals if the extension is not initialized.
+     * @dev 如果扩展未初始化，则设置标记小数
      */
     function setDecimals(uint8 _decimals) external {
         require(!initialized, "already initialized");

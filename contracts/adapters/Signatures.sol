@@ -1,6 +1,6 @@
 pragma solidity ^0.8.0;
 
-// SPDX-License-Identifier: MIT
+
 
 import "./interfaces/ISignatures.sol";
 import "../core/DaoRegistry.sol";
@@ -11,24 +11,25 @@ import "./modifiers/Reimbursable.sol";
 import "../helpers/DaoHelper.sol";
 
 contract SignaturesContract is ISignatures, AdapterGuard, Reimbursable {
+    
     struct ProposalDetails {
         bytes32 permissionHash;
         bytes32 signatureHash;
         bytes4 magicValue;
     }
 
-    // keeps track of all signature proposals handled by each dao
+    // 跟踪每个 dao 处理的所有签名提案
     mapping(address => mapping(bytes32 => ProposalDetails)) public proposals;
 
     /**
-     * @notice Creates and sponsors a signature proposal.
-     * @dev Only members of the DAO can sponsor a signature proposal.
-     * @param dao The DAO Address.
-     * @param proposalId The proposal id.
-     * @param permissionHash The hash of the data to be signed
-     * @param signatureHash The hash of the signature to be marked as valid
-     * @param magicValue The value to return when a signature is valid
-     * @param data Additional details about the signature proposal.
+     * @notice 创建并赞助签名提案
+     * @dev 只有 DAO 的成员才能发起签名提案
+     * @param dao DAO 地址
+     * @param proposalId 提案 ID
+     * @param permissionHash 要签名的数据的哈希 
+     * @param signatureHash 要标记为有效的签名的哈希 
+     * @param magicValue 签名有效时返回的值 
+     * @param data 有关签名提议的其他详细信息     
      */
     function submitProposal(
         DaoRegistry dao,
@@ -60,12 +61,12 @@ contract SignaturesContract is ISignatures, AdapterGuard, Reimbursable {
     }
 
     /**
-     * @notice Processing a signature proposal to mark the data as valid
-     * @dev Only proposals that were not processed are accepted.
-     * @dev Only proposals that were sponsored are accepted.
-     * @dev Only proposals that passed can get processed
-     * @param dao The DAO Address.
-     * @param proposalId The proposal id.
+    * @notice 处理签名提案以将数据标记为有效 
+    * @dev 仅接受未处理的提案 
+    * @dev 仅接受赞助的提案
+    * @dev 只有通过的提案才能得到处理 
+    * @param dao DAO 地址 
+    * @param proposalId 提案 ID
      */
     function processProposal(DaoRegistry dao, bytes32 proposalId)
         external
@@ -78,8 +79,7 @@ contract SignaturesContract is ISignatures, AdapterGuard, Reimbursable {
         require(address(votingContract) != address(0), "adapter not found");
 
         require(
-            votingContract.voteResult(dao, proposalId) ==
-                IVoting.VotingState.PASS,
+            votingContract.voteResult(dao, proposalId) == IVoting.VotingState.PASS,
             "proposal needs to pass"
         );
         dao.processProposal(proposalId);
@@ -87,11 +87,6 @@ contract SignaturesContract is ISignatures, AdapterGuard, Reimbursable {
             dao.getExtensionAddress(DaoHelper.ERC1271)
         );
 
-        erc1271.sign(
-            dao,
-            details.permissionHash,
-            details.signatureHash,
-            details.magicValue
-        );
+        erc1271.sign(dao, details.permissionHash, details.signatureHash, details.magicValue);
     }
 }

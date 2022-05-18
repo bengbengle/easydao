@@ -2,7 +2,7 @@ pragma solidity ^0.8.0;
 import "../extensions/bank/Bank.sol";
 import "../core/DaoRegistry.sol";
 
-// SPDX-License-Identifier: MIT
+
 
 library DaoHelper {
     // Adapters

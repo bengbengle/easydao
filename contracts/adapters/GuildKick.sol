@@ -1,6 +1,6 @@
 pragma solidity ^0.8.0;
 
-// SPDX-License-Identifier: MIT
+
 
 import "../core/DaoRegistry.sol";
 import "../guards/AdapterGuard.sol";
@@ -21,17 +21,16 @@ contract GuildKickContract is IGuildKick, AdapterGuard, Reimbursable {
     mapping(address => mapping(bytes32 => GuildKick)) public kicks;
 
     /**
-     * @notice Creates a guild kick proposal, opens it for voting, and sponsors it.
-     * @dev A member can not kick himself.
-     * @dev Only one kick per DAO can be executed at time.
-     * @dev Only members that have units or loot can be kicked out.
-     * @dev Proposal ids can not be reused.
-     * @param dao The dao address.
-     * @param proposalId The guild kick proposal id.
-     * @param memberToKick The member address that should be kicked out of the DAO.
-     * @param data Additional information related to the kick proposal.
-     */
-
+      * @notice 创建一个 Guild Kick 提案， 打开它进行投票，并赞助它 
+      * @dev 成员不能踢自己。 
+      * @dev 每个 DAO 一次只能执行一个 kick。 
+      * @dev 只有拥有单位或战利品的成员才能被踢出。 
+      * @dev 提案 ID 不能重复使用 
+      * @param dao dao 地址
+      * @param proposalId 公会踢提案 ID
+      * @param memberToKick 应该被踢出 DAO 的成员地址 
+      * @param data 与 kick 提案相关的附加信息
+      */
     function submitProposal(
         DaoRegistry dao,
         bytes32 proposalId,
@@ -47,7 +46,7 @@ contract GuildKickContract is IGuildKick, AdapterGuard, Reimbursable {
             data,
             msg.sender
         );
-        // Checks if the sender address is not the same as the member to kick to prevent auto kick.
+
         // 检查 sender address 是否与要被踢的成员不同 以防止 自动踢
         require(submittedBy != memberToKick, "use ragequit");
 
@@ -64,22 +63,20 @@ contract GuildKickContract is IGuildKick, AdapterGuard, Reimbursable {
         uint256 lootToBurn = bank.balanceOf(memberToKick, DaoHelper.LOOT);
 
         // 检查成员是否有足够的 units 转换为 loot
-        // 参见 bank._createNewAmountCheckpoint 函数
         require(unitsToBurn + lootToBurn > 0, "no units or loot");
 
         // 保存公会 kick 提案的状态
         kicks[address(dao)][proposalId] = GuildKick(memberToKick);
-
-        // 开始 guild kick 提案的投票过程
-        votingContract.startNewVotingForProposal(dao, proposalId, data);
 
         GuildKickHelper.lockMemberTokens(
             dao,
             kicks[address(dao)][proposalId].memberToKick
         );
 
-        // Sponsors the guild kick proposal.
+        // 赞助提案
         dao.sponsorProposal(proposalId, submittedBy, address(votingContract));
+        // 开始投票
+        votingContract.startNewVotingForProposal(dao, proposalId, data);
     }
 
     /**

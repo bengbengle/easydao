@@ -4,7 +4,7 @@ import "../../core/DaoRegistry.sol";
 import "../../companion/interfaces/IReimbursement.sol";
 import "./Reimbursable.sol";
 
-// SPDX-License-Identifier: MIT
+
 
 library ReimbursableLib {
     function beforeExecution(DaoRegistry dao)

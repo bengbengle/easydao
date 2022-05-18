@@ -1,5 +1,5 @@
 pragma solidity ^0.8.0;
-// SPDX-License-Identifier: MIT
+
 import "../../core/DaoRegistry.sol";
 import "../../guards/MemberGuard.sol";
 import "../../helpers/DaoHelper.sol";

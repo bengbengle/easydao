@@ -1,6 +1,6 @@
 pragma solidity ^0.8.0;
 
-// SPDX-License-Identifier: MIT
+
 
 /// @title Multicall - Aggregate results from multiple read-only function calls
 /// @author Michael Elliot <mike@makerdao.com>

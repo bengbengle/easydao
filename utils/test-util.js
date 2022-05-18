@@ -125,6 +125,7 @@ const submitConfigProposal = async (
   await voting.submitVote(dao.address, proposalId, 1, {from: sender, gasPrice: toBN("0") });
 
   await advanceTime(10000);
+  
   await configuration.processProposal(dao.address, proposalId, {from: sender, gasPrice: toBN("0") });
 };
 

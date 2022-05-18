@@ -1,12 +1,13 @@
 pragma solidity ^0.8.0;
 
-// SPDX-License-Identifier: MIT
+
 
 import "../../core/DaoRegistry.sol";
 import "../../companion/interfaces/IReimbursement.sol";
 import "./ReimbursableLib.sol";
 
 abstract contract Reimbursable {
+    
     struct ReimbursementData {
         // 在执行操作之前有多少气体
         uint256 gasStart;

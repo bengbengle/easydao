@@ -1,6 +1,6 @@
 pragma solidity ^0.8.0;
 
-// SPDX-License-Identifier: MIT
+
 
 import "../core/DaoRegistry.sol";
 import "../extensions/nft/NFT.sol";
@@ -43,7 +43,7 @@ contract TributeNFTContract is
         uint256 requestAmount;
     }
 
-    // Keeps track of all nft tribute proposals handled by each DAO.
+    // 跟踪每个 DAO 处理的所有 nft 致敬提案
     mapping(address => mapping(bytes32 => ProposalDetails)) public proposals;
 
     /**
@@ -104,13 +104,13 @@ contract TributeNFTContract is
             data,
             msg.sender
         );
-        dao.sponsorProposal(proposalId, sponsoredBy, address(votingContract));
         DaoHelper.potentialNewMember(
             applicant,
             dao, 
             BankExtension(dao.getExtensionAddress(DaoHelper.BANK))
         );
 
+        dao.sponsorProposal(proposalId, sponsoredBy, address(votingContract));
         votingContract.startNewVotingForProposal(dao, proposalId, data);
 
         proposals[address(dao)][proposalId] = ProposalDetails(

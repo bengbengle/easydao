@@ -1,5 +1,6 @@
 // Whole-script strict mode syntax
 "use strict";
+const fs = require("fs");
 
 const { entryDao, entryBank } = require("./access-control-util");
 const { adaptersIdsMap, extensionsIdsMap } = require("./dao-ids-util");
@@ -279,7 +280,6 @@ const createGovernanceRoles = async ({ options, dao, adapters }) => {
               const configValue = getAddress(
                 readConfigValue(c.governanceRoles[role], c.name)
               );
-              console.log('configKey:', configKey, 'configValue:', configValue);
               return await waitTx(
                 dao.setAddressConfiguration(configKey, configValue)
               );
@@ -341,6 +341,12 @@ const deployDao = async (options) => {
     unitTokenToMint: UNITS,
     lootTokenToMint: LOOT,
   };
+
+  fs.writeFileSync(
+    './tmp.txt',
+    JSON.stringify(options),
+    "utf-8"
+  );
 
   const factories = await createFactories({ options });
   const extensions = await createExtensions({ dao, factories, options });

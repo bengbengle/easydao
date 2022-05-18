@@ -1,6 +1,6 @@
 pragma solidity ^0.8.0;
 
-// SPDX-License-Identifier: MIT
+
 
 import "../../core/DaoRegistry.sol";
 
@@ -14,7 +14,5 @@ interface IOnboarding {
         bytes memory data
     ) external;
 
-    function processProposal(DaoRegistry dao, bytes32 proposalId)
-        external
-        payable;
+    function processProposal(DaoRegistry dao, bytes32 proposalId) external payable;
 }

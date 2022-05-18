@@ -1,6 +1,6 @@
 pragma solidity ^0.8.0;
 
-// SPDX-License-Identifier: MIT
+
 
 import "../core/DaoRegistry.sol";
 import "../extensions/bank/Bank.sol";
@@ -57,7 +57,7 @@ contract KycOnboardingContract is
     }
 
     /**
-     * @notice 使用 优惠券 签名者地址 和 要铸造的令牌配置适配器
+     * @notice 使用 签名者地址 和 要铸造的令牌配置适配器
      * @param dao 要配置的 dao 
      * @param signerAddress 签名者的地址 
      
@@ -211,9 +211,9 @@ contract KycOnboardingContract is
     }
 
     /**
-     * @notice 兑换优惠券以添加新成员 
+     * @notice 添加新成员 
      * @param dao 是要配置的 DAO 实例 
-     * @param kycedMember 是该优惠券授权成为新成员的地址 
+     * @param kycedMember 是应该 授权 成为新成员的地址 
      * @param tokenAddr 是 ETH 地址（ 0 ) 或 ERC20 Token 地址 
      * @param signature 是用于验证的消息签名
      */
@@ -228,9 +228,7 @@ contract KycOnboardingContract is
             !isActiveMember(dao, dao.getCurrentDelegateKey(kycedMember)),
             "already member"
         );
-        uint256 maxMembers = dao.getConfiguration(
-            _configKey(tokenAddr, MaxMembers)
-        );
+        uint256 maxMembers = dao.getConfiguration(_configKey(tokenAddr, MaxMembers));
         require(maxMembers > 0, "token not configured");
         require(dao.getNbMembers() < maxMembers, "the DAO is full");
 
@@ -318,7 +316,7 @@ contract KycOnboardingContract is
     }
 
     /**
-      * @notice 检查给定的签名是否有效，如果有效，则允许会员 兑换 优惠券 并加入 DAO 
+      * @notice 检查给定的 签名 是否有效，如果有效，则允许成员 兑换 优惠券 并加入 DAO 
       * @param kycedMember 是此优惠券授权成为新会员的地址 
       * @param tokenAddr 是 ETH 地址（0）或 ERC20 Token 地址。 
       * @param signature 是消息签名，用于验证   
@@ -330,13 +328,7 @@ contract KycOnboardingContract is
         bytes memory signature
     ) internal view {
         require(
-            ECDSA.recover(
-                hashCouponMessage(dao, Coupon(kycedMember)),
-                signature
-            ) ==
-                dao.getAddressConfiguration(
-                    _configKey(tokenAddr, SignerAddressConfig)
-                ),
+            ECDSA.recover(hashCouponMessage(dao, Coupon(kycedMember)), signature) == dao.getAddressConfiguration(_configKey(tokenAddr, SignerAddressConfig)),
             "invalid sig"
         );
     }

@@ -1,18 +1,17 @@
 pragma solidity ^0.8.0;
 
-// SPDX-License-Identifier: MIT
+
 
 import "../core/DaoRegistry.sol";
 import "../extensions/bank/Bank.sol";
 import "../guards/AdapterGuard.sol";
-import "../adapters/interfaces/IVoting.sol";
 import "../helpers/DaoHelper.sol";
 import "./modifiers/Reimbursable.sol";
 
 contract BankAdapterContract is AdapterGuard, Reimbursable {
     /**
-     * @notice 允许 DAO 的成员 / 顾问从 其内部银行账户 中提取资金  
-     * @notice 只有未预留的账户才能提取资金  
+     * @notice 允许 DAO 成员 从 其内部银行账户 中提取资金  
+     * @notice 只有未预留的账户才能提取资金
      * @notice 如果用户账户中没有可用余额，则交易被撤销  
      * @param dao DAO 地址  
      * @param account 接收资金的账户  
@@ -51,8 +50,6 @@ contract BankAdapterContract is AdapterGuard, Reimbursable {
         );
         
         bank.updateToken(dao, token);
-
-        // bank.updateToken(dao, token);
     }
 
     /*

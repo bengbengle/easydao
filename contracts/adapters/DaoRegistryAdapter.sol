@@ -1,13 +1,10 @@
 pragma solidity ^0.8.0;
 
-// SPDX-License-Identifier: MIT
+
 
 import "../core/DaoRegistry.sol";
 import "../guards/MemberGuard.sol";
 import "../guards/AdapterGuard.sol";
-
-// import "../extensions/bank/Bank.sol";
-// import "../adapters/interfaces/IVoting.sol";
 
 contract DaoRegistryAdapterContract is MemberGuard, AdapterGuard {
     /**
