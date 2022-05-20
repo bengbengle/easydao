@@ -1,7 +1,5 @@
 pragma solidity ^0.8.0;
 
-
-// import "../../../core/DaoRegistry.sol";
 import "../../../core/CloneFactory.sol";
 import "../../IFactory.sol";
 import "./InternalTokenVestingExtension.sol";

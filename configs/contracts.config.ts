@@ -600,9 +600,11 @@ export const contracts: Array<ContractConfig> = [
     acls: {
       dao: [
         daoAccessFlagsMap.SUBMIT_PROPOSAL,
+
         daoAccessFlagsMap.REPLACE_ADAPTER,
         daoAccessFlagsMap.ADD_EXTENSION,
         daoAccessFlagsMap.REMOVE_EXTENSION,
+        
         daoAccessFlagsMap.SET_CONFIGURATION,
       ],
       extensions: {},

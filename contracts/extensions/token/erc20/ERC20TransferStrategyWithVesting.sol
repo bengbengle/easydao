@@ -7,10 +7,6 @@ import "../../bank/Bank.sol";
 import "./IERC20TransferStrategy.sol";
 import "./InternalTokenVestingExtension.sol";
 
-/**
- *
- * ERC20Extension 是为 DAO 成员在 DAO 内部持有的内部代币
- */
 contract ERC20TransferStrategy is IERC20TransferStrategy {
 
     bytes32 public constant ERC20_EXT_TRANSFER_TYPE = keccak256("erc20.transfer.type");
@@ -45,7 +41,7 @@ contract ERC20TransferStrategy is IERC20TransferStrategy {
 
         uint256 transferType = dao.getConfiguration(ERC20_EXT_TRANSFER_TYPE);
 
-        // member only
+        // 只允许内部成员之间的转账  member only 
         if (transferType == 0 && dao.isMember(to)) {
 
             // members only transfer

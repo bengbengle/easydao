@@ -1,8 +1,5 @@
 pragma solidity ^0.8.0;
 
-
-
-// import "../../core/DaoRegistry.sol";
 import "../../core/CloneFactory.sol";
 import "../IFactory.sol";
 import "./ERC1271.sol";
@@ -21,7 +18,7 @@ contract ERC1271ExtensionFactory is IFactory, CloneFactory, ReentrancyGuard {
     }
 
     /**
-     * @notice 创建并初始化一个新的 Executor Extension
+     * @notice 创建并初始化一个新的 ERC1271 Extension
      */
     function create(address dao) external nonReentrant {
         require(dao != address(0x0), "invalid dao addr");

@@ -59,7 +59,12 @@ describe("Extension - ERC20", () => {
       configuration,
       voting,
       [
-        { key: sha3("erc20.transfer.type"), numericValue: 1, addressValue: ZERO_ADDRESS, configType: 0 },
+        { 
+          key: sha3("erc20.transfer.type"), 
+          numericValue: 1, 
+          addressValue: ZERO_ADDRESS, 
+          configType: 0 
+        },
       ]
     );
     

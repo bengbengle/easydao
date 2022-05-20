@@ -246,7 +246,7 @@ describe("Adapter - Managing", () => {
     expect(tx[1].returnValues.adapterId).equal(adapterIdToRemove);
   });
 
-  // 应该可以提出一个带有委托密钥的新 DAO 适配器
+  // 应该可以提出一个带有委托地址 的新 DAO 适配器
   it("should be possible to propose a new DAO adapter with a delegate key", async () => {
     const delegateKey = accounts[3];
     const dao = this.dao;
@@ -255,7 +255,7 @@ describe("Adapter - Managing", () => {
     const proposalId = getProposalCounter();
     const newAdapterId = sha3("onboarding");
     const newAdapterAddress = accounts[4];
-    //Submit a new onboarding adapter proposal
+    // Submit a new onboarding adapter proposal
     await managing.submitProposal(
       dao.address,
       proposalId,
@@ -275,13 +275,9 @@ describe("Adapter - Managing", () => {
     );
 
     //set new delegate key
-    const daoRegistryAdapterAddress = await dao.getAdapterAddress(
-      sha3("daoRegistry")
-    );
+    const daoRegistryAdapterAddress = await dao.getAdapterAddress(sha3("daoRegistry"));
 
-    const daoRegistryAdapter = await DaoRegistryAdapterContract.at(
-      daoRegistryAdapterAddress
-    );
+    const daoRegistryAdapter = await DaoRegistryAdapterContract.at(daoRegistryAdapterAddress);
 
     await daoRegistryAdapter.updateDelegateKey(dao.address, delegateKey, {
       from: daoOwner,

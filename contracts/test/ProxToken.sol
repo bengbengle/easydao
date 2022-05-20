@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract ProxTokenContract is ERC20 {
+
     event MintedProxToken(address owner, uint256 amount);
 
     constructor() ERC20("ProxToken", "PRX") {
@@ -11,11 +12,12 @@ contract ProxTokenContract is ERC20 {
     }
 
     /**
-     * Public function open to anyone that wants to mint new tokens in this test contract.
+     * 公共功能 向 任何想要在 此 测试合约 中 铸造 新代币的人开放
      */
     function mint(uint256 amount) external {
         address owner = msg.sender;
         _mint(owner, amount);
+        
         emit MintedProxToken(owner, amount);
     }
 }

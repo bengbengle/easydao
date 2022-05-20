@@ -5,7 +5,6 @@ import "../../../core/DaoRegistry.sol";
 import "../../../helpers/DaoHelper.sol";
 import "../../bank/Bank.sol";
 import "./IERC20TransferStrategy.sol";
-import "./InternalTokenVestingExtension.sol";
 
 /**
  * ERC20Extension 是为 DAO 成员持有的 内部代币

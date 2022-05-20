@@ -7,12 +7,12 @@ import "../helpers/DaoHelper.sol";
 
 abstract contract AdapterGuard {
     /**
-     * @dev Only registered adapters are allowed to execute the function call.
-     * @dev 只允许注册的适配器执行函数调用
+     * @dev 只允许 已注册的 适配器 才能执行
      */
     modifier onlyAdapter(DaoRegistry dao) {
+        
         require(
-            dao.isAdapter(msg.sender) || DaoHelper.isInCreationModeAndHasAccess(dao),
+            DaoHelper.isInCreationModeAndHasAccess(dao) || dao.isAdapter(msg.sender),
             "onlyAdapter"
         );
         _;
@@ -20,7 +20,12 @@ abstract contract AdapterGuard {
 
     // 同一区块内不能调用两次
     modifier reentrancyGuard(DaoRegistry dao) {
-        require(dao.lockedAt() != block.number, "reentrancy guard");
+
+        require(
+            dao.lockedAt() != block.number, 
+            "reentrancy guard"
+        );
+
         dao.lockSession();
         _;
         dao.unlockSession();

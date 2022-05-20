@@ -37,6 +37,7 @@ describe("Extension - Vesting", () => {
     await revertChainSnapshot(this.snapshotId);
   });
 
+  // 应该能够创建归属，并且冻结的金额应该随时间 而变化
   it("should be able to create vesting and the blocked amount should change with time", async () => {
     const vesting = this.extensions.vestingExt;
     const now = new Date();
@@ -74,6 +75,7 @@ describe("Extension - Vesting", () => {
     expect(minBalance.toString()).equal("0");
   });
 
+  // 应该能够添加多个归属
   it("should be able to add multiple vestings", async () => {
     const vesting = this.extensions.vestingExt;
     const now = new Date();
@@ -131,6 +133,7 @@ describe("Extension - Vesting", () => {
     expect(minBalance.toString()).equal("0");
   });
 
+  // 应该可以取消归属
   it("should be possible to remove vesting", async () => {
     const vesting = this.extensions.vestingExt;
     const now = new Date();
@@ -192,8 +195,9 @@ describe("Extension - Vesting", () => {
     expect(toNumber(minBalance.toString())).to.be.closeTo(25, 1);
   });
 
+  // 没有 ACL 权限应该不可能创建新的归属
   it("should not be possible to create a new vesting without the ACL permission", async () => {
-    // Finalize the DAO to be able to check the extension permissions
+    // 完成 DAO 以便能够检查扩展权限
     await this.dao.finalizeDao({ from: daoOwner });
     const vesting = this.extensions.vestingExt;
     const now = new Date();
@@ -210,9 +214,11 @@ describe("Extension - Vesting", () => {
     );
   });
 
+  // 在没有 ACL 权限的情况下，应该无法删除归属计划
   it("should not be possible to removeVesting a vesting schedule the without ACL permission", async () => {
-    // Finalize the DAO to be able to check the extension permissions
+
     await this.dao.finalizeDao({ from: daoOwner });
+
     const vesting = this.extensions.vestingExt;
     await expectRevert(
       vesting.removeVesting(this.dao.address, daoOwner, UNITS, 100, {

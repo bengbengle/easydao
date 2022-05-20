@@ -11,20 +11,17 @@ import "../IExtension.sol";
  * 调用在由其地址通过 `implementation` 参数标识的目标合约中执行 
  * 委托调用的成功和返回数据返回给代理的调用者 
  * 只有带有 ACL Flag: EXECUTOR 的合约才允许使用代理委托调用功能 
- * 该合约基于 OpenZeppelin Proxy 合约：
- * https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/proxy/Proxy.sol
  */
 contract ExecutorExtension is IExtension {
     using Address for address payable;
 
-    bool public initialized = false; // internally tracks deployment under eip-1167 proxy pattern
+    bool public initialized = false;
     DaoRegistry public dao;
 
     enum AclFlag {
         EXECUTE
     }
 
-    /// @notice Clonable contract must have an empty constructor
     constructor() {}
 
     modifier hasExtensionAccess(AclFlag flag) {
@@ -55,8 +52,30 @@ contract ExecutorExtension is IExtension {
     }
 
     /**
+     * @dev 将调用委托给 发件人地址的 fallback function。 如果合约中没有其他函数与调用数据匹配，则将运行
+     */
+    // 只有启用了 EXECUTE ACL 标志的发送者才被允许发送 eth
+    fallback() external payable {
+        _fallback();
+    }
+
+    /**
+     * @dev 将调用委托给`_implementation()`返回的地址的后备函数。 如果呼叫数据 为空，将运行。
+     */
+    // 只有启用了 EXECUTE ACL 标志的发送者才被允许发送 eth
+    receive() external payable {
+        _fallback();
+    }
+    
+    /**
+      * @dev 将当前调用委托给发件人地址
+      */
+    function _fallback() internal virtual {
+        _delegate(msg.sender);
+    }
+
+    /**
     * @dev 将当前调用委托给 `implementation` 
-    * 此函数不返回其内部调用站点，它将直接返回给外部调用者
     */
     function _delegate(address implementation)
         internal
@@ -82,12 +101,11 @@ contract ExecutorExtension is IExtension {
 
         // solhint-disable-next-line no-inline-assembly
         assembly {
-            // 复制 msg.data，我们在这个内联汇编 
-            // 块中完全控制内存，因为它不会返回到 Solidity 代码，我们在内存位置 0 处覆盖 
-            // Solidity 便签本
+            // 复制 msg.data， 我们在这个内联汇编 
+            // 块中完全控制内存，因为它不会返回到 Solidity 代码， 我们在内存位置 0 处覆盖 Solidity 便签本
             calldatacopy(0, 0, calldatasize())
-            // 调用实现 
-            // out 和 outsize 为 0，因为我们还不知道大小
+            
+            // 调用实现  out 和 outsize 为 0，因为我们还不知道大小
             let result := delegatecall(
                 gas(),
                 implementation,
@@ -109,35 +127,5 @@ contract ExecutorExtension is IExtension {
                 return(0, returndatasize())
             }
         }
-    }
-
-    /**
-     * @dev Delegates the current call to the sender address.
-     *
-     * This function does not return to its internall call site, it will return directly to the external caller.
-     */
-    function _fallback() internal virtual {
-        _delegate(msg.sender);
-    }
-
-    /**
-     * @dev 将调用委托给 发件人地址的 fallback function。 如果合约中没有其他函数与调用数据匹配，则将运行。
-     */
-    // 只有启用了 EXECUTE ACL 标志的发送者才被允许发送 eth
-    // Only senders with the EXECUTE ACL Flag enabled is allowed to send eth
-
-    fallback() external payable {
-        _fallback();
-    }
-
-    /**
-     * @dev 将调用委托给`_implementation()`返回的地址的后备函数。如果呼叫数据 为空，将运行。
-     * Fallback function that delegates calls to the address returned by `_implementation()`  Will run if call data is empty
-     */
-    // 只有启用了 EXECUTE ACL 标志的发送者才被允许发送 eth
-    // Only senders with the EXECUTE ACL Flag enabled is allowed to send eth
-
-    receive() external payable {
-        _fallback();
     }
 }

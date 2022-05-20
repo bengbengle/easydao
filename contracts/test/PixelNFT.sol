@@ -52,21 +52,13 @@ contract PixelNFT is ERC721 {
 
         _pixels[x][y] = true;
 
+        bytes memory metadata = abi.encodePacked("pixel: ", x.toString(), ",", y.toString());
+
         uint256 newItemId = _tokenIds.current();
-        bytes memory metadata = abi.encodePacked(
-            "pixel: ",
-            x.toString(),
-            ",",
-            y.toString()
-        );
+
         _safeMint(recipient, newItemId, metadata);
 
-        emit PixMinted(
-            recipient,
-            newItemId,
-            tokenURI(newItemId),
-            string(metadata)
-        );
+        emit PixMinted(recipient, newItemId, tokenURI(newItemId), string(metadata));
     }
 
     function _baseURI() internal view virtual override returns (string memory) {

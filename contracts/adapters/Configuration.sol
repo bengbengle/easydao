@@ -10,8 +10,9 @@ import "../adapters/interfaces/IVoting.sol";
 import "../helpers/DaoHelper.sol";
 
 contract ConfigurationContract is IConfiguration, AdapterGuard, Reimbursable {
-    mapping(address => mapping(bytes32 => Configuration[]))
-        private _configurations;
+    
+    // dao --> proposal Id --> newConfigs ---> config type (0, 1)
+    mapping(address => mapping(bytes32 => Configuration[])) private _configurations;
 
     /**
     * @notice 创建并发起配置提案 
@@ -31,9 +32,8 @@ contract ConfigurationContract is IConfiguration, AdapterGuard, Reimbursable {
 
         dao.submitProposal(proposalId);
 
-        Configuration[] storage newConfigs = _configurations[address(dao)][
-            proposalId
-        ];
+        Configuration[] storage newConfigs = _configurations[address(dao)][proposalId];
+
         for (uint256 i = 0; i < configs.length; i++) {
             Configuration memory config = configs[i];
             newConfigs.push(
@@ -46,9 +46,7 @@ contract ConfigurationContract is IConfiguration, AdapterGuard, Reimbursable {
             );
         }
 
-        IVoting votingContract = IVoting(
-            dao.getAdapterAddress(DaoHelper.VOTING)
-        );
+        IVoting votingContract = IVoting(dao.getAdapterAddress(DaoHelper.VOTING));
 
         address sponsoredBy = votingContract.getSenderAddress(
             dao,
@@ -80,9 +78,7 @@ contract ConfigurationContract is IConfiguration, AdapterGuard, Reimbursable {
             "proposal did not pass"
         );
 
-        Configuration[] memory configs = _configurations[address(dao)][
-            proposalId
-        ];
+        Configuration[] memory configs = _configurations[address(dao)][proposalId];
 
         for (uint256 i = 0; i < configs.length; i++) {
             Configuration memory config = configs[i];

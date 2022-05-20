@@ -1,7 +1,5 @@
 pragma solidity ^0.8.0;
 
-
-
 import "../core/DaoRegistry.sol";
 import "../extensions/bank/Bank.sol";
 import "../extensions/executor/Executor.sol";
@@ -28,7 +26,9 @@ contract ERC20MinterContract is AdapterGuard {
         address token,
         uint256 amount
     ) external reentrancyGuard(dao) {
+        
         address proxyAddr = dao.getExtensionAddress(DaoHelper.EXECUTOR_EXT);
+
         ERC20MinterContract executor = ERC20MinterContract(payable(proxyAddr));
         executor.mint(dao, token, amount);
     }

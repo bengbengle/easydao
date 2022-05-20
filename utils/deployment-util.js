@@ -342,11 +342,11 @@ const deployDao = async (options) => {
     lootTokenToMint: LOOT,
   };
 
-  fs.writeFileSync(
-    './tmp.txt',
-    JSON.stringify(options),
-    "utf-8"
-  );
+  // fs.writeFileSync(
+  //   './tmp.txt',
+  //   JSON.stringify(options),
+  //   "utf-8"
+  // );
 
   const factories = await createFactories({ options });
   const extensions = await createExtensions({ dao, factories, options });

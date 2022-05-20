@@ -623,7 +623,6 @@ describe("Adapter - Voting", () => {
     });
 
     
-    // only holders of the PixelNFTs tokens are considered maintainers
     // 只有 PixelNFTs 代币的持有者 能成为 维护者
     const { dao, adapters } = await deployDefaultDao({
       owner: daoOwner,
@@ -639,7 +638,7 @@ describe("Adapter - Voting", () => {
       )
     );
 
-    // Make sure the governance token configuration was created
+    // 确保已创建治理令牌配置
     const governanceToken = await dao.getAddressConfiguration(configKey);
     expect(governanceToken).equal(externalGovToken.address);
 
@@ -647,7 +646,7 @@ describe("Adapter - Voting", () => {
 
     const proposalId = getProposalCounter();
 
-    // The DAO owner submits a new configuration proposal
+    // DAO 所有者提交新的配置提案
     await configuration.submitProposal(
       dao.address,
       proposalId,
@@ -669,9 +668,7 @@ describe("Adapter - Voting", () => {
     let value = await dao.getConfiguration(key);
     expect(value.toString()).equal("0");
 
-    // The DAO owner attempts to vote on the new proposal,
-    // but since he is not a maintainer (does not hold OLT tokens) the voting weight is zero
-    // so the vote should not be allowed
+    // daoOwner 尝试对新提案进行投票，但由于他不是维护者（不持有 OLT 代币），投票权重为零, 因此不应允许投票
     // await expectRevert(
     //   voting.submitVote(dao.address, proposalId, 1, {
     //     from: daoOwner,

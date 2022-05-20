@@ -23,7 +23,13 @@ contract InternalTokenVestingExtension is IExtension {
 
     modifier hasExtensionAccess(DaoRegistry dao, AclFlag flag) {
         bool isInCreation = DaoHelper.isInCreationModeAndHasAccess(_dao);
-
+        
+        /**
+        * @notice 调用者是 adapter 并且 有权 访问此 ext 
+        * @param adapterAddress msg.sender
+        * @param extensionAddress address(this)
+        * @param flag unit8 权限标识
+        */
         bool hasAdapterAccess = _dao.hasAdapterAccessToExtension(
             msg.sender,
             address(this),
@@ -43,8 +49,8 @@ contract InternalTokenVestingExtension is IExtension {
     constructor() {}
 
     /**
-     * @notice Initializes the extension with the DAO that it belongs to.
-     * @param dao The address of the DAO that owns the extension.
+     * @notice 用它所属的 DAO 初始化扩展 
+     * @param dao 拥有扩展的 DAO 的地址
      */
     function initialize(DaoRegistry dao, address) external override {
         require(!_initialized, "vestingExt::already initialized");
@@ -59,24 +65,19 @@ contract InternalTokenVestingExtension is IExtension {
      * @param amount 质押金额
      * @param endDate 归属计划结束的 unix 时间戳
      */
-    function createNewVesting(
-        DaoRegistry dao,
-        address member,
-        address internalToken,
-        uint88 amount,
-        uint64 endDate
-    ) external hasExtensionAccess(dao, AclFlag.NEW_VESTING) {
+    function createNewVesting(DaoRegistry dao, address member, address internalToken, uint88 amount, uint64 endDate) 
+        external 
+        hasExtensionAccess(dao, AclFlag.NEW_VESTING) 
+    {
         require(endDate > block.timestamp, "vestingExt::end date in the past");
         
+        // 仍然锁定的金额
         VestingSchedule storage schedule = vesting[member][internalToken];
-        uint88 minBalance = getMinimumBalanceInternal(
-            schedule.startDate,
-            schedule.endDate,
-            schedule.blockedAmount
-        );
+        uint88 minBalance = getMinimumBalanceInternal(schedule.startDate, schedule.endDate, schedule.blockedAmount);
 
         schedule.startDate = uint64(block.timestamp);
-        // 获取上次质押过的时间， get max value between endDate and previous one
+
+        // 获取上次质押过的时间  get max value between endDate and previous one
         if (endDate > schedule.endDate) {
             schedule.endDate = endDate;
         }
@@ -106,7 +107,7 @@ contract InternalTokenVestingExtension is IExtension {
     }
 
     /**
-     * @notice 返回 给定成员 和 内部代币 的最低 归属余额 
+     * @notice 返回 给定成员 和 内部代币 的最低 归属余额 / 不可归属的金额，仍然 锁定金额
      * @param member 更新余额的 成员地址 
      * @param internalToken 成员 接收资金的 内部 DAO 代币
      */
@@ -117,11 +118,7 @@ contract InternalTokenVestingExtension is IExtension {
     {
         VestingSchedule storage schedule = vesting[member][internalToken];
         return
-            getMinimumBalanceInternal(
-                schedule.startDate,
-                schedule.endDate,
-                schedule.blockedAmount
-            );
+            getMinimumBalanceInternal(schedule.startDate, schedule.endDate, schedule.blockedAmount);
     }
 
     /**
@@ -147,7 +144,7 @@ contract InternalTokenVestingExtension is IExtension {
         // 按比例 已归属金额
         uint88 vestedAmount = (amount * elapsedTime) / period;
 
-        // 待归属金额
+        // 未归属的金额/ 仍然质押的金额
         return amount - vestedAmount;
     }
 }

@@ -291,10 +291,7 @@ describe("Adapter - Configuration", () => {
     });
 
     await advanceTime(10000);
-    await configuration.processProposal(dao.address, proposalId, {
-      from: owner,
-      gasPrice: toBN("0"),
-    });
+    await configuration.processProposal(dao.address, proposalId, {from: owner, gasPrice: toBN("0")});
 
     value = await dao.getConfiguration(key1);
     expect(value.toString()).equal("200");

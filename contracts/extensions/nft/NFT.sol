@@ -43,7 +43,9 @@ contract NFTExtension is IExtension, IERC721Receiver {
 
     modifier hasExtensionAccess(DaoRegistry _dao, AclFlag flag) {
         require(
-            dao == _dao && (DaoHelper.isInCreationModeAndHasAccess(dao) || dao.hasAdapterAccessToExtension(msg.sender, address(this), uint8(flag))),
+            dao == _dao && (DaoHelper.isInCreationModeAndHasAccess(dao) || 
+                dao.hasAdapterAccessToExtension(msg.sender, address(this), uint8(flag))
+            ),
             "erc721::accessDenied"
         );
         _;

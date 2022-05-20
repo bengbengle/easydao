@@ -263,11 +263,11 @@ contract ERC20Extension is AdapterGuard, IExtension, IERC20 {
         BankExtension bank = BankExtension(
             dao.getExtensionAddress(DaoHelper.BANK)
         );
-
+        // not allowed
         if (approvalType == IERC20TransferStrategy.ApprovalType.NONE) {
             revert("transfer not allowed");
         }
-
+        // no limit
         if (approvalType == IERC20TransferStrategy.ApprovalType.SPECIAL) {
             _transferInternal(sender, recipient, amount, bank);
 

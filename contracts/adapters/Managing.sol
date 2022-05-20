@@ -39,8 +39,7 @@ contract ManagingContract is IManaging, AdapterGuard, Reimbursable {
         );
 
         require(
-            proposal.extensionAddresses.length ==
-                proposal.extensionAclFlags.length,
+            proposal.extensionAddresses.length == proposal.extensionAclFlags.length,
             "must be an equal number of extension addresses and acl"
         );
 
@@ -58,7 +57,12 @@ contract ManagingContract is IManaging, AdapterGuard, Reimbursable {
         for (uint256 i = 0; i < configs.length; i++) {
             Configuration memory config = configs[i];
             newConfigs.push(
-                Configuration({key: config.key, configType: config.configType, numericValue: config.numericValue, addressValue: config.addressValue})
+                Configuration({
+                    key: config.key, 
+                    configType: config.configType, 
+                    numericValue: config.numericValue, 
+                    addressValue: config.addressValue
+                })
             );
         }
 

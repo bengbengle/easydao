@@ -14,6 +14,7 @@ const skipFiles = [
   "adapters/interfaces/IVoting.sol",
   "extensions/IExtension.sol",
   "helpers/WETH.sol",
+  
   "test/MockDao.sol",
   "test/ERC1155TestToken.sol",
   "test/ERC20Minter.sol",

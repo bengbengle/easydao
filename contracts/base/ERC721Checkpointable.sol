@@ -1,7 +1,6 @@
 pragma solidity ^0.8.0;
 
 
-
 import "./ERC721Enumerable.sol";
 
 abstract contract ERC721Checkpointable is ERC721Enumerable {
@@ -47,19 +46,17 @@ abstract contract ERC721Checkpointable is ERC721Enumerable {
     }
 
     /**
-     * @notice Overrides the standard `Comp.sol` delegates mapping to return
-     * the delegator"s own address if they haven"t delegated.
-     * This avoids having to delegate to oneself.
-     */
+    * @notice 覆盖标准的 `Comp.sol` 委托映射以返回 委托人自己的地址（如果他们没有委托的话）， 这避免了委派给自己
+    */
     function delegates(address delegator) public view returns (address) {
         address current = _delegates[delegator];
         return current == address(0) ? delegator : current;
     }
 
     /**
-     * @notice Adapted from `_transferTokens()` in `Comp.sol` to update delegate votes.
-     * @dev hooks into OpenZeppelin"s `ERC721._transfer`
-     */
+    * @notice 改编自 `Comp.sol` 中的 `_transferTokens()` 以更新代表投票 
+    * @dev `ERC721._transfer` 
+    */
     function _beforeTokenTransfer(
         address from,
         address to,
@@ -72,8 +69,8 @@ abstract contract ERC721Checkpointable is ERC721Enumerable {
     }
 
     /**
-     * @notice Delegate votes from `msg.sender` to `delegatee`
-     * @param delegatee The address to delegate votes to
+     * @notice 代表投票从 `msg.sender` 到 `delegante` 
+     * @param delegatee 代表投票的地址
      */
     function delegate(address delegatee) public {
         if (delegatee == address(0)) delegatee = msg.sender;
@@ -81,13 +78,13 @@ abstract contract ERC721Checkpointable is ERC721Enumerable {
     }
 
     /**
-     * @notice Delegates votes from signatory to `delegatee`
-     * @param delegatee The address to delegate votes to
-     * @param nonce The contract state required to match the signature
-     * @param expiry The time at which to expire the signature
-     * @param v The recovery byte of the signature
-     * @param r Half of the ECDSA signature pair
-     * @param s Half of the ECDSA signature pair
+     * @notice 将签名者的投票委托给 `delegate` 
+     * @param delegatee 将投票的地址委托给 
+     * @param nonce 与签名匹配所需的合约状态 
+     * @param expiry 签名到期的时间 ​​
+     * @param v The签名的 恢复字节 
+     * @param r ECDSA 签名对的一半 
+     * @param s ECDSA 签名对的一半
      */
     function delegateBySig(
         address delegatee,
@@ -120,11 +117,11 @@ abstract contract ERC721Checkpointable is ERC721Enumerable {
     }
 
     /**
-     * @notice 根据区块号确定帐户的先前投票数 
+     * @notice 根据 区块号 确定帐户的 先前投票数 
      * @dev 区块号必须是最终区块， 否则此功能将恢复以防止错误信息 
      * @param account 要检查的账户地址
      * @param blockNumber 获得投票余额的区块号
-     * @return 账户在给定区块中的投票数
+     * @return 账户在 给定 区块中 的 投票数
      */
     function getPriorVotes(address account, uint256 blockNumber) public view returns (uint96) {
         require(blockNumber < block.number, "ERC721Checkpointable::getPriorVotes: not yet determined");
@@ -134,12 +131,12 @@ abstract contract ERC721Checkpointable is ERC721Enumerable {
             return 0;
         }
 
-        // First check most recent balance
+        // 首先检查最近的余额
         if (checkpoints[account][nCheckpoints - 1].fromBlock <= blockNumber) {
             return checkpoints[account][nCheckpoints - 1].votes;
         }
 
-        // Next check implicit zero balance
+        // 接下来 检查隐式 零余额
         if (checkpoints[account][0].fromBlock > blockNumber) {
             return 0;
         }

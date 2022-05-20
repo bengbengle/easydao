@@ -168,10 +168,10 @@ library DaoHelper {
     }
 
     /**
-     * DAO 处于创建模式是 DAO 的状态等于 CREATION 并且
-     * 1. DAO 中的成员数量为零，或者
-     * 2. tx 的发送者是 DAO 成员（通常是 DAO 所有者），或者
-     * 3. 发送方是适配器
+     * 判断 DAO 是否是 Creation 模式 ， 也就是 dao.state() == DaoState.CREATION 
+     * 1. 未添加成员 dao.getNbMembers() == 0
+     * 2. tx 发送者是 DAO 成员 （通常是 DAO 所有者）
+     * 3. tx 发送方是 适配器
      */
     function isInCreationModeAndHasAccess(DaoRegistry dao)
         internal
@@ -179,9 +179,10 @@ library DaoHelper {
         returns (bool)
     {
         return
-            dao.state() == DaoRegistry.DaoState.CREATION &&
-            (dao.getNbMembers() == 0 ||
+            dao.state() == DaoRegistry.DaoState.CREATION && (
+                dao.getNbMembers() == 0 ||
                 dao.isMember(msg.sender) ||
-                dao.isAdapter(msg.sender));
+                dao.isAdapter(msg.sender)
+            );
     }
 }
