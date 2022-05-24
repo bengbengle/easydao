@@ -425,12 +425,11 @@ describe("Adapter - Voting", () => {
   it("should be possible to update a DAO configuration if you are a member and a maintainer that holds an external default governance token", async () => {
     const maintainer = accounts[5];
 
-    // Issue OpenLaw ERC20 Basic Token for tests, only DAO maintainer will hold this token
     // 发行 OpenLaw ERC20 Basic Token 进行测试，只有 DAO 维护者会持有这个 token
     const tokenSupply = toBN(100000);
     const oltContract = await OLToken.new(tokenSupply);
 
-    // Transfer OLTs to the maintainer account
+    // 将 OLT 转入维护者账户
     await oltContract.transfer(daoOwner, toBN(1));
     const maintainerBalance = await oltContract.balanceOf.call(daoOwner);
     expect(maintainerBalance.toString()).equal("1");
@@ -444,11 +443,11 @@ describe("Adapter - Voting", () => {
     const configuration = adapters.configuration;
     const configKey = sha3(web3.utils.encodePacked("governance.role.default"));
 
-    // Make sure the governance token configuration was created
+    // 确保已创建治理令牌配置
     const governanceToken = await dao.getAddressConfiguration(configKey);
     expect(governanceToken).equal(oltContract.address);
 
-    // Onboard the maintainer as a DAO member
+    // 作为 DAO 成员加入维护者
     await onboardingNewMember(
       getProposalCounter(),
       dao,
@@ -463,7 +462,7 @@ describe("Adapter - Voting", () => {
     const key = sha3("key");
     const proposalId = getProposalCounter();
 
-    // The maintainer submits a new configuration proposal
+    // 维护者提交新的配置提案
     await configuration.submitProposal(
       dao.address,
       proposalId,

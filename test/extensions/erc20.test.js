@@ -92,6 +92,7 @@ describe("Extension - ERC20", () => {
     expect(await isMember(bank, applicantA)).equal(true);
 
     // externalAddressA is not a member
+    // 开始时候，成员 externalAddressA 不是成员
     expect(await isMember(bank, externalAddressA)).equal(false);
 
     let externalAddressAUnits = await erc20Ext.balanceOf(externalAddressA);
@@ -100,11 +101,13 @@ describe("Extension - ERC20", () => {
     );
 
     // transfer from memberA to externalAddressA
+    // 从账户 memberA 转移到外部账户 externalAddressA
     await erc20Ext.transfer(externalAddressA, numberOfUnits.mul(toBN("1")), {
       from: applicantA,
     });
 
     // externalAddressA should have +1 unit
+    // externalAddressA 应该有 +1 个单位
     externalAddressAUnits = await erc20Ext.balanceOf(externalAddressA);
     expect(externalAddressAUnits.toString()).equal( numberOfUnits.mul(toBN("1")).toString() );
 

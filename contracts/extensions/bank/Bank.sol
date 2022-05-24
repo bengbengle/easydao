@@ -389,9 +389,7 @@ contract BankExtension is IExtension, ERC165 {
     {
         uint32 nCheckpoints = numCheckpoints[tokenAddr][member];
         return
-            nCheckpoints > 0
-                ? checkpoints[tokenAddr][member][nCheckpoints - 1].amount
-                : 0;
+            nCheckpoints > 0 ? checkpoints[tokenAddr][member][nCheckpoints - 1].amount : 0;
     }
 
     /**

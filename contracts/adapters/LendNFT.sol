@@ -237,9 +237,7 @@ contract LendNFTContract is AdapterGuard, Reimbursable,  IERC1155Receiver, IERC7
 
         // 严格匹配是为了确保投票通过 
         if (voteResult == IVoting.VotingState.PASS) {
-            address erc1155ExtAddr = dao.getExtensionAddress(
-                DaoHelper.ERC1155_EXT
-            );
+            address erc1155ExtAddr = dao.getExtensionAddress(DaoHelper.ERC1155_EXT);
 
             IERC1155 erc1155 = IERC1155(msg.sender);
 

@@ -1,7 +1,5 @@
 pragma solidity ^0.8.0;
 
-
-
 import "../../core/DaoRegistry.sol";
 import "../IExtension.sol";
 import "@openzeppelin/contracts/utils/Address.sol";

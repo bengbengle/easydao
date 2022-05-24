@@ -8,14 +8,14 @@ import "../helpers/DaoHelper.sol";
 
 contract ERC1155AdapterContract is AdapterGuard {
     /**
-     * @notice Internally transfers the NFT from one owner to a new owner as long as both are active members.
-     * @notice Reverts if the addresses of the owners are not members.
-     * @notice Reverts if the fromOwner does not hold the NFT.
-     * @param dao The DAO address.
-     * @param toOwner The new owner address of the NFT.
-     * @param nftAddr The NFT smart contract address.
-     * @param nftTokenId The NFT token id.
-     * @param amount of the nftTokenId.
+     * @notice 在内部将 NFT 从一个所有者转移到一个新所有者，只要两者都是活跃成员。 
+     * @notice 如果所有者的地址不是成员，则还原。 
+     * @notice 如果 fromOwner 不持有 NFT，则恢复。 
+     * @param dao DAO 地址。 
+     * @param toOwner NFT 的新所有者地址。 
+     * @param nftAddr NFT 智能合约地址。 
+     * @param nftTokenId NFT 令牌 ID。 
+     * @param nftTokenId 的数量。
      */
     function internalTransfer(
         DaoRegistry dao,

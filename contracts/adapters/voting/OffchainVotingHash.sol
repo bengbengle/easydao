@@ -4,9 +4,6 @@ pragma solidity ^0.8.0;
 
 import "../../core/DaoRegistry.sol";
 import "../../extensions/bank/Bank.sol";
-import "../../extensions/token/erc20/ERC20TokenExtension.sol";
-import "../../utils/Signatures.sol";
-import "../interfaces/IVoting.sol";
 import "./Voting.sol";
 import "./SnapshotProposalContract.sol";
 import "../../helpers/GovernanceHelper.sol";

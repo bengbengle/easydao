@@ -10,7 +10,7 @@ contract ERC1155TestToken is Context, AccessControlEnumerable, ERC1155 {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
     /**
-     * @dev Grants `DEFAULT_ADMIN_ROLE`, `MINTER_ROLE`, and `PAUSER_ROLE` to the _creator address
+     * @dev 将 `DEFAULT_ADMIN_ROLE`、`MINTER_ROLE` 和 `PAUSER_ROLE` 授予 _creator 地址
      */
     constructor(string memory uri) ERC1155(uri) {
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());

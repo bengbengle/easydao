@@ -114,16 +114,19 @@ describe("Extension - ERC721", () => {
     );
 
     // Make sure it was collected in the NFT Extension
+    // 确保它被收集在 NFT 扩展中
     const nftAddr = await nftExtension.getNFTAddress(0);
     expect(nftAddr).equal(pixelNFT.address);
     const nftId = await nftExtension.getNFT(nftAddr, 0);
     expect(nftId.toString()).equal(tokenId.toString());
 
     // The NFT belongs to the GUILD after it is collected via ERC721 Extension
+    // NFT 通过 ERC721 Extension 收集后属于 GUILD
     const newOwner = await nftExtension.getNFTOwner(nftAddr, tokenId);
     expect(newOwner.toLowerCase()).equal(GUILD);
 
     // The actual holder of the NFT is the ERC721 Extension
+    // NFT 的实际持有者是 ERC721 扩展
     const holder = await pixelNFT.ownerOf(tokenId);
     expect(holder).equal(nftExtension.address);
   });

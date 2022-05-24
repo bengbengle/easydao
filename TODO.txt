@@ -1,0 +1,38 @@
+1. 项目方 launch dao 
+ 
+    1) deploy nft contract      nft 合约 √
+    2) deploy treasure contract 国库 √
+    3) deploy dao contract      治理合约 （√）
+    
+2. 项目方 configure 
+
+    1）设置 nft 所有权到 DAO contract  
+    2）设置 dao 默认的治理参数 
+
+2. 项目方 burn ownership && start dao && auction
+
+    1）启动 auction 开始拍卖 NFT ，拍卖的 收益  ---> 国库 (eth/xdai) 
+    2) NFT 交易版税的收益                     ---> 国库 (eth/xdai) 
+    3）拍卖中 特定的 NFT 会作为奖励             ---> 国库 (NFT tokens) 
+
+3. 用户 / 投资方 
+    
+    1) 参与竞拍 ---> 获取 nft 
+    2) 质押 deposit nft --->  获取 dnft,  收益权 、 提案权 、 投票权 （×）
+    3) 可以 burn nft ---> 获取 相应份额 eth/xdai 
+    4) 发起提案  比如大于 （1） dnft 持有者  可以 提议草案  
+    5）赞助提案  为提案提供 担保金 比如需要 担保 （3） 个 nft ， 发起提案的投票
+
+        1. 链上投票，投票环节，1 nft 一票   （√）
+        2. Offchain ERC712 votes merkleTree  （√）
+
+    6）题案失败，扣除 担保 nft, 燃烧掉 
+    7) 执行提案 
+
+4. 提案 外部扩展插件 （===以后）
+
+    1) nft auction
+    1）nft --> opensea
+    2) nft ---> benddao 借贷
+    3）nft --> 碎片化
+
