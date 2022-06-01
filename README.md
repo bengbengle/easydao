@@ -1,7 +1,7 @@
 <div align="center">
-    <img src="https://demo.tributedao.com/favicon.ico" height="70" alt="Tribute DAO Framework Logo">
-    <h1>Tribute DAO Framework</h1>
-    <strong> 一套模块化、低成本和可扩展的合约，用于在以太坊上构建你的 DAO </strong>
+    <!-- <img src="https://demo.tributedao.com/favicon.ico" height="70" alt="Tribute DAO Framework Logo"> -->
+    <h1>EasyDao</h1>
+    <strong> 一站式 DAO 解决方案 </strong>
 </div>
 
 ## Contents
