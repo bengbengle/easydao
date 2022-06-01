@@ -57,7 +57,7 @@ EasyDao 架构中有五个主要组件，下面将进一步概述
 这些合约直接改变 DAO 状态，而不需要通过适配器或扩展（下面进一步描述）核心合约从不直接从外部世界提取信息
 因此，我们使用适配器和扩展，自然信息流总是从外部世界流向核心合约 
 
-EasyDao 框架包含三个核心合约，包括：
+EasyDao 框架包含三个核心合约，包括： 
 
 - [DaoRegistry](https://EasyDAO.com/docs/contracts/core/dao-registry): 跟踪 DAO 的状态变化， 只有具有正确 [Access Flags](#access-control-layer) 的适配器才能更改 DAO 状态
 - CloneFactory: 根据其地址创建 DAO 的克隆
