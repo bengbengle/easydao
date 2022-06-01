@@ -33,7 +33,7 @@ describe("Extension - ERC721", () => {
   afterEach(async () => {
     await revertChainSnapshot(this.snapshotId);
   });
-
+   
   
   // 当转账类型 1 时（外部转账），可以 transfer units  到 外部账户
   it("should be possible to transfer units from a member to an external account when the transfer type is equals 1 (external transfer)", async () => {

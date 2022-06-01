@@ -48,7 +48,6 @@ contract ERC721ExtensionEnumerable is AdapterGuard, IExtension, IERC721, IERC721
     // ERC 721 Mapping 
      // Mapping from token ID to approved address
 
-
     // Tracks ERC721Enumerable
 
     // Mapping from owner to list of owned token IDs

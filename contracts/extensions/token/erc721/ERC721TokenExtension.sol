@@ -9,22 +9,24 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-
 import "../../../core/DaoRegistry.sol";
 import "../../../helpers/DaoHelper.sol";
 import "../../IExtension.sol";
 import "../../bank/Bank.sol";
 import "../../../guards/AdapterGuard.sol";
 
-
-contract ERC721TokenExtension is ERC721, ERC721Enumerable, ERC721URIStorage, Pausable, Ownable, ERC721Burnable, 
-    IExtension 
+contract ERC721TokenExtension is ERC721,
+    ERC721Enumerable,
+    ERC721URIStorage,
+    Pausable,
+    Ownable,
+    ERC721Burnable,
+    IExtension
 {
     using Counters for Counters.Counter;
 
     Counters.Counter private _tokenIdCounter;
 
-    
     bool private _initialized;
 
     DaoRegistry private _dao;
@@ -40,7 +42,6 @@ contract ERC721TokenExtension is ERC721, ERC721Enumerable, ERC721URIStorage, Pau
         _initialized = true;
         _dao = dao;
     }
-
 
     function pause() public onlyOwner {
         _pause();

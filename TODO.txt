@@ -1,3 +1,87 @@
+    
+    
+    5.27 会议
+
+    1. 服务对象：
+        1) 已发行 nft 的 项目 （ 先考虑已有nft 的项目 ）
+        2) 未发行 nft 的项目 ， 创建dao 时 新铸造 NFT
+    
+    2. 已发行的 nft 创建dao 需要质押才能参与治理  
+        
+        问题： 
+        
+        1） 是否可以进行 “怒退”？ 
+        2） “怒退” 退的是哪部分资金 ？
+        3） “怒退” 销毁的是 质押资质吗 ？
+
+    3.  现在的 attribute 策略 只能用于链下提案， 无法在链上进行 验证， 1 token 1 票 的机制可以用于链上验证 
+        解决方案： 有 专门 的 预言机 可以上链（ @丁哥 ）
+    
+    4. dao 国库的资金来源是什么 ？
+    
+    5. dao 收益的来源 
+        
+        国库的资金 用于 nft 借贷 
+        问题： 
+            1） 借贷的 经济模型是什么样 ？  国库资金 是变化的 ， 引起 质押率变化， 是否和 借贷资金 有冲突？ 
+
+
+
+
+问题：
+
+1.  质押资金， 质押 nft , 当 提案失败时候，会 销毁 nft , 或者 延长质押期， 质押 eth/xdai 等
+
+2.  现在的 attribute 策略 只能用于链下提案， 无法在链上进行 验证， 1 token 1 票 的机制可以用于链上验证
+
+3. 在发布 提案的时候，需要缓存下 attribute 用到的数据
+    在投票阶段读取 缓存的数据
+
+4.  NFT 的创建 ，只需要提供个图片， Ticket  有投票权，提案权，收益权， 可以7天无条件退款， 可以怒退获的相应比例资金
+    创建是否需要根据不同属性，渲染不一样图片 ？ 链上控制还是连下控制 ？
+
+
+问题：
+
+1. 质押 nft ,  获取 投票权  
+1.  eth   
+2.  质押资金， 质押 nft , 当 提案失败时候，会 销毁 nft , 或者 延长质押期， 质押 eth/xdai 等
+
+3.  现在的 attribute 策略 只能用于链下提案， 无法在链上进行 验证
+    1 token 1 票 的机制可以用于链上验证
+
+
+4.  在发布 提案的时候，需要缓存下 attribute 用到的数据
+    在投票阶段读取  缓存的数据
+
+
+5. NFT 的创建， 只需要提供个图片， Ticket  有投票权， 提案权， 收益权
+    
+    可以 7天 无条件 退款， 可以怒退获的相应比例资金
+    创建是否需要根据不同属性，渲染不一样图片 ？ 链上控制还是连下控制 ？
+
+
+    两个接口
+            存储： chainId, nftAddress, blockNumber, account, tokenCount 
+            一个 存储数据 接口
+                入参  chainId, nftAddress,
+            一个 读取数据 接口
+                入参 chainId, nftAddress, account, blockNumber
+                返回 token count
+
+
+
+
+
+
+
+
+
+
+---------------------------------------------------------------------------- 
+
+dao launch  ---> config ---> ready --> process 
+
 1. 项目方 launch dao 
  
     1) deploy nft contract      nft 合约 √
@@ -9,13 +93,17 @@
     1）设置 nft 所有权到 DAO contract  
     2）设置 dao 默认的治理参数 
 
-2. 项目方 burn ownership && start dao && auction
+3. 项目方 burn ownership && start dao && auction
 
-    1）启动 auction 开始拍卖 NFT ，拍卖的 收益  ---> 国库 (eth/xdai) 
-    2) NFT 交易版税的收益                     ---> 国库 (eth/xdai) 
-    3）拍卖中 特定的 NFT 会作为奖励             ---> 国库 (NFT tokens) 
+    1） 启动 auction 开始拍卖 NFT ，拍卖的 收益  ---> 国库 (eth/xdai) 
+    2)  NFT 交易版税的收益                     ---> 国库 (eth/xdai) 
+    3） 拍卖中 特定的 NFT 会作为奖励             ---> 国库 (NFT tokens) 
 
-3. 用户 / 投资方 
+    1，Mint Nft
+    2. Ragequit
+    3. Voting 
+
+4. 用户 / 投资方 
     
     1) 参与竞拍 ---> 获取 nft 
     2) 质押 deposit nft --->  获取 dnft,  收益权 、 提案权 、 投票权 （×）
@@ -29,10 +117,39 @@
     6）题案失败，扣除 担保 nft, 燃烧掉 
     7) 执行提案 
 
-4. 提案 外部扩展插件 （===以后）
 
-    1) nft auction
-    1）nft --> opensea
-    2) nft ---> benddao 借贷
-    3）nft --> 碎片化
+5, 提案 外部扩展插件 （ == 以后 ）
 
+    1)  nft --> auction
+    2） nft --> opensea
+    3)  nft --> benddao 借贷
+    4） nft --> 碎片化
+
+
+
+发布三阶段：
+
+dao creae  ---> config ---> ready --> process  
+
+
+Create DAO
+    dao factory 合约 ---> creae dao 
+    nft factory 合约 ---> creae nft 
+    config dao set dao share token --> nft 
+
+    adapter 
+        1，Mint Nft
+        2. Ragequit
+        3. voting
+
+config dao:
+
+题案：
+    1. 发布题案
+    2. 赞助提案
+    3. 处理提案
+投票：
+    onchain vote
+    offchain vote
+
+    web 端 调用 adapter

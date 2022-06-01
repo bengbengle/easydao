@@ -115,25 +115,13 @@ const deployRinkebyDao = async ({
     offchainVoting: true,
     finalize: false,
     maxExternalTokens: 100,
-    couponCreatorAddress: getOptionalEnvVar(
-      "COUPON_CREATOR_ADDR",
-      getEnvVar("DAO_OWNER_ADDR")
-    ),
-    kycSignerAddress: getOptionalEnvVar(
-      "KYC_SIGNER_ADDR",
-      getEnvVar("DAO_OWNER_ADDR")
-    ),
+    couponCreatorAddress: getOptionalEnvVar("COUPON_CREATOR_ADDR", getEnvVar("DAO_OWNER_ADDR")),
+    kycSignerAddress: getOptionalEnvVar("KYC_SIGNER_ADDR", getEnvVar("DAO_OWNER_ADDR")),
     kycMaxMembers: getOptionalEnvVar("KYC_MAX_MEMBERS", toBN(1000)),
-    kycFundTargetAddress: getOptionalEnvVar(
-      "KYC_MULTISIG_FUND_ADDR",
-      ZERO_ADDRESS
-    ),
+    kycFundTargetAddress: getOptionalEnvVar("KYC_MULTISIG_FUND_ADDR", ZERO_ADDRESS),
     daoName: getEnvVar("DAO_NAME"),
     owner: getEnvVar("DAO_OWNER_ADDR"),
-    offchainAdmin: getOptionalEnvVar(
-      "OFFCHAIN_ADMIN_ADDR",
-      getEnvVar("DAO_OWNER_ADDR")
-    ),
+    offchainAdmin: getOptionalEnvVar("OFFCHAIN_ADMIN_ADDR", getEnvVar("DAO_OWNER_ADDR")),
     deployTestTokens: true,
     supplyTestToken1: 1000000,
     supplyTestToken2: 1000000,
@@ -143,10 +131,7 @@ const deployRinkebyDao = async ({
     gasPriceLimit: getOptionalEnvVar("GAS_PRICE_LIMIT", 0 /* disabled */),
     spendLimitPeriod: getOptionalEnvVar("SPEND_LIMIT_PERIOD", 0 /* disabled */),
     spendLimitEth: getOptionalEnvVar("SPEND_LIMIT_ETH", 0 /* disabled */),
-    gelato: getOptionalEnvVar(
-      "GELATO_ADDR",
-      "0xDe6ab16a4015c680daab58021815D09ddB57db8E"
-    ),
+    gelato: getOptionalEnvVar("GELATO_ADDR", "0xDe6ab16a4015c680daab58021815D09ddB57db8E"),
     weth: "0xc778417e063141139fce010982780140aa0cd5ab",
     maintainerTokenAddress: getOptionalEnvVar("MAINTAINER_TOKEN_ADDR", UNITS),
   });
@@ -180,10 +165,7 @@ const deployMainnetDao = async ({
     couponCreatorAddress: getEnvVar("COUPON_CREATOR_ADDR"),
     kycSignerAddress: getEnvVar("KYC_SIGNER_ADDR"),
     kycMaxMembers: getEnvVar("KYC_MAX_MEMBERS"),
-    kycFundTargetAddress: getOptionalEnvVar(
-      "KYC_MULTISIG_FUND_ADDR",
-      ZERO_ADDRESS
-    ),
+    kycFundTargetAddress: getOptionalEnvVar("KYC_MULTISIG_FUND_ADDR", ZERO_ADDRESS),
     daoName: getEnvVar("DAO_NAME"),
     owner: getEnvVar("DAO_OWNER_ADDR"),
     offchainAdmin: getEnvVar("OFFCHAIN_ADMIN_ADDR"),
@@ -227,16 +209,12 @@ const deployGanacheDao = async ({
     offchainVoting: true,
     finalize: false,
     maxExternalTokens: 100,
-    couponCreatorAddress: getOptionalEnvVar(
-      "COUPON_CREATOR_ADDR",
+    couponCreatorAddress: getOptionalEnvVar("COUPON_CREATOR_ADDR",
       daoOwnerAddress
     ),
     kycSignerAddress: getOptionalEnvVar("KYC_SIGNER_ADDR", daoOwnerAddress),
     kycMaxMembers: getOptionalEnvVar("KYC_MAX_MEMBERS", toBN(1000)),
-    kycFundTargetAddress: getOptionalEnvVar(
-      "KYC_MULTISIG_FUND_ADDR",
-      ZERO_ADDRESS
-    ),
+    kycFundTargetAddress: getOptionalEnvVar("KYC_MULTISIG_FUND_ADDR", ZERO_ADDRESS),
     daoName: getEnvVar("DAO_NAME"),
     owner: daoOwnerAddress,
     offchainAdmin: getOptionalEnvVar("OFFCHAIN_ADMIN_ADDR", daoOwnerAddress),
@@ -249,10 +227,7 @@ const deployGanacheDao = async ({
     gasPriceLimit: getOptionalEnvVar("GAS_PRICE_LIMIT", 0 /* disabled */),
     spendLimitPeriod: getOptionalEnvVar("SPEND_LIMIT_PERIOD", 0 /* disabled */),
     spendLimitEth: getOptionalEnvVar("SPEND_LIMIT_ETH", 0 /* disabled */),
-    gelato: getOptionalEnvVar(
-      "GELATO_ADDR",
-      "0xDe6ab16a4015c680daab58021815D09ddB57db8E"
-    ),
+    gelato: getOptionalEnvVar("GELATO_ADDR", "0xDe6ab16a4015c680daab58021815D09ddB57db8E"),
     weth: weth.address,
     maintainerTokenAddress: getOptionalEnvVar("MAINTAINER_TOKEN_ADDR", UNITS),
   });
@@ -292,10 +267,7 @@ const deployTestDao = async ({
     couponCreatorAddress: daoOwnerAddress,
     kycSignerAddress: daoOwnerAddress,
     kycMaxMembers: toBN("1000"),
-    kycFundTargetAddress: getOptionalEnvVar(
-      "KYC_MULTISIG_FUND_ADDR",
-      ZERO_ADDRESS
-    ),
+    kycFundTargetAddress: getOptionalEnvVar("KYC_MULTISIG_FUND_ADDR", ZERO_ADDRESS),
     offchainAdmin: daoOwnerAddress,
     daoName: getEnvVar("DAO_NAME"),
     owner: accounts[0],
@@ -303,10 +275,7 @@ const deployTestDao = async ({
     gasPriceLimit: getOptionalEnvVar("GAS_PRICE_LIMIT", 0 /* disabled */),
     spendLimitPeriod: getOptionalEnvVar("SPEND_LIMIT_PERIOD", 0 /* disabled */),
     spendLimitEth: getOptionalEnvVar("SPEND_LIMIT_ETH", 0 /* disabled */),
-    gelato: getOptionalEnvVar(
-      "GELATO_ADDR",
-      "0xDe6ab16a4015c680daab58021815D09ddB57db8E"
-    ),
+    gelato: getOptionalEnvVar("GELATO_ADDR", "0xDe6ab16a4015c680daab58021815D09ddB57db8E"),
     maintainerTokenAddress: getOptionalEnvVar("MAINTAINER_TOKEN_ADDR", UNITS),
   });
 };
@@ -339,10 +308,7 @@ const deployHarmonyDao = async ({
     couponCreatorAddress: getEnvVar("COUPON_CREATOR_ADDR"),
     kycSignerAddress: getEnvVar("KYC_SIGNER_ADDR"),
     kycMaxMembers: getOptionalEnvVar("KYC_MAX_MEMBERS", toBN(99)),
-    kycFundTargetAddress: getOptionalEnvVar(
-      "KYC_MULTISIG_FUND_ADDR",
-      ZERO_ADDRESS
-    ),
+    kycFundTargetAddress: getOptionalEnvVar("KYC_MULTISIG_FUND_ADDR",ZERO_ADDRESS),
     daoName: getEnvVar("DAO_NAME"),
     owner: getEnvVar("DAO_OWNER_ADDR"),
     offchainAdmin: getEnvVar("OFFCHAIN_ADMIN_ADDR"),
@@ -350,10 +316,7 @@ const deployHarmonyDao = async ({
     gasPriceLimit: getOptionalEnvVar("GAS_PRICE_LIMIT", 0 /* disabled */),
     spendLimitPeriod: getOptionalEnvVar("SPEND_LIMIT_PERIOD", 0 /* disabled */),
     spendLimitEth: getOptionalEnvVar("SPEND_LIMIT_ETH", 0 /* disabled */),
-    gelato: getOptionalEnvVar(
-      "GELATO_ADDR",
-      "0xDe6ab16a4015c680daab58021815D09ddB57db8E"
-    ),
+    gelato: getOptionalEnvVar("GELATO_ADDR", "0xDe6ab16a4015c680daab58021815D09ddB57db8E"),
     maintainerTokenAddress: getOptionalEnvVar("MAINTAINER_TOKEN_ADDR", UNITS),
   });
 };
@@ -384,25 +347,13 @@ const deployHarmonyTestDao = async ({
     offchainVoting: true,
     finalize: false,
     maxExternalTokens: 100,
-    couponCreatorAddress: getOptionalEnvVar(
-      "COUPON_CREATOR_ADDR",
-      getEnvVar("DAO_OWNER_ADDR")
-    ),
-    kycSignerAddress: getOptionalEnvVar(
-      "KYC_SIGNER_ADDR",
-      getEnvVar("DAO_OWNER_ADDR")
-    ),
+    couponCreatorAddress: getOptionalEnvVar("COUPON_CREATOR_ADDR", getEnvVar("DAO_OWNER_ADDR")),
+    kycSignerAddress: getOptionalEnvVar("KYC_SIGNER_ADDR",getEnvVar("DAO_OWNER_ADDR")),
     kycMaxMembers: getOptionalEnvVar("KYC_MAX_MEMBERS", toBN(1000)),
-    kycFundTargetAddress: getOptionalEnvVar(
-      "KYC_MULTISIG_FUND_ADDR",
-      ZERO_ADDRESS
-    ),
+    kycFundTargetAddress: getOptionalEnvVar("KYC_MULTISIG_FUND_ADDR", ZERO_ADDRESS),
     daoName: getEnvVar("DAO_NAME"),
     owner: getEnvVar("DAO_OWNER_ADDR"),
-    offchainAdmin: getOptionalEnvVar(
-      "OFFCHAIN_ADMIN_ADDR",
-      getEnvVar("DAO_OWNER_ADDR")
-    ),
+    offchainAdmin: getOptionalEnvVar("OFFCHAIN_ADMIN_ADDR", getEnvVar("DAO_OWNER_ADDR")),
     deployTestTokens: true,
     supplyTestToken1: 1000000,
     supplyTestToken2: 1000000,
@@ -446,10 +397,7 @@ const deployPolygonDao = async ({
     couponCreatorAddress: getEnvVar("COUPON_CREATOR_ADDR"),
     kycSignerAddress: getEnvVar("KYC_SIGNER_ADDR"),
     kycMaxMembers: getEnvVar("KYC_MAX_MEMBERS"),
-    kycFundTargetAddress: getOptionalEnvVar(
-      "KYC_MULTISIG_FUND_ADDR",
-      ZERO_ADDRESS
-    ),
+    kycFundTargetAddress: getOptionalEnvVar("KYC_MULTISIG_FUND_ADDR", ZERO_ADDRESS),
     daoName: getEnvVar("DAO_NAME"),
     owner: getEnvVar("DAO_OWNER_ADDR"),
     offchainAdmin: getEnvVar("OFFCHAIN_ADMIN_ADDR"),
@@ -490,25 +438,13 @@ const deployPolygonTestDao = async ({
     offchainVoting: true,
     finalize: false,
     maxExternalTokens: 100,
-    couponCreatorAddress: getOptionalEnvVar(
-      "COUPON_CREATOR_ADDR",
-      getEnvVar("DAO_OWNER_ADDR")
-    ),
-    kycSignerAddress: getOptionalEnvVar(
-      "KYC_SIGNER_ADDR",
-      getEnvVar("DAO_OWNER_ADDR")
-    ),
+    couponCreatorAddress: getOptionalEnvVar("COUPON_CREATOR_ADDR", getEnvVar("DAO_OWNER_ADDR")),
+    kycSignerAddress: getOptionalEnvVar("KYC_SIGNER_ADDR", getEnvVar("DAO_OWNER_ADDR")),
     kycMaxMembers: getOptionalEnvVar("KYC_MAX_MEMBERS", toBN(1000)),
-    kycFundTargetAddress: getOptionalEnvVar(
-      "KYC_MULTISIG_FUND_ADDR",
-      ZERO_ADDRESS
-    ),
+    kycFundTargetAddress: getOptionalEnvVar("KYC_MULTISIG_FUND_ADDR", ZERO_ADDRESS),
     daoName: getEnvVar("DAO_NAME"),
     owner: getEnvVar("DAO_OWNER_ADDR"),
-    offchainAdmin: getOptionalEnvVar(
-      "OFFCHAIN_ADMIN_ADDR",
-      getEnvVar("DAO_OWNER_ADDR")
-    ),
+    offchainAdmin: getOptionalEnvVar("OFFCHAIN_ADMIN_ADDR", getEnvVar("DAO_OWNER_ADDR")),
     deployTestTokens: true,
     supplyTestToken1: 1000000,
     supplyTestToken2: 1000000,

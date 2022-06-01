@@ -342,6 +342,26 @@ export const contracts: Array<ContractConfig> = [
       "erc20TokenDecimals",
     ],
     generatesExtensionId: extensionsIdsMap.ERC20_EXT,
+  },{
+    id: "erc721-extension-factory",
+    name: "ERC721TokenExtensionFactory",
+    alias: "ERC721ExtFactory",
+    path: "../../contracts/extensions/token/erc721/ERC721TokenExtensionFactory",
+    enabled: true,
+    version: "1.0.0",
+    type: ContractType.Factory,
+    acls: {
+      dao: [],
+      extensions: {},
+    },
+    deploymentArgs: [
+      "daoAddress",
+      "erc20TokenName",
+      "erc20TokenAddress",
+      "erc20TokenSymbol",
+      "erc20TokenDecimals",
+    ],
+    generatesExtensionId: extensionsIdsMap.ERC20_EXT,
   },
   {
     id: "vesting-extension-factory",
