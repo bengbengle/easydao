@@ -1,6 +1,5 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
-
-
 
 import "./interfaces/IFinancing.sol";
 import "../core/DaoRegistry.sol";
