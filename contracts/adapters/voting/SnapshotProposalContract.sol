@@ -1,13 +1,7 @@
 pragma solidity ^0.8.0;
 
 
-
 import "../../core/DaoRegistry.sol";
-// import "../../extensions/bank/Bank.sol";
-// import "../../guards/MemberGuard.sol";
-// import "../../guards/AdapterGuard.sol";
-// import "../interfaces/IVoting.sol";
-// import "./Voting.sol";
 
 contract SnapshotProposalContract {
     string public constant EIP712_DOMAIN = "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract,address actionId)";

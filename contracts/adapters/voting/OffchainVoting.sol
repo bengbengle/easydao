@@ -95,8 +95,7 @@ contract OffchainVotingContract is
 
     VotingContract private fallbackVoting;
 
-    mapping(address => mapping(bytes32 => ProposalChallenge))
-        private challengeProposals;
+    mapping(address => mapping(bytes32 => ProposalChallenge)) private challengeProposals;
     mapping(address => mapping(bytes32 => Voting)) private votes;
 
     constructor(

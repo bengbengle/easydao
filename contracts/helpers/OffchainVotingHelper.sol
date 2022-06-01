@@ -1,22 +1,15 @@
 pragma solidity ^0.8.0;
 
 
-
 import "../core/DaoRegistry.sol";
-
 import "../adapters/interfaces/IVoting.sol";
-
 import "../adapters/voting/Voting.sol";
-
 import "../adapters/voting/OffchainVotingHash.sol";
-
 import "../adapters/voting/SnapshotProposalContract.sol";
+import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
+import "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
 
 import "./GovernanceHelper.sol";
-
-import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
-
-import "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
 
 contract OffchainVotingHelperContract {
 

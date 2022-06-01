@@ -10,6 +10,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 library GovernanceHelper {
     string public constant ROLE_PREFIX = "governance.role.";
+
     // 默认治理代币
     bytes32 public constant DEFAULT_GOV_TOKEN_CFG = keccak256(abi.encodePacked(ROLE_PREFIX, "default"));
 
@@ -28,21 +29,21 @@ library GovernanceHelper {
     ) internal view returns (uint256) {
         (address adapterAddress, ) = dao.proposals(proposalId);
 
-        // 1st - 适配器 如果有任何治理令牌配置, 读取基于该令牌的投票权重 
+        // 1st - 如果 设置了 自定义的 治理令牌, 返回设置的 令牌 的投票权重 
         bytes32 adapterAddressToken = keccak256(abi.encodePacked(ROLE_PREFIX, adapterAddress));
         address governanceToken = dao.getAddressConfiguration(adapterAddressToken);
-
         if (DaoHelper.isNotZeroAddress(governanceToken)) {
             return getVotingWeight(dao, governanceToken, voterAddr, snapshot);
         }
 
-        // 2nd - 如果没有为适配器配置治理令牌， 检查是否存在默认治理令牌  如果是，则根据该令牌读取投票权重 
-        governanceToken = dao.getAddressConfiguration(DEFAULT_GOV_TOKEN_CFG);
+        // 2nd - 如果 有 默认的治理令牌， 返回 默认令牌 读取投票权重
+        bytes32 defaultGovernanceToken = keccak256(abi.encodePacked(ROLE_PREFIX, "default"));
+        governanceToken = dao.getAddressConfiguration(defaultGovernanceToken);
         if (DaoHelper.isNotZeroAddress(governanceToken)) {
             return getVotingWeight(dao, governanceToken, voterAddr, snapshot);
         }
 
-        // 3nd 如果前面的选项都不可用，则假设治理代币是 UNITS，然后读取基于该代币的投票权重 
+        // 3nd 如果前两项都没设置， 就假设 治理代币是 UNITS， 然后读取基于该代币的投票权重 
         BankExtension bank = BankExtension(
             dao.getExtensionAddress(DaoHelper.BANK)
         );
@@ -62,8 +63,7 @@ library GovernanceHelper {
             return bank.getPriorAmount(voterAddr, governanceToken, snapshot);
         }
 
-        // 外部令牌 必须实现 getPriorAmount 函数， 否则此调用将失败并恢复投票 
-        // 实际的 revert没有显示清楚的原因， 所以我们捕获了错误，并返回一个更好的错误消息  
+        // 外部令牌 必须实现 getPriorAmount ， 否则失败并恢复, revert 捕获错误，返回错误消息  
         try ERC20Extension(governanceToken).getPriorAmount(voterAddr, snapshot)
         returns (uint256 votingWeight) {
             return votingWeight;

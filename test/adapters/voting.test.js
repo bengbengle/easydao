@@ -297,10 +297,7 @@ describe("Adapter - Voting", () => {
     const voting = adapters.voting;
     const configuration = adapters.configuration;
     const configKey = sha3(
-      web3.utils.encodePacked(
-        "governance.role.",
-        utils.getAddress(configuration.address)
-      )
+      web3.utils.encodePacked("governance.role.", utils.getAddress(configuration.address))
     );
 
     // 确保已创建 治理令牌的配置 

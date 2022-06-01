@@ -1,7 +1,5 @@
 pragma solidity ^0.8.0;
 
-
-
 import "../../core/DaoRegistry.sol";
 import "../../extensions/bank/Bank.sol";
 import "../../guards/MemberGuard.sol";
@@ -30,7 +28,12 @@ contract VotingContract is IVoting, MemberGuard, AdapterGuard, Reimbursable {
     /**
      * @notice 返回适配器名称 ， 有助于识别 在 DAO 中 配置的投票适配器
      */
-    function getAdapterName() external pure override returns (string memory) {
+    function getAdapterName() 
+        external 
+        pure 
+        override 
+        returns (string memory) 
+    {
         return ADAPTER_NAME;
     }
 
@@ -64,7 +67,7 @@ contract VotingContract is IVoting, MemberGuard, AdapterGuard, Reimbursable {
     }
 
     /**
-     * @notice 返回发件人地址， 这个函数是 IVoting 需要的，通常链下投票有不同的规则来识别发送者，但这里不是这样，所以我们只返回 fallback 参数：发送者  
+     * @notice 发件人地址， 这个函数是 IVoting 需要的，通常链下投票有不同的规则来识别发送者，但这里不是这样，所以我们只返回 fallback 参数：发送者  
      * @param sender 在没有找到其他人的情况下应该返回的后备发件人地址 
      */
     function getSenderAddress(
@@ -140,10 +143,10 @@ contract VotingContract is IVoting, MemberGuard, AdapterGuard, Reimbursable {
      * @return state 状态
      * The possible results are:
      * 0: has not started
-     * 1: tie
-     * 2: pass
-     * 3: not pass
-     * 4: in progress
+     * 1: tie 平局
+     * 2: pass 通过
+     * 3: not pass 未通过
+     * 4: in progress 处理中
      */
     function voteResult(DaoRegistry dao, bytes32 proposalId)
         external
@@ -152,26 +155,24 @@ contract VotingContract is IVoting, MemberGuard, AdapterGuard, Reimbursable {
         returns (VotingState state)
     {
         Voting storage vote = votes[address(dao)][proposalId];
+        
+        // 未开始
         if (vote.startingTime == 0) {
             return VotingState.NOT_STARTED;
         }
-
+        // 投票中
         if (
-            block.timestamp <
-            vote.startingTime + dao.getConfiguration(VotingPeriod)
+            block.timestamp < vote.startingTime + dao.getConfiguration(VotingPeriod)
         ) {
             return VotingState.IN_PROGRESS;
         }
-
+        // 宽限期
         if (
-            block.timestamp <
-            vote.startingTime +
-                dao.getConfiguration(VotingPeriod) +
-                dao.getConfiguration(GracePeriod)
+            block.timestamp < vote.startingTime + dao.getConfiguration(VotingPeriod) + dao.getConfiguration(GracePeriod)
         ) {
             return VotingState.GRACE_PERIOD;
         }
-
+        // 投票结束，已出结果， 1：平局，2：通过，3：未通过
         if (vote.nbYes > vote.nbNo) {
             return VotingState.PASS;
         } else if (vote.nbYes < vote.nbNo) {
